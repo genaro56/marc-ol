@@ -26,7 +26,9 @@ class MyLexer(Lexer):
         INT, FLOAT,
         PRINT, PROGRAM,
         VAR, EQUALS, FROM, DO, THEN, MODULE,
-        FOR, WHILE, READ, MAIN, RETURN
+        FOR, WHILE, 
+        READ, WRITE,
+        MAIN, RETURN
     }
 
     ignore = ' \t'
@@ -59,6 +61,7 @@ class MyLexer(Lexer):
 
     ID['main'] = MAIN
     ID['read'] = READ
+    ID['write'] = WRITE
     ID['return'] = RETURN
 
     ID['while'] = WHILE
