@@ -3,28 +3,34 @@ from sly import Lexer
 
 class MyLexer(Lexer):
     literals = {
-        # separadores
+        # bloques
         '(', ')',
         '{', '}',
+        # separadores
         ',', ':',
         # delimitantes
         ';',
         # asignacion
         '=',
-        # arithmetic
+        # expresiones aritmeticas
         '*', '/', '-', '+',
-        '&', '|',
         # condicionales
+        '&', '|',
         '>', '<'
     }
 
     tokens = {
-        ID, CTE_STRING, CTE_FLOAT, CTE_INT,
-        IF, ELSE, INT, FLOAT, PRINT, PROGRAM,
-        VAR, EQUALS}
+        ID,
+        CTE_STRING, CTE_FLOAT, CTE_INT,
+        IF, ELSE,
+        INT, FLOAT,
+        PRINT, PROGRAM,
+        VAR, EQUALS, FROM, DO, THEN, MODULE,
+        FOR, WHILE, READ, MAIN, RETURN
+    }
 
     ignore = ' \t'
-    EQUALS = r'<>'
+    EQUALS = r'=='
 
     @_(r'\d+\.\d+')
     def CTE_FLOAT(self, t):
@@ -61,7 +67,7 @@ class MyLexer(Lexer):
     ID['from'] = FROM
     ID['do'] = DO
     ID['then'] = THEN
-    ID['modulo'] = MODULE
+    ID['module'] = MODULE
 
     # Line number tracking
     @_(r'\n+')
