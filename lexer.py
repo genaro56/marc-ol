@@ -2,10 +2,21 @@ from sly import Lexer
 
 
 class MyLexer(Lexer):
-    literals = {'(', ')',
-                '{', '}',
-                ',', ':', ';', '=',
-                '*', '/', '-', '+'}
+    literals = {
+        # separadores
+        '(', ')',
+        '{', '}',
+        ',', ':',
+        # delimitantes
+        ';',
+        # asignacion
+        '=',
+        # arithmetic
+        '*', '/', '-', '+',
+        '&', '|',
+        # condicionales
+        '>', '<'
+    }
 
     tokens = {
         ID, CTE_STRING, CTE_FLOAT, CTE_INT,
@@ -32,11 +43,25 @@ class MyLexer(Lexer):
     ID = r'[a-zA-Z_][a-zA-Z0-9_]*'
     ID['if'] = IF
     ID['else'] = ELSE
+
     ID['int'] = INT
     ID['float'] = FLOAT
+
     ID['program'] = PROGRAM
     ID['print'] = PRINT
     ID['var'] = VAR
+
+    ID['main'] = MAIN
+    ID['read'] = READ
+    ID['return'] = RETURN
+
+    ID['while'] = WHILE
+    ID['for'] = FOR
+
+    ID['from'] = FROM
+    ID['do'] = DO
+    ID['then'] = THEN
+    ID['modulo'] = MODULE
 
     # Line number tracking
     @_(r'\n+')
