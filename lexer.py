@@ -6,6 +6,8 @@ class MyLexer(Lexer):
         # bloques
         '(', ')',
         '{', '}',
+        # arreglos
+        '[', ']',
         # separadores
         ',', ':',
         # delimitantes
@@ -23,7 +25,7 @@ class MyLexer(Lexer):
         ID,
         CTE_STRING, CTE_FLOAT, CTE_INT,
         IF, ELSE,
-        INT, FLOAT,
+        INT, FLOAT, CHAR,
         PRINT, PROGRAM,
         VAR, EQUALS, FROM, DO, THEN, MODULE,
         FOR, WHILE, 
@@ -54,7 +56,8 @@ class MyLexer(Lexer):
 
     ID['int'] = INT
     ID['float'] = FLOAT
-
+    ID['char'] = CHAR
+    
     ID['program'] = PROGRAM
     ID['print'] = PRINT
     ID['var'] = VAR
