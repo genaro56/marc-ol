@@ -26,7 +26,7 @@ class MyLexer(Lexer):
         CTE_STRING, CTE_FLOAT, CTE_INT,
         IF, ELSE,
         INT, FLOAT, CHAR,
-        PRINT, PROGRAM,
+        PROGRAM,
         VAR, EQUALS, FROM, DO, THEN, MODULE,
         FOR, WHILE, 
         READ, WRITE,
@@ -59,7 +59,6 @@ class MyLexer(Lexer):
     ID['char'] = CHAR
     
     ID['program'] = PROGRAM
-    ID['print'] = PRINT
     ID['var'] = VAR
 
     ID['main'] = MAIN
