@@ -147,7 +147,7 @@ class MyParser(Parser):
     @_('WHILE "(" expresion ")" DO bloque')
     def _while(self, p): pass
     
-    @_('FOR id_dim "=" expresion TOD expresion DO bloque')
+    @_('FOR id_dim "=" expresion TO expresion DO bloque')
     def _for(self, p): pass
     
     @_('MAIN "(" ")" bloque')
