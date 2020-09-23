@@ -1,2 +1,5 @@
-program bueno : {boton = true if (boton){ print {texto}; }; }
-\n
+program bueno ; 
+
+var hola , adios [ 10 ] ;
+
+main() { }

@@ -25,10 +25,10 @@ class MyLexer(Lexer):
         ID,
         CTE_STRING, CTE_FLOAT, CTE_INT,
         IF, ELSE,
-        INT, FLOAT, CHAR,
+        INT, FLOAT, CHAR, VOID,
         PROGRAM,
-        VAR, EQUALS, FROM, DO, THEN, MODULE,
-        FOR, WHILE, 
+        VAR, EQUALS, DO, THEN, MODULE,
+        FOR, WHILE, TO, 
         READ, WRITE,
         MAIN, RETURN
     }
@@ -57,6 +57,7 @@ class MyLexer(Lexer):
     ID['int'] = INT
     ID['float'] = FLOAT
     ID['char'] = CHAR
+    ID['void'] = VOID
     
     ID['program'] = PROGRAM
     ID['var'] = VAR
@@ -68,8 +69,8 @@ class MyLexer(Lexer):
 
     ID['while'] = WHILE
     ID['for'] = FOR
+    ID['to'] = TO
 
-    ID['from'] = FROM
     ID['do'] = DO
     ID['then'] = THEN
     ID['module'] = MODULE
