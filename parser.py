@@ -75,7 +75,7 @@ class MyParser(Parser):
         'empty'
     )
     def estatuto(self, p): pass
-    
+
     # ASIGNACION
     @_('id_dim "=" expresion ";"')
     def asignacion(self, p): pass
@@ -103,12 +103,15 @@ class MyParser(Parser):
        )
     def expresion(self, p): pass
 
-    @_('exp',
-       'exp "+" termino',
-       'exp "-" termino',
-       'empty'
-       )
+    @_(
+        'exp1 "+" exp',
+        'exp1 "-" exp',
+        'exp1',
+    )
     def exp(self, p): pass
+    
+    @_('termino', 'call_fun')
+    def exp1(self, p): pass
 
     @_('factor', 'termino "*" factor', 'termino "/" factor')
     def termino(self, p): pass
