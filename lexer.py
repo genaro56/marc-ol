@@ -18,7 +18,8 @@ class MyLexer(Lexer):
         '*', '/', '-', '+',
         # condicionales
         '&', '|',
-        '>', '<'
+        '>', '<',
+        '!'
     }
 
     tokens = {
