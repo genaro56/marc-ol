@@ -104,14 +104,11 @@ class MyParser(Parser):
     def expresion(self, p): pass
 
     @_(
-        'exp1 "+" exp',
-        'exp1 "-" exp',
-        'exp1',
+        'termino "+" exp',
+        'termino "-" exp',
+        'termino',
     )
     def exp(self, p): pass
-    
-    @_('termino', 'call_fun')
-    def exp1(self, p): pass
 
     @_('factor', 'termino "*" factor', 'termino "/" factor')
     def termino(self, p): pass
