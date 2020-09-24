@@ -148,7 +148,7 @@ class MyParser(Parser):
         'empty')
     def condicion(self, p): pass
 
-    @_('_while', '_for', 'empty')
+    @_('_while', '_for')
     def repeticion(self, p): pass
 
     @_('WHILE "(" expresion ")" DO bloque')
