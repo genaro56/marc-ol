@@ -94,14 +94,23 @@ class MyParser(Parser):
     def out(self, p): pass
 
     # EXPRESION
+    @_('logic_exp',
+       'logic_exp "|" expresion',
+       )
+    def expresion(self, p): pass
+
+    @_('relation_exp',
+       'relation_exp "&" logic_exp',
+       'relation_exp "!" logic_exp'
+       )
+    def logic_exp(self, p): pass
+
     @_('exp',
-       'exp "&" exp',
-       'exp "|" exp',
        'exp "<" exp',
        'exp ">" exp',
        'exp EQUALS exp',
        )
-    def expresion(self, p): pass
+    def relation_exp(self, p): pass
 
     @_(
         'termino "+" exp',
