@@ -1,3 +1,5 @@
+import os
+from utils.Semantica import CuboSemantico
 from sly import Parser
 from lexer import MyLexer
 
@@ -177,6 +179,11 @@ class MyParser(Parser):
 
 
 if __name__ == '__main__':
+    
+    filePath = os.path.abspath('./utils/combinaciones.json')
+    semantica = CuboSemantico(filePath)
+    cubo = semantica.getCuboSemantico()
+    
     parser = MyParser()
     lexer = MyLexer()
 

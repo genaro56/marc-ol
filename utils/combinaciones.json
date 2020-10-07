@@ -1,0 +1,866 @@
+[
+ {
+   "operand1": "int",
+   "operand2": "int",
+   "operator": "+",
+   "result": "int"
+ },
+ {
+   "operand1": "int",
+   "operand2": "int",
+   "operator": "-",
+   "result": "int"
+ },
+ {
+   "operand1": "int",
+   "operand2": "int",
+   "operator": "*",
+   "result": "int"
+ },
+ {
+   "operand1": "int",
+   "operand2": "int",
+   "operator": "/",
+   "result": "int"
+ },
+ {
+   "operand1": "int",
+   "operand2": "int",
+   "operator": "%",
+   "result": "int"
+ },
+ {
+   "operand1": "int",
+   "operand2": "int",
+   "operator": "**",
+   "result": "int"
+ },
+ {
+   "operand1": "int",
+   "operand2": "int",
+   "operator": "//",
+   "result": "int"
+ },
+ {
+   "operand1": "int",
+   "operand2": "int",
+   "operator": "==",
+   "result": "boolean"
+ },
+ {
+   "operand1": "int",
+   "operand2": "int",
+   "operator": "!=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "int",
+   "operand2": "int",
+   "operator": ">",
+   "result": "boolean"
+ },
+ {
+   "operand1": "int",
+   "operand2": "int",
+   "operator": "<",
+   "result": "boolean"
+ },
+ {
+   "operand1": "int",
+   "operand2": "int",
+   "operator": ">=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "int",
+   "operand2": "int",
+   "operator": "<=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "int",
+   "operand2": "int",
+   "operator": "&",
+   "result": "error"
+ },
+ {
+   "operand1": "int",
+   "operand2": "int",
+   "operator": "|",
+   "result": "error"
+ },
+ {
+   "operand1": "int",
+   "operand2": "int",
+   "operator": "!",
+   "result": "error"
+ },
+ {
+   "operand1": "int",
+   "operand2": "char",
+   "operator": "+",
+   "result": "int"
+ },
+ {
+   "operand1": "int",
+   "operand2": "char",
+   "operator": "-",
+   "result": "int"
+ },
+ {
+   "operand1": "int",
+   "operand2": "char",
+   "operator": "*",
+   "result": "int"
+ },
+ {
+   "operand1": "int",
+   "operand2": "char",
+   "operator": "/",
+   "result": "int"
+ },
+ {
+   "operand1": "int",
+   "operand2": "char",
+   "operator": "%",
+   "result": "int"
+ },
+ {
+   "operand1": "int",
+   "operand2": "char",
+   "operator": "**",
+   "result": "int"
+ },
+ {
+   "operand1": "int",
+   "operand2": "char",
+   "operator": "//",
+   "result": "int"
+ },
+ {
+   "operand1": "int",
+   "operand2": "char",
+   "operator": "==",
+   "result": "boolean"
+ },
+ {
+   "operand1": "int",
+   "operand2": "char",
+   "operator": "!=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "int",
+   "operand2": "char",
+   "operator": ">",
+   "result": "boolean"
+ },
+ {
+   "operand1": "int",
+   "operand2": "char",
+   "operator": "<",
+   "result": "boolean"
+ },
+ {
+   "operand1": "int",
+   "operand2": "char",
+   "operator": ">=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "int",
+   "operand2": "char",
+   "operator": "<=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "int",
+   "operand2": "char",
+   "operator": "&",
+   "result": "error"
+ },
+ {
+   "operand1": "int",
+   "operand2": "char",
+   "operator": "|",
+   "result": "error"
+ },
+ {
+   "operand1": "int",
+   "operand2": "char",
+   "operator": "!",
+   "result": "error"
+ },
+ {
+   "operand1": "int",
+   "operand2": "float",
+   "operator": "+",
+   "result": "float"
+ },
+ {
+   "operand1": "int",
+   "operand2": "float",
+   "operator": "-",
+   "result": "float"
+ },
+ {
+   "operand1": "int",
+   "operand2": "float",
+   "operator": "*",
+   "result": "float"
+ },
+ {
+   "operand1": "int",
+   "operand2": "float",
+   "operator": "/",
+   "result": "float"
+ },
+ {
+   "operand1": "int",
+   "operand2": "float",
+   "operator": "%",
+   "result": "float"
+ },
+ {
+   "operand1": "int",
+   "operand2": "float",
+   "operator": "**",
+   "result": "float"
+ },
+ {
+   "operand1": "int",
+   "operand2": "float",
+   "operator": "//",
+   "result": "float"
+ },
+ {
+   "operand1": "int",
+   "operand2": "float",
+   "operator": "==",
+   "result": "boolean"
+ },
+ {
+   "operand1": "int",
+   "operand2": "float",
+   "operator": "!=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "int",
+   "operand2": "float",
+   "operator": ">",
+   "result": "boolean"
+ },
+ {
+   "operand1": "int",
+   "operand2": "float",
+   "operator": "<",
+   "result": "boolean"
+ },
+ {
+   "operand1": "int",
+   "operand2": "float",
+   "operator": ">=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "int",
+   "operand2": "float",
+   "operator": "<=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "int",
+   "operand2": "float",
+   "operator": "&",
+   "result": "error"
+ },
+ {
+   "operand1": "int",
+   "operand2": "float",
+   "operator": "|",
+   "result": "error"
+ },
+ {
+   "operand1": "int",
+   "operand2": "float",
+   "operator": "!",
+   "result": "error"
+ },
+ {
+   "operand1": "char",
+   "operand2": "int",
+   "operator": "+",
+   "result": "int"
+ },
+ {
+   "operand1": "char",
+   "operand2": "int",
+   "operator": "-",
+   "result": "int"
+ },
+ {
+   "operand1": "char",
+   "operand2": "int",
+   "operator": "*",
+   "result": "int"
+ },
+ {
+   "operand1": "char",
+   "operand2": "int",
+   "operator": "/",
+   "result": "int"
+ },
+ {
+   "operand1": "char",
+   "operand2": "int",
+   "operator": "%",
+   "result": "int"
+ },
+ {
+   "operand1": "char",
+   "operand2": "int",
+   "operator": "**",
+   "result": "int"
+ },
+ {
+   "operand1": "char",
+   "operand2": "int",
+   "operator": "//",
+   "result": "int"
+ },
+ {
+   "operand1": "char",
+   "operand2": "int",
+   "operator": "==",
+   "result": "boolean"
+ },
+ {
+   "operand1": "char",
+   "operand2": "int",
+   "operator": "!=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "char",
+   "operand2": "int",
+   "operator": ">",
+   "result": "boolean"
+ },
+ {
+   "operand1": "char",
+   "operand2": "int",
+   "operator": "<",
+   "result": "boolean"
+ },
+ {
+   "operand1": "char",
+   "operand2": "int",
+   "operator": ">=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "char",
+   "operand2": "int",
+   "operator": "<=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "char",
+   "operand2": "int",
+   "operator": "&",
+   "result": "error"
+ },
+ {
+   "operand1": "char",
+   "operand2": "int",
+   "operator": "|",
+   "result": "error"
+ },
+ {
+   "operand1": "char",
+   "operand2": "int",
+   "operator": "!",
+   "result": "error"
+ },
+ {
+   "operand1": "char",
+   "operand2": "char",
+   "operator": "+",
+   "result": "int"
+ },
+ {
+   "operand1": "char",
+   "operand2": "char",
+   "operator": "-",
+   "result": "int"
+ },
+ {
+   "operand1": "char",
+   "operand2": "char",
+   "operator": "*",
+   "result": "int"
+ },
+ {
+   "operand1": "char",
+   "operand2": "char",
+   "operator": "/",
+   "result": "int"
+ },
+ {
+   "operand1": "char",
+   "operand2": "char",
+   "operator": "%",
+   "result": "int"
+ },
+ {
+   "operand1": "char",
+   "operand2": "char",
+   "operator": "**",
+   "result": "error"
+ },
+ {
+   "operand1": "char",
+   "operand2": "char",
+   "operator": "//",
+   "result": "error"
+ },
+ {
+   "operand1": "char",
+   "operand2": "char",
+   "operator": "==",
+   "result": "boolean"
+ },
+ {
+   "operand1": "char",
+   "operand2": "char",
+   "operator": "!=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "char",
+   "operand2": "char",
+   "operator": ">",
+   "result": "boolean"
+ },
+ {
+   "operand1": "char",
+   "operand2": "char",
+   "operator": "<",
+   "result": "boolean"
+ },
+ {
+   "operand1": "char",
+   "operand2": "char",
+   "operator": ">=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "char",
+   "operand2": "char",
+   "operator": "<=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "char",
+   "operand2": "char",
+   "operator": "&",
+   "result": "error"
+ },
+ {
+   "operand1": "char",
+   "operand2": "char",
+   "operator": "|",
+   "result": "error"
+ },
+ {
+   "operand1": "char",
+   "operand2": "char",
+   "operator": "!",
+   "result": "error"
+ },
+ {
+   "operand1": "char",
+   "operand2": "float",
+   "operator": "+",
+   "result": "float"
+ },
+ {
+   "operand1": "char",
+   "operand2": "float",
+   "operator": "-",
+   "result": "float"
+ },
+ {
+   "operand1": "char",
+   "operand2": "float",
+   "operator": "*",
+   "result": "float"
+ },
+ {
+   "operand1": "char",
+   "operand2": "float",
+   "operator": "/",
+   "result": "float"
+ },
+ {
+   "operand1": "char",
+   "operand2": "float",
+   "operator": "%",
+   "result": "float"
+ },
+ {
+   "operand1": "char",
+   "operand2": "float",
+   "operator": "**",
+   "result": "float"
+ },
+ {
+   "operand1": "char",
+   "operand2": "float",
+   "operator": "//",
+   "result": "float"
+ },
+ {
+   "operand1": "char",
+   "operand2": "float",
+   "operator": "==",
+   "result": "boolean"
+ },
+ {
+   "operand1": "char",
+   "operand2": "float",
+   "operator": "!=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "char",
+   "operand2": "float",
+   "operator": ">",
+   "result": "boolean"
+ },
+ {
+   "operand1": "char",
+   "operand2": "float",
+   "operator": "<",
+   "result": "boolean"
+ },
+ {
+   "operand1": "char",
+   "operand2": "float",
+   "operator": ">=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "char",
+   "operand2": "float",
+   "operator": "<=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "char",
+   "operand2": "float",
+   "operator": "&",
+   "result": "error"
+ },
+ {
+   "operand1": "char",
+   "operand2": "float",
+   "operator": "|",
+   "result": "error"
+ },
+ {
+   "operand1": "char",
+   "operand2": "float",
+   "operator": "!",
+   "result": "error"
+ },
+ {
+   "operand1": "float",
+   "operand2": "int",
+   "operator": "+",
+   "result": "float"
+ },
+ {
+   "operand1": "float",
+   "operand2": "int",
+   "operator": "-",
+   "result": "float"
+ },
+ {
+   "operand1": "float",
+   "operand2": "int",
+   "operator": "*",
+   "result": "float"
+ },
+ {
+   "operand1": "float",
+   "operand2": "int",
+   "operator": "/",
+   "result": "float"
+ },
+ {
+   "operand1": "float",
+   "operand2": "int",
+   "operator": "%",
+   "result": "float"
+ },
+ {
+   "operand1": "float",
+   "operand2": "int",
+   "operator": "**",
+   "result": "float"
+ },
+ {
+   "operand1": "float",
+   "operand2": "int",
+   "operator": "//",
+   "result": "float"
+ },
+ {
+   "operand1": "float",
+   "operand2": "int",
+   "operator": "==",
+   "result": "boolean"
+ },
+ {
+   "operand1": "float",
+   "operand2": "int",
+   "operator": "!=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "float",
+   "operand2": "int",
+   "operator": ">",
+   "result": "boolean"
+ },
+ {
+   "operand1": "float",
+   "operand2": "int",
+   "operator": "<",
+   "result": "boolean"
+ },
+ {
+   "operand1": "float",
+   "operand2": "int",
+   "operator": ">=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "float",
+   "operand2": "int",
+   "operator": "<=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "float",
+   "operand2": "int",
+   "operator": "&",
+   "result": "error"
+ },
+ {
+   "operand1": "float",
+   "operand2": "int",
+   "operator": "|",
+   "result": "error"
+ },
+ {
+   "operand1": "float",
+   "operand2": "int",
+   "operator": "!",
+   "result": "error"
+ },
+ {
+   "operand1": "float",
+   "operand2": "char",
+   "operator": "+",
+   "result": "float"
+ },
+ {
+   "operand1": "float",
+   "operand2": "char",
+   "operator": "-",
+   "result": "float"
+ },
+ {
+   "operand1": "float",
+   "operand2": "char",
+   "operator": "*",
+   "result": "float"
+ },
+ {
+   "operand1": "float",
+   "operand2": "char",
+   "operator": "/",
+   "result": "float"
+ },
+ {
+   "operand1": "float",
+   "operand2": "char",
+   "operator": "%",
+   "result": "float"
+ },
+ {
+   "operand1": "float",
+   "operand2": "char",
+   "operator": "**",
+   "result": "float"
+ },
+ {
+   "operand1": "float",
+   "operand2": "char",
+   "operator": "//",
+   "result": "float"
+ },
+ {
+   "operand1": "float",
+   "operand2": "char",
+   "operator": "==",
+   "result": "boolean"
+ },
+ {
+   "operand1": "float",
+   "operand2": "char",
+   "operator": "!=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "float",
+   "operand2": "char",
+   "operator": ">",
+   "result": "boolean"
+ },
+ {
+   "operand1": "float",
+   "operand2": "char",
+   "operator": "<",
+   "result": "boolean"
+ },
+ {
+   "operand1": "float",
+   "operand2": "char",
+   "operator": ">=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "float",
+   "operand2": "char",
+   "operator": "<=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "float",
+   "operand2": "char",
+   "operator": "&",
+   "result": "error"
+ },
+ {
+   "operand1": "float",
+   "operand2": "char",
+   "operator": "|",
+   "result": "error"
+ },
+ {
+   "operand1": "float",
+   "operand2": "char",
+   "operator": "!",
+   "result": "error"
+ },
+ {
+   "operand1": "float",
+   "operand2": "float",
+   "operator": "+",
+   "result": "float"
+ },
+ {
+   "operand1": "float",
+   "operand2": "float",
+   "operator": "-",
+   "result": "float"
+ },
+ {
+   "operand1": "float",
+   "operand2": "float",
+   "operator": "*",
+   "result": "float"
+ },
+ {
+   "operand1": "float",
+   "operand2": "float",
+   "operator": "/",
+   "result": "float"
+ },
+ {
+   "operand1": "float",
+   "operand2": "float",
+   "operator": "%",
+   "result": "float"
+ },
+ {
+   "operand1": "float",
+   "operand2": "float",
+   "operator": "**",
+   "result": "float"
+ },
+ {
+   "operand1": "float",
+   "operand2": "float",
+   "operator": "//",
+   "result": "float"
+ },
+ {
+   "operand1": "float",
+   "operand2": "float",
+   "operator": "==",
+   "result": "boolean"
+ },
+ {
+   "operand1": "float",
+   "operand2": "float",
+   "operator": "!=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "float",
+   "operand2": "float",
+   "operator": ">",
+   "result": "boolean"
+ },
+ {
+   "operand1": "float",
+   "operand2": "float",
+   "operator": "<",
+   "result": "boolean"
+ },
+ {
+   "operand1": "float",
+   "operand2": "float",
+   "operator": ">=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "float",
+   "operand2": "float",
+   "operator": "<=",
+   "result": "boolean"
+ },
+ {
+   "operand1": "float",
+   "operand2": "float",
+   "operator": "&",
+   "result": "error"
+ },
+ {
+   "operand1": "float",
+   "operand2": "float",
+   "operator": "|",
+   "result": "error"
+ },
+ {
+   "operand1": "float",
+   "operand2": "float",
+   "operator": "!",
+   "result": "error"
+ }
+]
