@@ -53,8 +53,11 @@ class MyParser(Parser):
     def tipo(self, p): pass
 
     # FUNCTION
-    @_('tipo_fun MODULE ID "(" var_list ")" ";" vars bloque')
+    @_('tipo_fun MODULE ID "(" var_list ")" ";" func_body')
     def func(self, p): pass
+    
+    @_('vars bloque', 'bloque')
+    def func_body(self, p): pass
 
     @_('tipo', 'VOID')
     def tipo_fun(self, p): pass
