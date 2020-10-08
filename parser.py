@@ -21,16 +21,18 @@ class MyParser(Parser):
     def empty(self, p): pass
 
     # PROGRAM
-    @_('PROGRAM ID ";" program1 program2 main')
+    @_('PROGRAM ID ";" begin')
     def program(self, p):
         return 'apropiado'
 
-    @_('vars', 'empty')
-    def program1(self, p):
-        pass
+    @_('vars functions main', 
+       'vars main', 
+       'functions main', 
+       'main')
+    def begin(self, p): pass
 
-    @_('functions program2', 'functions')
-    def program2(self, p):
+    @_('func functions', 'func')
+    def functions(self, p):
         pass
 
     # VARS
@@ -50,15 +52,15 @@ class MyParser(Parser):
     @_('INT', 'FLOAT', 'CHAR')
     def tipo(self, p): pass
 
-    # FUNCTIONS
+    # FUNCTION
     @_('tipo_fun MODULE ID "(" var_list ")" ";" vars bloque')
-    def functions(self, p): pass
+    def func(self, p): pass
 
     @_('tipo', 'VOID')
     def tipo_fun(self, p): pass
 
     # BLOQUE
-    @_('"{" bloque1 "}"', '"{" "}"')
+    @_('"{" bloque1 "}"', '"{" empty "}"')
     def bloque(self, p):
         pass
 
