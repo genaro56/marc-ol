@@ -29,7 +29,7 @@ class MyParser(Parser):
     def program1(self, p):
         pass
 
-    @_('functions program2', 'functions', 'empty')
+    @_('functions program2', 'functions')
     def program2(self, p):
         pass
 
@@ -73,8 +73,7 @@ class MyParser(Parser):
         'lectura',
         'escritura',
         'condicion',
-        'repeticion',
-        'empty'
+        'repeticion'
     )
     def estatuto(self, p): pass
 
@@ -151,9 +150,8 @@ class MyParser(Parser):
 
     @_(
         'IF "(" expresion ")" THEN bloque',
-        # revisar esta gramatica
-        'IF "(" expresion ")" THEN ELSE bloque',
-        'empty')
+        'IF "(" expresion ")" THEN ELSE bloque'
+    )
     def condicion(self, p): pass
 
     @_('_while', '_for')
