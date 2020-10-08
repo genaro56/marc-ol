@@ -38,11 +38,14 @@ class MyParser(Parser):
     # VARS
     @_('VAR vars1')
     def vars(self, p): pass
-
-    @_('var_list ";" vars1', 'var_list ";"')
+    
+    @_('var_def ";" vars1', 'var_def ";"')
     def vars1(self, p): pass
-
-    @_('tipo var "," var_list', 'tipo var')
+    
+    @_('tipo var_list')
+    def var_def(self, p): pass
+    
+    @_('var "," var_list', 'var')
     def var_list(self, p): pass
 
     @_('ID', 'ID "[" CTE_INT "]"', 'ID "[" CTE_INT "]" "[" CTE_INT "]"')
