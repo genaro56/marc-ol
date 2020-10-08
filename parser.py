@@ -162,7 +162,7 @@ class MyParser(Parser):
 
     @_(
         'IF "(" expresion ")" THEN bloque',
-        'IF "(" expresion ")" THEN ELSE bloque'
+        'IF "(" expresion ")" THEN bloque ELSE bloque'
     )
     def condicion(self, p): pass
 
