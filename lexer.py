@@ -28,7 +28,7 @@ class MyLexer(Lexer):
         IF, ELSE,
         INT, FLOAT, CHAR, VOID,
         PROGRAM,
-        VAR, EQUALS, DO, THEN, MODULE,
+        VAR, FUNC, EQUALS, DO, THEN, MODULE,
         FOR, WHILE, TO, 
         READ, WRITE,
         MAIN, RETURN
@@ -62,6 +62,7 @@ class MyLexer(Lexer):
     
     ID['program'] = PROGRAM
     ID['var'] = VAR
+    ID['func'] = FUNC
 
     ID['main'] = MAIN
     ID['read'] = READ
