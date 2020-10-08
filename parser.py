@@ -31,10 +31,6 @@ class MyParser(Parser):
        'main')
     def begin(self, p): pass
 
-    @_('func functions', 'func')
-    def functions(self, p):
-        pass
-
     # VARS
     @_('VAR vars1')
     def vars(self, p): pass
@@ -56,8 +52,16 @@ class MyParser(Parser):
     def tipo(self, p): pass
 
     # FUNCTION
+    @_('FUNC func_list')
+    def functions(self, p):
+        pass
+    
+    @_('func_def func_list', 'func_def')
+    def func_list(self, p):
+        pass
+    
     @_('tipo_fun MODULE ID "(" params ")" ";" func_body')
-    def func(self, p): pass
+    def func_def(self, p): pass
     
     @_('vars bloque', 'bloque')
     def func_body(self, p): pass
