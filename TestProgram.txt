@@ -1,11 +1,14 @@
 program Ejemplo;
+
 var
     int i, j, p;
     int Arreglo[10];
     float valor;
     int Matriz[3][8];
 
-int module fact(int j)
+
+func
+int module fact(int j);
 var int i;
 {
     i = j + (p - j * 2 + j);
@@ -16,6 +19,17 @@ var int i;
     else
     {
         return (j * fact(j - 1));
+    }
+}
+
+void module inicia(int y);
+var int x;
+{
+    x = 0;
+    while( x < 11) do
+    {
+        Arreglo[x] = y * x;
+        x = x + 1;
     }
 }
 
@@ -30,7 +44,7 @@ main ()
         Arreglo[i] = Arreglo[i] * fact(Arreglo[i] - p);
     }
 
-    while(i >= 0) do
+    while(i > 0) do
     {
         write("resultado", Arreglo[i], fact(i + 2) * valor);
         i = i - 1;
