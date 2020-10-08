@@ -201,7 +201,7 @@ if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
 
-    inputFile = open("./fail.txt", "r")
+    inputFile = open("./TestProgram.txt", "r")
     inputText = inputFile.read()
     print(inputText)
 
