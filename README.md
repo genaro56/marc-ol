@@ -1,6 +1,6 @@
-# par_plus_plus
+# *par_plus_plus*
 
-## Autores
+## Autores:
 
 Genaro Martínez | A01566055
 
@@ -8,12 +8,12 @@ Ariel Méndez | A01020690
 
 ## Historial de Avances
 
-### Avance 1
+### - Avance no. 1:
 
-Se agregaron las expresiones regulares necesarias en lexer.py así como la definición de las reglas gramaticales en parser.py para cumplir con la semántica inicial del lenguaje Par++;
+- Se agregaron las expresiones regulares necesarias en lexer.py así como la definición de las reglas gramaticales en parser.py para cumplir con la semántica inicial del lenguaje Par++;
 
-El archivo de prueba programa_bueno.txt contiene un código de prueba para probar la sintaxis.
+- El archivo de prueba TestProgram.txt contiene un código de prueba para probar la sintaxis.
 
-Los resultados de esta prueba son 0 shift/reduce conflicts, 0 reduce/reduce conflicts y un parsing apropiado de todos los estatutos.
+- Los resultados de esta prueba son 0 shift/reduce conflicts, 0 reduce/reduce conflicts y un parsing apropiado de todos los estatutos.
 
-Junto con esto también adjuntamos la definición del cubo semántico que se puede examinar en el directorio utils.
+- Junto con esto también adjuntamos la definición del cubo semántico que se puede examinar en el directorio utils.
