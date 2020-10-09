@@ -21,26 +21,27 @@ class MyParser(Parser):
     def empty(self, p): pass
 
     # PROGRAM
-    @_('PROGRAM ID ";" program1 program2 main')
+    @_('PROGRAM ID ";" begin')
     def program(self, p):
         return 'apropiado'
 
-    @_('vars', 'empty')
-    def program1(self, p):
-        pass
-
-    @_('functions program2', 'functions')
-    def program2(self, p):
-        pass
+    @_('vars functions main', 
+       'vars main', 
+       'functions main', 
+       'main')
+    def begin(self, p): pass
 
     # VARS
     @_('VAR vars1')
     def vars(self, p): pass
-
-    @_('var_list ";" vars1', 'var_list ";"')
+    
+    @_('var_def ";" vars1', 'var_def ";"')
     def vars1(self, p): pass
-
-    @_('tipo var "," var_list', 'tipo var')
+    
+    @_('tipo var_list')
+    def var_def(self, p): pass
+    
+    @_('var "," var_list', 'var')
     def var_list(self, p): pass
 
     @_('ID', 'ID "[" CTE_INT "]"', 'ID "[" CTE_INT "]" "[" CTE_INT "]"')
@@ -50,15 +51,30 @@ class MyParser(Parser):
     @_('INT', 'FLOAT', 'CHAR')
     def tipo(self, p): pass
 
-    # FUNCTIONS
-    @_('tipo_fun MODULE ID "(" var_list ")" ";" vars bloque')
-    def functions(self, p): pass
+    # FUNCTION
+    @_('FUNC func_list')
+    def functions(self, p):
+        pass
+    
+    @_('func_def func_list', 'func_def')
+    def func_list(self, p):
+        pass
+    
+    @_('tipo_fun MODULE ID "(" params ")" ";" func_body')
+    def func_def(self, p): pass
+    
+    @_('vars bloque', 'bloque')
+    def func_body(self, p): pass
 
     @_('tipo', 'VOID')
     def tipo_fun(self, p): pass
+    
+    # PARAMETERS
+    @_('tipo var "," params', 'tipo var')
+    def params(self, p): pass
 
     # BLOQUE
-    @_('"{" bloque1 "}"', '"{" "}"')
+    @_('"{" bloque1 "}"', '"{" empty "}"')
     def bloque(self, p):
         pass
 
@@ -150,7 +166,7 @@ class MyParser(Parser):
 
     @_(
         'IF "(" expresion ")" THEN bloque',
-        'IF "(" expresion ")" THEN ELSE bloque'
+        'IF "(" expresion ")" THEN bloque ELSE bloque'
     )
     def condicion(self, p): pass
 
@@ -185,7 +201,7 @@ if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
 
-    inputFile = open("./fail.txt", "r")
+    inputFile = open("./TestProgram.txt", "r")
     inputText = inputFile.read()
     print(inputText)
 
