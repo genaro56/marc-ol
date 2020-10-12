@@ -9,9 +9,12 @@ class DirFunciones:
         func.setType(typeValue)
 
         self.dirFunciones[name] = func
-        
+
     def getFuncion(self, name):
         return self.dirFunciones[name]
+
+    def isNameInDir(self, name):
+        return name in self.dirFunciones
 
 
 class Funcion:
