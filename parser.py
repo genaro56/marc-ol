@@ -1,8 +1,10 @@
 import os
 from utils.Semantica import CuboSemantico
+from utils.Tablas import DirFunciones
 from sly import Parser
 from lexer import MyLexer
 
+dirFunc = None
 
 class MyParser(Parser):
     start = 'program'
@@ -21,10 +23,23 @@ class MyParser(Parser):
     def empty(self, p): pass
 
     # PROGRAM
-    @_('PROGRAM ID ";" begin')
+    @_('PROGRAM seen_program ID seen_program_ID ";" begin')
     def program(self, p):
         return 'apropiado'
 
+    @_('')
+    def seen_program(self, p):
+        global dirFunc
+        dirFunc = DirFunciones()
+        pass
+
+    @_('')
+    def seen_program_ID(self, p):
+        # p[-1] es ID
+        funcId = p[-1]
+        dirFunc.addFuncion(funcId, 'PROGRAM')
+        pass
+    
     @_('vars functions main', 
        'vars main', 
        'functions main', 
