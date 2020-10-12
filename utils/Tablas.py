@@ -6,6 +6,7 @@ class DirFunciones:
     def addFuncion(self, name, typeValue):
 
         func = Funcion()
+        func.setName(name)
         func.setType(typeValue)
 
         self.dirFunciones[name] = func
@@ -25,3 +26,6 @@ class Funcion:
 
     def setType(self, typeValue):
         self.type = typeValue
+        
+    def setName(self, name):
+        self.name = name
