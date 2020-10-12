@@ -23,7 +23,7 @@ class MyParser(Parser):
     def empty(self, p): pass
 
     # PROGRAM
-    @_('PROGRAM seen_program ID seen_program_ID ";" begin')
+    @_('PROGRAM seen_program ID seen_programId ";" begin')
     def program(self, p):
         return 'apropiado'
 
@@ -34,10 +34,10 @@ class MyParser(Parser):
         pass
 
     @_('')
-    def seen_program_ID(self, p):
+    def seen_programId(self, p):
         # p[-1] es ID
-        funcId = p[-1]
-        dirFunc.addFuncion(funcId, 'PROGRAM')
+        funcName = p[-1]
+        dirFunc.addFuncion(funcName, 'PROGRAM')
         pass
     
     @_('vars functions main', 
@@ -64,7 +64,8 @@ class MyParser(Parser):
 
     # TIPO
     @_('INT', 'FLOAT', 'CHAR')
-    def tipo(self, p): pass
+    def tipo(self, p):
+        return p[0]
 
     # FUNCTION
     @_('FUNC func_list')
@@ -75,14 +76,27 @@ class MyParser(Parser):
     def func_list(self, p):
         pass
     
-    @_('tipo_fun MODULE ID "(" params ")" ";" func_body')
+    @_('tipo_fun MODULE ID seen_funcId "(" params ")" ";" func_body')
     def func_def(self, p): pass
-    
+
+    @_('')
+    def seen_funcId(self, p):
+        funcName = p[-1]
+        funcType = p[-3]
+
+        if not dirFunc.isNameInDir(funcName):
+            dirFunc.addFuncion(funcName, funcType)
+        else:
+            raise Exception('MultipleDeclaration')
+
+        pass
+
     @_('vars bloque', 'bloque')
     def func_body(self, p): pass
 
     @_('tipo', 'VOID')
-    def tipo_fun(self, p): pass
+    def tipo_fun(self, p):
+        return p[0]
     
     # PARAMETERS
     @_('tipo var "," params', 'tipo var')
