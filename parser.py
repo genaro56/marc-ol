@@ -1,8 +1,10 @@
 import os
 from utils.Semantica import CuboSemantico
+from utils.Tablas import DirFunciones
 from sly import Parser
 from lexer import MyLexer
 
+dirFunc = None
 
 class MyParser(Parser):
     start = 'program'
@@ -21,10 +23,31 @@ class MyParser(Parser):
     def empty(self, p): pass
 
     # PROGRAM
-    @_('PROGRAM ID ";" begin')
+    @_('PROGRAM seen_program ID seen_programId ";" begin')
     def program(self, p):
         return 'apropiado'
 
+    @_('')
+    def seen_program(self, p):
+        '''
+        crea instancia global de dir. de funciones
+        despues del token PROGRAM
+        '''
+        global dirFunc
+        dirFunc = DirFunciones()
+        pass
+
+    @_('')
+    def seen_programId(self, p):
+        '''
+        agrega funcion tipo PROGRAM
+        al dir. de funciones
+        '''
+        # p[-1] es ID
+        funcName = p[-1]
+        dirFunc.addFuncion(funcName, 'PROGRAM')
+        pass
+    
     @_('vars functions main', 
        'vars main', 
        'functions main', 
@@ -49,7 +72,8 @@ class MyParser(Parser):
 
     # TIPO
     @_('INT', 'FLOAT', 'CHAR')
-    def tipo(self, p): pass
+    def tipo(self, p):
+        return p[0]
 
     # FUNCTION
     @_('FUNC func_list')
@@ -60,14 +84,32 @@ class MyParser(Parser):
     def func_list(self, p):
         pass
     
-    @_('tipo_fun MODULE ID "(" params ")" ";" func_body')
+    @_('tipo_fun MODULE ID seen_funcId "(" params ")" ";" func_body')
     def func_def(self, p): pass
-    
+
+    @_('')
+    def seen_funcId(self, p):
+        '''
+        Agrega funcion al dir. de funciones 
+        con nomre funcName y tipo funcType
+        '''
+        
+        funcName = p[-1]
+        funcType = p[-3]
+
+        if not dirFunc.isNameInDir(funcName):
+            dirFunc.addFuncion(funcName, funcType)
+        else:
+            raise Exception('MultipleDeclaration')
+
+        pass
+
     @_('vars bloque', 'bloque')
     def func_body(self, p): pass
 
     @_('tipo', 'VOID')
-    def tipo_fun(self, p): pass
+    def tipo_fun(self, p):
+        return p[0]
     
     # PARAMETERS
     @_('tipo var "," params', 'tipo var')
@@ -152,24 +194,29 @@ class MyParser(Parser):
     @_('expresion "," call_fun1', 'expresion')
     def call_fun1(self, p): pass
 
+    # VOID FUNC
     @_('call_fun ";"')
     def void_fun(self, p): pass
 
+    # RETURN
     @_('RETURN "(" expresion ")" ";"')
     def _return(self, p): pass
 
+    # LECTURA
     @_('READ "(" lectura1 ")" ";"')
     def lectura(self, p): pass
 
     @_('id_dim "," lectura1', 'id_dim')
     def lectura1(self, p): pass
 
+    # CONDICION
     @_(
         'IF "(" expresion ")" THEN bloque',
         'IF "(" expresion ")" THEN bloque ELSE bloque'
     )
     def condicion(self, p): pass
 
+    # REPETICION
     @_('_while', '_for')
     def repeticion(self, p): pass
 
@@ -179,9 +226,11 @@ class MyParser(Parser):
     @_('FOR id_dim "=" expresion TO expresion DO bloque')
     def _for(self, p): pass
 
+    # MAIN
     @_('MAIN "(" ")" bloque')
     def main(self, p): pass
 
+    # ERROR
     def error(self, p):
         if p:
             print("Syntax error at token", p.type)
