@@ -230,6 +230,7 @@ class MyParser(Parser):
     @_('MAIN "(" ")" bloque')
     def main(self, p): pass
 
+    # ERROR
     def error(self, p):
         if p:
             print("Syntax error at token", p.type)
