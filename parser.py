@@ -194,24 +194,29 @@ class MyParser(Parser):
     @_('expresion "," call_fun1', 'expresion')
     def call_fun1(self, p): pass
 
+    # VOID FUNC
     @_('call_fun ";"')
     def void_fun(self, p): pass
 
+    # RETURN
     @_('RETURN "(" expresion ")" ";"')
     def _return(self, p): pass
 
+    # LECTURA
     @_('READ "(" lectura1 ")" ";"')
     def lectura(self, p): pass
 
     @_('id_dim "," lectura1', 'id_dim')
     def lectura1(self, p): pass
 
+    # CONDICION
     @_(
         'IF "(" expresion ")" THEN bloque',
         'IF "(" expresion ")" THEN bloque ELSE bloque'
     )
     def condicion(self, p): pass
 
+    # REPETICION
     @_('_while', '_for')
     def repeticion(self, p): pass
 
@@ -221,6 +226,7 @@ class MyParser(Parser):
     @_('FOR id_dim "=" expresion TO expresion DO bloque')
     def _for(self, p): pass
 
+    # MAIN
     @_('MAIN "(" ")" bloque')
     def main(self, p): pass
 
