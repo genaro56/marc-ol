@@ -29,12 +29,20 @@ class MyParser(Parser):
 
     @_('')
     def seen_program(self, p):
+        '''
+        crea instancia global de dir. de funciones
+        despues del token PROGRAM
+        '''
         global dirFunc
         dirFunc = DirFunciones()
         pass
 
     @_('')
     def seen_programId(self, p):
+        '''
+        agrega funcion tipo PROGRAM
+        al dir. de funciones
+        '''
         # p[-1] es ID
         funcName = p[-1]
         dirFunc.addFuncion(funcName, 'PROGRAM')
@@ -81,6 +89,11 @@ class MyParser(Parser):
 
     @_('')
     def seen_funcId(self, p):
+        '''
+        Agrega funcion al dir. de funciones 
+        con nomre funcName y tipo funcType
+        '''
+        
         funcName = p[-1]
         funcType = p[-3]
 
