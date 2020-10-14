@@ -70,7 +70,7 @@ class MyParser(Parser):
     @_('')
     def seen_var_list(self, p):
         # p[-1] es el tipo de la listas de variables
-        listType = p[-1]
+        listType = p[-2]
         # busca el tope del stack para ver la siguiente entrada
         if len(dirFunc.funcStack) > 0:
             funcId = dirFunc.funcStack[-1]
