@@ -1,10 +1,11 @@
 import os
 from utils.Semantica import CuboSemantico
-from utils.Tablas import DirFunciones
+from utils.Tablas import DirFunciones, TablaDeVars
 from sly import Parser
 from lexer import MyLexer
 
 dirFunc = None
+varsTable = None
 
 class MyParser(Parser):
     start = 'program'
@@ -55,20 +56,41 @@ class MyParser(Parser):
     def begin(self, p): pass
 
     # VARS
-    @_('VAR vars1')
+    @_('VAR seen_var vars1')
     def vars(self, p): pass
+    
+    @_('')
+    def seen_var(self, p):
+        global varsTable
+        varsTable = TablaDeVars()
+        pass
     
     @_('var_def ";" vars1', 'var_def ";"')
     def vars1(self, p): pass
     
-    @_('tipo var_list')
+    @_('tipo var_list seen_var_list')
     def var_def(self, p): pass
     
-    @_('var "," var_list', 'var')
-    def var_list(self, p): pass
+    @_('')
+    def seen_var_list(self, p):
+        listType = p[-1]
+        varsTable.setTempTypeValue(listType)
+        pass
 
-    @_('ID', 'ID "[" CTE_INT "]"', 'ID "[" CTE_INT "]" "[" CTE_INT "]"')
-    def var(self, p): pass
+    @_('var "," var_list', 'var')
+    def var_list(self, p): 
+        pass
+
+    @_('ID seen_var_name', 'ID seen_var_name "[" CTE_INT "]"', 'ID seen_var_name "[" CTE_INT "]" "[" CTE_INT "]"')
+    def var(self, p): 
+        varName = p[-1]
+        varType = varsTable.tempTypeValue
+        varScope = ''
+        if not varsTable.isVarInScope(varName, varScope):
+            varsTable.addVar(varName, varScope, varType)
+        else:
+            raise Exception('Variable arleady declare in Scope')
+        pass
 
     # TIPO
     @_('INT', 'FLOAT', 'CHAR')
@@ -101,7 +123,6 @@ class MyParser(Parser):
             dirFunc.addFuncion(funcName, funcType)
         else:
             raise Exception('MultipleDeclaration')
-
         pass
 
     @_('vars bloque', 'bloque')

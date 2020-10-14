@@ -67,14 +67,18 @@ class Var():
 class TablaDeVars:
     def __init__(self):
         self.varsTable = dict()
+        self.tempTypeValue = ''
 
-    def addVar(self, name, typeValue, scope):
+    def addVar(self, name, scope, typeValue):
         var = Var()
         var.setName(name)
         var.setType(typeValue)
         var.setScope(scope)
         self.varsTable[scope][name] = var
-
+    
+    def setTempTypeValue(self, valueType):
+        self.tempTypeValue = valueType
+    
     def getVar(self, name, scope):
         return self.varsTable[scope][name]
 
