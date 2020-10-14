@@ -1,9 +1,10 @@
 class DirFunciones:
     '''
-    Directorio de funciones - matiene 
+    Directorio de funciones - matiene
     * dict con key (funcName), value(Funcion)
     * referencia a tabla de variables global
     '''
+
     def __init__(self):
         self.tablaGlobal = None
         self.dirFunciones = dict()
@@ -26,9 +27,10 @@ class DirFunciones:
 class Funcion:
     '''
     Funcion - representa una entrada del directorio de funciones
-    mantiene las propiedades de cada funcion y una referncia
+    mantiene las propiedades de cada funcion y una referencia
     a su tabla de variables
     '''
+
     def __init__(self):
         self.name = ''
         self.type = ''
@@ -39,3 +41,43 @@ class Funcion:
 
     def setName(self, name):
         self.name = name
+
+
+class Var():
+    '''
+    Var - representa una entrada del directorio de funciones
+    mantiene las propiedades de cada funcion y una referncia
+    a su tabla de variables
+    '''
+    def __init__(self):
+        self.name = ''
+        self.type = ''
+        self.scope = ''
+
+    def setType(self, typeValue):
+        self.type = typeValue
+
+    def setName(self, name):
+        self.name = name
+
+    def setScope(self, scope):
+        self.scope = scope
+
+
+class TablaDeVars:
+    def __init__(self):
+        self.varsTable = dict()
+
+    def addVar(self, name, typeValue, scope):
+        var = Var()
+        var.setName(name)
+        var.setType(typeValue)
+        var.setScope(scope)
+        self.varsTable[scope][name] = var
+
+    def getVar(self, name, scope):
+        return self.varsTable[scope][name]
+
+    def isVarInScope(self, name, scope):
+        return name in self.varsTable[scope]
+        
