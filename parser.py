@@ -1,10 +1,11 @@
 import os
 from utils.Semantica import CuboSemantico
-from utils.Tablas import DirFunciones
+from utils.Tablas import DirFunciones, TablaDeVars
 from sly import Parser
 from lexer import MyLexer
 
 dirFunc = None
+
 
 class MyParser(Parser):
     start = 'program'
@@ -45,30 +46,61 @@ class MyParser(Parser):
         '''
         # p[-1] es ID
         funcName = p[-1]
+        # agrega el siguiente ID de función para la lista de variables
+        dirFunc.funcStack.append(funcName)
         dirFunc.addFuncion(funcName, 'PROGRAM')
         pass
-    
-    @_('vars functions main', 
-       'vars main', 
-       'functions main', 
+
+    @_('vars functions main',
+       'vars main',
+       'functions main',
        'main')
     def begin(self, p): pass
 
     # VARS
-    @_('VAR vars1')
+    @_('VAR vars1 seen_endof_vars')
     def vars(self, p): pass
     
+    @_('')
+    def seen_endof_vars(self, p):
+        if len(dirFunc.funcStack) > 0:
+            dirFunc.funcStack.pop()
+        pass
+
     @_('var_def ";" vars1', 'var_def ";"')
     def vars1(self, p): pass
-    
-    @_('tipo var_list')
-    def var_def(self, p): pass
-    
-    @_('var "," var_list', 'var')
-    def var_list(self, p): pass
 
-    @_('ID', 'ID "[" CTE_INT "]"', 'ID "[" CTE_INT "]" "[" CTE_INT "]"')
+    @_('tipo var_list seen_var_list')
+    def var_def(self, p): pass
+
+    @_('')
+    def seen_var_list(self, p):
+        # p[-1] es el tipo de la listas de variables
+        listType = p[-2]
+        # busca el tope del stack para ver la siguiente entrada
+        if len(dirFunc.funcStack) > 0:
+            funcId = dirFunc.funcStack[-1]
+            dirFunc.dirFunciones[funcId].tablaVariables.setTempTypeValue(listType)
+
+    @_('var "," var_list', 'var')
+    def var_list(self, p):
+        pass
+
+    @_('ID seen_var_name ', 'ID seen_var_name "[" CTE_INT "]"', 'ID seen_var_name "[" CTE_INT "]" "[" CTE_INT "]"')
     def var(self, p): pass
+
+    @_('')
+    def seen_var_name(self, p):
+        if len(dirFunc.funcStack) > 0:
+            funcId = dirFunc.funcStack[-1]
+            varName = p[-1]
+            varType = dirFunc.dirFunciones[funcId].tablaVariables.tempTypeValue
+            if not dirFunc.dirFunciones[funcId].tablaVariables.isVarInTable(varName):
+                dirFunc.dirFunciones[funcId].tablaVariables.addVar(
+                    varName, varType)
+            else:
+                raise Exception('Variable arleady declared in Table')
+        pass
 
     # TIPO
     @_('INT', 'FLOAT', 'CHAR')
@@ -79,11 +111,11 @@ class MyParser(Parser):
     @_('FUNC func_list')
     def functions(self, p):
         pass
-    
+
     @_('func_def func_list', 'func_def')
     def func_list(self, p):
         pass
-    
+
     @_('tipo_fun MODULE ID seen_funcId "(" params ")" ";" func_body')
     def func_def(self, p): pass
 
@@ -93,7 +125,7 @@ class MyParser(Parser):
         Agrega funcion al dir. de funciones 
         con nomre funcName y tipo funcType
         '''
-        
+
         funcName = p[-1]
         funcType = p[-3]
 
@@ -101,7 +133,6 @@ class MyParser(Parser):
             dirFunc.addFuncion(funcName, funcType)
         else:
             raise Exception('MultipleDeclaration')
-
         pass
 
     @_('vars bloque', 'bloque')
@@ -110,7 +141,7 @@ class MyParser(Parser):
     @_('tipo', 'VOID')
     def tipo_fun(self, p):
         return p[0]
-    
+
     # PARAMETERS
     @_('tipo var "," params', 'tipo var')
     def params(self, p): pass
@@ -242,11 +273,11 @@ class MyParser(Parser):
 
 
 if __name__ == '__main__':
-    
+
     filePath = os.path.abspath('./utils/combinaciones.json')
     semantica = CuboSemantico(filePath)
     cubo = semantica.getCuboSemantico()
-    
+
     parser = MyParser()
     lexer = MyLexer()
 
@@ -264,5 +295,4 @@ if __name__ == '__main__':
     print('\n\nPARSER Analysis:')
     result = parser.parse(lexer.tokenize(inputText))
     print(result)
-
     inputFile.close()

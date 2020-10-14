@@ -17,3 +17,10 @@ Ariel Méndez | A01020690
 - Los resultados de esta prueba son 0 shift/reduce conflicts, 0 reduce/reduce conflicts y un parsing apropiado de todos los estatutos.
 
 - Junto con esto también adjuntamos la definición del cubo semántico que se puede examinar en el directorio utils.
+
+### - Avance no. 2:
+
+- Se creó una tabla de variables tanto Global como para cada función.
+  - Esta tabla de variables utiliza el ID de cada variable para indexar la entrada en el diccionario.
+
+- Desarrollo de cubo semántico para correlacionar operadores y su validez en la semántica.
