@@ -6,15 +6,15 @@ class DirFunciones:
     '''
 
     def __init__(self):
-        self.tablaGlobal = None
+        self.tablaGlobal = TablaDeVars()
         self.dirFunciones = dict()
+        self.funcStack = []
 
     def addFuncion(self, name, typeValue):
 
         func = Funcion()
         func.setName(name)
         func.setType(typeValue)
-
         self.dirFunciones[name] = func
 
     def getFuncion(self, name):
@@ -34,7 +34,7 @@ class Funcion:
     def __init__(self):
         self.name = ''
         self.type = ''
-        self.tablaVariables = None
+        self.tablaVariables = TablaDeVars()
 
     def setType(self, typeValue):
         self.type = typeValue
@@ -69,19 +69,21 @@ class TablaDeVars:
         self.varsTable = dict()
         self.tempTypeValue = ''
 
-    def addVar(self, name, scope, typeValue):
+    def addVar(self, name, typeValue):
         var = Var()
         var.setName(name)
         var.setType(typeValue)
-        var.setScope(scope)
-        self.varsTable[scope][name] = var
+        self.varsTable[name] = var
     
     def setTempTypeValue(self, valueType):
         self.tempTypeValue = valueType
     
+    def getTempTypeValue(self):
+        return self.tempTypeValue
+    
     def getVar(self, name, scope):
-        return self.varsTable[scope][name]
+        return self.varsTable[name]
 
-    def isVarInScope(self, name, scope):
-        return name in self.varsTable[scope]
+    def isVarInTable(self, name):
+        return name in self.varsTable
         
