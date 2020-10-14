@@ -58,8 +58,14 @@ class MyParser(Parser):
     def begin(self, p): pass
 
     # VARS
-    @_('VAR vars1')
+    @_('VAR vars1 seen_endof_vars')
     def vars(self, p): pass
+    
+    @_('')
+    def seen_endof_vars(self, p):
+        if len(dirFunc.funcStack) > 0:
+            dirFunc.funcStack.pop()
+        pass
 
     @_('var_def ";" vars1', 'var_def ";"')
     def vars1(self, p): pass
@@ -86,7 +92,7 @@ class MyParser(Parser):
     @_('')
     def seen_var_name(self, p):
         if len(dirFunc.funcStack) > 0:
-            funcId = dirFunc.funcStack.pop()
+            funcId = dirFunc.funcStack[-1]
             varName = p[-1]
             varType = dirFunc.dirFunciones[funcId].tablaVariables.tempTypeValue
             if not dirFunc.dirFunciones[funcId].tablaVariables.isVarInTable(varName):
