@@ -20,10 +20,10 @@ Ariel Méndez | A01020690
 
 ### - Avance no. 2:
 
+- Desarrollo de cubo semántico para correlacionar operadores y su validez en la semántica.
+
 - Se creó una tabla de variables tanto Global como para cada función.
   - Esta tabla de variables utiliza el ID de cada variable para indexar la entrada en el diccionario.
-
-- Desarrollo de cubo semántico para correlacionar operadores y su validez en la semántica.
   - Utiliza una subclase Var que sería utilizada para declarar atributos principales de una variable (tipo, id)
 
 - Creación del directorio de funciones que alberga el registro de cada función en un diccionario.
