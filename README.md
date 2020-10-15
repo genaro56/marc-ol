@@ -24,3 +24,7 @@ Ariel Méndez | A01020690
   - Esta tabla de variables utiliza el ID de cada variable para indexar la entrada en el diccionario.
 
 - Desarrollo de cubo semántico para correlacionar operadores y su validez en la semántica.
+  - Utiliza una subclase Var que sería utilizada para declarar atributos principales de una variable (tipo, id)
+
+- Creación del directorio de funciones que alberga el registro de cada función en un diccionario.
+  - Utiliza una subclase Funcion pues sería utilizada para declarar atributos principales de una función (tipo, id, tabla de vars)
