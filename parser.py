@@ -70,13 +70,13 @@ class MyParser(Parser):
     @_('var_def ";" vars1', 'var_def ";"')
     def vars1(self, p): pass
 
-    @_('tipo var_list seen_var_list')
+    @_('tipo seen_var_tipo var_list')
     def var_def(self, p): pass
 
     @_('')
-    def seen_var_list(self, p):
+    def seen_var_tipo(self, p):
         # p[-1] es el tipo de la listas de variables
-        listType = p[-2]
+        listType = p[-1]
         # busca el tope del stack para ver la siguiente entrada
         if len(dirFunc.funcStack) > 0:
             funcId = dirFunc.funcStack[-1]
