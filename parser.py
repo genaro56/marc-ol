@@ -70,17 +70,8 @@ class MyParser(Parser):
     @_('var_def ";" vars1', 'var_def ";"')
     def vars1(self, p): pass
 
-    @_('tipo seen_var_tipo var_list')
+    @_('tipo var_list')
     def var_def(self, p): pass
-
-    @_('')
-    def seen_var_tipo(self, p):
-        # p[-1] es el tipo de la listas de variables
-        listType = p[-1]
-        # busca el tope del stack para ver la siguiente entrada
-        if len(dirFunc.funcStack) > 0:
-            funcId = dirFunc.funcStack[-1]
-            dirFunc.dirFunciones[funcId].tablaVariables.setTempTypeValue(listType)
 
     @_('var "," var_list', 'var')
     def var_list(self, p):
@@ -105,7 +96,13 @@ class MyParser(Parser):
     # TIPO
     @_('INT', 'FLOAT', 'CHAR')
     def tipo(self, p):
-        return p[0]
+        # p[-1] es el tipo de la listas de variables
+        typeValue = p[0]
+        # busca el tope del stack para ver la siguiente entrada
+        if len(dirFunc.funcStack) > 0:
+            funcId = dirFunc.funcStack[-1]
+            dirFunc.dirFunciones[funcId].tablaVariables.setTempTypeValue(typeValue)
+        pass
 
     # FUNCTION
     @_('FUNC func_list')
