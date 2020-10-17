@@ -131,6 +131,7 @@ class MyParser(Parser):
 
         if not dirFunc.isNameInDir(funcName):
             dirFunc.addFuncion(funcName, funcType)
+            dirFunc.funcStack.append(funcName)
         else:
             raise Exception('MultipleDeclaration')
         pass
