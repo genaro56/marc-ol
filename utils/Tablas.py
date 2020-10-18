@@ -6,6 +6,7 @@ class DirFunciones:
     '''
 
     def __init__(self):
+        self.programName = None
         self.tablaGlobal = TablaDeVars()
         self.dirFunciones = dict()
         self.funcStack = []
