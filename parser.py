@@ -102,7 +102,7 @@ class MyParser(Parser):
         if len(dirFunc.funcStack) > 0:
             funcId = dirFunc.funcStack[-1]
             dirFunc.dirFunciones[funcId].tablaVariables.setTempTypeValue(typeValue)
-        pass
+        return p[0]
 
     # FUNCTION
     @_('FUNC func_list')
@@ -130,7 +130,7 @@ class MyParser(Parser):
             dirFunc.addFuncion(funcName, funcType)
             dirFunc.funcStack.append(funcName)
         else:
-            raise Exception('MultipleDeclaration')
+            raise Exception(f'MultipleDeclaration: module {funcName} already defined')
         pass
 
     @_('vars bloque', 'bloque')
