@@ -1,11 +1,11 @@
 import os
-from utils.Semantica import CuboSemantico
+from utils.Semantica import CuboSemantico, AddrGenerator
 from utils.Tablas import DirFunciones, TablaDeVars
 from sly import Parser
 from lexer import MyLexer
 
 dirFunc = None
-
+addrCounter = AddrGenerator()
 
 class MyParser(Parser):
     start = 'program'
@@ -87,8 +87,16 @@ class MyParser(Parser):
             varName = p[-1]
             varType = dirFunc.dirFunciones[funcId].tablaVariables.tempTypeValue
             if not dirFunc.dirFunciones[funcId].tablaVariables.isVarInTable(varName):
+                nextAdrr = None
+                scope = dirFunc.dirFunciones[funcId].type
+                # checa si la variable pertenece al scope global o local
+                if scope == "PROGRAM":
+                    nextAdrr = addrCounter.nextGlobalAddr(varType)
+                else:
+                    nextAdrr = addrCounter.nextLocalAddr(varType)
+                
                 dirFunc.dirFunciones[funcId].tablaVariables.addVar(
-                    varName, varType)
+                    varName, varType, nextAdrr)
             else:
                 raise Exception('Variable arleady declared in Table')
         pass
@@ -113,7 +121,7 @@ class MyParser(Parser):
     def func_list(self, p):
         pass
 
-    @_('tipo_fun MODULE ID seen_funcId "(" params ")" ";" func_body')
+    @_('tipo_fun MODULE ID seen_funcId "(" params ")" ";" func_body seen_func_end')
     def func_def(self, p): pass
 
     @_('')
@@ -133,6 +141,11 @@ class MyParser(Parser):
             raise Exception(f'MultipleDeclaration: module {funcName} already defined')
         pass
 
+    @_('')
+    def seen_func_end(self, p):
+        addrCounter.resetLocalCounter()
+        return
+    
     @_('vars bloque', 'bloque')
     def func_body(self, p): pass
 
