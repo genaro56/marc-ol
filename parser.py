@@ -1,11 +1,13 @@
 import os
 from utils.Semantica import CuboSemantico, AddrGenerator
 from utils.Tablas import DirFunciones, TablaDeVars
+from utils.Cuadruplos import Cuadruplos
 from sly import Parser
 from lexer import MyLexer
 
 dirFunc = None
 addrCounter = AddrGenerator()
+cuadruplos = Cuadruplos()
 
 class MyParser(Parser):
     start = 'program'
@@ -49,6 +51,7 @@ class MyParser(Parser):
         # agrega el siguiente ID de función para la lista de variables
         dirFunc.funcStack.append(funcName)
         dirFunc.addFuncion(funcName, 'PROGRAM')
+        dirFunc.programName = funcName
         pass
 
     @_('vars functions main',
@@ -58,14 +61,14 @@ class MyParser(Parser):
     def begin(self, p): pass
 
     # VARS
-    @_('VAR vars1 seen_endof_vars')
+    @_('VAR vars1')
     def vars(self, p): pass
     
-    @_('')
-    def seen_endof_vars(self, p):
-        if len(dirFunc.funcStack) > 0:
-            dirFunc.funcStack.pop()
-        pass
+    # @_('')
+    # def seen_endof_vars(self, p):
+    #     if len(dirFunc.funcStack) > 0:
+    #         dirFunc.funcStack.pop()
+    #     pass
 
     @_('var_def ";" vars1', 'var_def ";"')
     def vars1(self, p): pass
@@ -94,7 +97,7 @@ class MyParser(Parser):
                     nextAdrr = addrCounter.nextGlobalAddr(varType)
                 else:
                     nextAdrr = addrCounter.nextLocalAddr(varType)
-                
+
                 dirFunc.dirFunciones[funcId].tablaVariables.addVar(
                     varName, varType, nextAdrr)
             else:
@@ -136,6 +139,7 @@ class MyParser(Parser):
 
         if not dirFunc.isNameInDir(funcName):
             dirFunc.addFuncion(funcName, funcType)
+            dirFunc.funcStack.pop()
             dirFunc.funcStack.append(funcName)
         else:
             raise Exception(f'MultipleDeclaration: module {funcName} already defined')
@@ -181,9 +185,6 @@ class MyParser(Parser):
     @_('id_dim "=" expresion ";"')
     def asignacion(self, p): pass
 
-    @_('ID', 'ID "[" expresion "]"', 'ID "[" expresion "," expresion "]"')
-    def id_dim(self, p): pass
-
     # ESCRITURA
     @_('WRITE "(" escritura1 ")" ";"')
     def escritura(self, p): pass
@@ -220,14 +221,31 @@ class MyParser(Parser):
     )
     def exp(self, p): pass
 
-    @_('factor', 'termino "*" factor', 'termino "/" factor')
+    @_('factor', 
+       'termino "*" factor', 
+       'termino "/" factor',
+    )
     def termino(self, p): pass
 
-    @_('"(" expresion ")"', 'var_cte', '"+" var_cte', '"-" var_cte')
+    @_('"(" expresion ")"', 
+       'var_cte', 
+       '"+" var_cte', 
+       '"-" var_cte',
+    )
     def factor(self, p): pass
 
-    @_('id_dim', 'CTE_INT', 'CTE_FLOAT', 'call_fun')
+    @_('id_dim', 
+       'CTE_INT', 
+       'CTE_FLOAT', 
+       'call_fun'
+    )
     def var_cte(self, p): pass
+    
+    @_('ID', 'ID "[" expresion "]"', 'ID "[" expresion "," expresion "]"')
+    def id_dim(self, p):
+        ID = p[0]
+        funcId = dirFunc.funcStack[-1]
+        return p[0]
 
     # Seria otra expresion regular NOMBRE_MODULO?
     @_('ID "(" call_fun1 ")"')
@@ -269,8 +287,15 @@ class MyParser(Parser):
     def _for(self, p): pass
 
     # MAIN
-    @_('MAIN "(" ")" bloque')
+    @_('MAIN seen_main "(" ")" bloque')
     def main(self, p): pass
+    
+    @_('')
+    def seen_main(self, p):
+        dirFunc.funcStack.pop()
+        programName = dirFunc.programName
+        dirFunc.funcStack.append(programName)
+        pass
 
     # ERROR
     def error(self, p):
