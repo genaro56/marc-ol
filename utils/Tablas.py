@@ -69,7 +69,7 @@ class TablaDeVars:
         self.varsTable = dict()
         self.tempTypeValue = ''
 
-    def addVar(self, name, typeValue):
+    def addVar(self, name, typeValue, addr = None):
         var = Var()
         var.setName(name)
         var.setType(typeValue)
