@@ -4,7 +4,6 @@ class DirFunciones:
     * dict con key (funcName), value(Funcion)
     * referencia a tabla de variables global
     '''
-
     def __init__(self):
         self.programName = None
         self.tablaGlobal = TablaDeVars()
@@ -31,7 +30,6 @@ class Funcion:
     mantiene las propiedades de cada funcion y una referencia
     a su tabla de variables
     '''
-
     def __init__(self):
         self.name = ''
         self.type = ''
@@ -54,7 +52,8 @@ class Var():
         self.name = ''
         self.type = ''
         self.scope = ''
-        
+        self.addr = None
+
     def getType(self):
         return self.type
 
@@ -67,6 +66,11 @@ class Var():
     def setScope(self, scope):
         self.scope = scope
 
+    def setAddr(self, addr):
+        self.addr = addr
+        
+    def getAddr(self):
+        return self.addr
 
 class TablaDeVars:
     def __init__(self):
@@ -74,30 +78,31 @@ class TablaDeVars:
         self.tempTypeValue = ''
         self.globalVarTable = None
 
-    def addVar(self, name, typeValue, addr = None):
+    def addVar(self, name, typeValue, addr=None):
         var = Var()
         var.setName(name)
         var.setType(typeValue)
+        if addr:
+            var.setAddr(addr)
         self.varsTable[name] = var
-    
+
     def setTempTypeValue(self, valueType):
         self.tempTypeValue = valueType
-    
+
     def getTempTypeValue(self):
         return self.tempTypeValue
-    
+
     def getVar(self, name):
         return self.varsTable[name]
 
     def isVarInTable(self, name):
         return name in self.varsTable
-    
+
     def isVarInGlobalTable(self, name):
         return name in self.globalVarTable.varsTable
 
     def setGlobalVarTable(self, globalVarTable):
         self.globalVarTable = globalVarTable
-        
+
     def getGlobalVarTable(self):
         return self.globalVarTable
-
