@@ -1,0 +1,8 @@
+program Ejemplo;
+var
+    int a, b, c, d, e, f;
+
+main () 
+{
+    a = a + b * c;
+}
