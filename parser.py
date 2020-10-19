@@ -9,6 +9,9 @@ dirFunc = None
 addrCounter = AddrGenerator()
 cuadruplos = Cuadruplos()
 
+filePath = os.path.abspath('./utils/combinaciones.json')
+cuboSemantico = CuboSemantico(filePath).getCuboSemantico()
+
 class MyParser(Parser):
     start = 'program'
     tokens = MyLexer.tokens
@@ -139,6 +142,10 @@ class MyParser(Parser):
 
         if not dirFunc.isNameInDir(funcName):
             dirFunc.addFuncion(funcName, funcType)
+            # agrega referencia a la tabla de variables global
+            globalVarTable = dirFunc.getFuncion(dirFunc.programName).tablaVariables
+            dirFunc.getFuncion(funcName).tablaVariables.setGlobalVarTable(globalVarTable)
+            # saca el nombre de fucion anterior y agrega el nuevo a funcStack
             dirFunc.funcStack.pop()
             dirFunc.funcStack.append(funcName)
         else:
@@ -245,6 +252,17 @@ class MyParser(Parser):
     def id_dim(self, p):
         ID = p[0]
         funcId = dirFunc.funcStack[-1]
+        varTable = dirFunc.getFuncion(funcId).tablaVariables
+        varType = None
+        if varTable.isVarInTable(ID):
+            varObj = varTable.getVar(ID)
+            varType = varObj.getType()
+        elif varTable.isVarInGlobalTable(ID):
+            varObj = varTable.getGlobalVarTable().getVar(ID)
+            varType = varObj.getType()
+        else:
+            raise Exception(f'Undefined variable {ID}')
+        cuadruplos.pilaOperandos.append((funcId, varType))
         return p[0]
 
     # Seria otra expresion regular NOMBRE_MODULO?
@@ -309,11 +327,6 @@ class MyParser(Parser):
 
 
 if __name__ == '__main__':
-
-    filePath = os.path.abspath('./utils/combinaciones.json')
-    semantica = CuboSemantico(filePath)
-    cubo = semantica.getCuboSemantico()
-
     parser = MyParser()
     lexer = MyLexer()
 

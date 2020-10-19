@@ -54,6 +54,9 @@ class Var():
         self.name = ''
         self.type = ''
         self.scope = ''
+        
+    def getType(self):
+        return self.type
 
     def setType(self, typeValue):
         self.type = typeValue
@@ -69,6 +72,7 @@ class TablaDeVars:
     def __init__(self):
         self.varsTable = dict()
         self.tempTypeValue = ''
+        self.globalVarTable = None
 
     def addVar(self, name, typeValue, addr = None):
         var = Var()
@@ -82,9 +86,18 @@ class TablaDeVars:
     def getTempTypeValue(self):
         return self.tempTypeValue
     
-    def getVar(self, name, scope):
+    def getVar(self, name):
         return self.varsTable[name]
 
     def isVarInTable(self, name):
         return name in self.varsTable
+    
+    def isVarInGlobalTable(self, name):
+        return name in self.globalVarTable.varsTable
+
+    def setGlobalVarTable(self, globalVarTable):
+        self.globalVarTable = globalVarTable
         
+    def getGlobalVarTable(self):
+        return self.globalVarTable
+
