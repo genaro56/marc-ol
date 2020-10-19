@@ -222,11 +222,19 @@ class MyParser(Parser):
     def relation_exp(self, p): pass
 
     @_(
-        'termino "+" exp',
-        'termino "-" exp',
+        'termino "+" seen_oper_suma exp',
+        'termino "-" seen_oper_resta exp',
         'termino',
     )
     def exp(self, p): pass
+    
+    @_('')
+    def seen_oper_suma(self, p):
+        cuadruplos.pilaOperadores.append("+")
+        
+    @_('')
+    def seen_oper_resta(self, p):
+        cuadruplos.pilaOperadores.append("-")
 
     @_('factor', 
        'termino "*" seen_oper_mult factor', 
