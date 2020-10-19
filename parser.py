@@ -222,8 +222,8 @@ class MyParser(Parser):
     def relation_exp(self, p): pass
 
     @_(
-        'termino "+" seen_oper_suma exp',
-        'termino "-" seen_oper_resta exp',
+        'termino seen_termino "+" seen_oper_suma exp',
+        'termino seen_termino "-" seen_oper_resta exp',
         'termino seen_termino',
     )
     def exp(self, p): pass
@@ -255,8 +255,8 @@ class MyParser(Parser):
         cuadruplos.pilaOperadores.append("-")
 
     @_('factor seen_factor', 
-       'factor "*" seen_oper_mult termino', 
-       'factor "/" seen_oper_div termino',
+       'factor seen_factor "*" seen_oper_mult termino', 
+       'factor seen_factor "/" seen_oper_div termino',
     )
     def termino(self, p): pass
     
@@ -423,5 +423,5 @@ if __name__ == '__main__':
     inputFile.close()
     
     print(cuadruplos.pilaCuadruplos)
-    # print(cuadruplos.pilaOperandos)
-    # print(cuadruplos.pilaOperadores)
+    print(cuadruplos.pilaOperandos)
+    print(cuadruplos.pilaOperadores)
