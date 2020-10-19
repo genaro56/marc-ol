@@ -66,12 +66,6 @@ class MyParser(Parser):
     # VARS
     @_('VAR vars1')
     def vars(self, p): pass
-    
-    # @_('')
-    # def seen_endof_vars(self, p):
-    #     if len(dirFunc.funcStack) > 0:
-    #         dirFunc.funcStack.pop()
-    #     pass
 
     @_('var_def ";" vars1', 'var_def ";"')
     def vars1(self, p): pass
@@ -406,7 +400,8 @@ if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
 
-    inputFile = open("./TestProgram3.txt", "r")
+    testFilePath = os.path.abspath('test_files/TestProgram3.txt')
+    inputFile = open(testFilePath, "r")
     inputText = inputFile.read()
     print(inputText)
 
@@ -422,6 +417,6 @@ if __name__ == '__main__':
     print(result)
     inputFile.close()
     
-    print(cuadruplos.pilaCuadruplos)
-    print(cuadruplos.pilaOperandos)
-    print(cuadruplos.pilaOperadores)
+    print('Pila cuadruplos', cuadruplos.pilaCuadruplos)
+    print('Pila operandos', cuadruplos.pilaOperandos)
+    print('Pila operadores', cuadruplos.pilaOperadores)
