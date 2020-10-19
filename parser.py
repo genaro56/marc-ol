@@ -229,10 +229,18 @@ class MyParser(Parser):
     def exp(self, p): pass
 
     @_('factor', 
-       'termino "*" factor', 
-       'termino "/" factor',
+       'termino "*" seen_oper_mult factor', 
+       'termino "/" seen_oper_div factor',
     )
     def termino(self, p): pass
+    
+    @_('')
+    def seen_oper_mult(self, p):
+        cuadruplos.pilaOperadores.append("*")
+        
+    @_('')
+    def seen_oper_div(self, p):
+        cuadruplos.pilaOperadores.append("/")
 
     @_('"(" expresion ")"', 
        'var_cte', 
