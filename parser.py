@@ -224,9 +224,28 @@ class MyParser(Parser):
     @_(
         'termino "+" seen_oper_suma exp',
         'termino "-" seen_oper_resta exp',
-        'termino',
+        'termino seen_termino',
     )
     def exp(self, p): pass
+    
+    @_('')
+    def seen_termino(self, p):
+        pilaOperadores = cuadruplos.pilaOperadores
+        pilaOperandos = cuadruplos.pilaOperandos
+        if len(pilaOperadores) > 0 and (pilaOperadores[-1] == "+" or pilaOperadores[-1] == "-"):
+            rightOperand, rightType = pilaOperandos.pop()
+            leftOperand, leftType = pilaOperandos.pop()
+            operator = pilaOperadores.pop()
+            resultType = cuboSemantico[(leftType, rightType, operator)]
+            # print(leftType, rightType, operator, resultType)
+            if (resultType != 'error'):
+                result = addrCounter.nextTemporalAddr(resultType)
+                quad = (operator, leftOperand, rightOperand, result)
+                cuadruplos.pilaCuadruplos.append(quad)
+                pilaOperandos.append((result, resultType))
+            else:
+                raise Exception('Type mismatch')
+        pass
     
     @_('')
     def seen_oper_suma(self, p):
@@ -236,11 +255,30 @@ class MyParser(Parser):
     def seen_oper_resta(self, p):
         cuadruplos.pilaOperadores.append("-")
 
-    @_('factor', 
-       'termino "*" seen_oper_mult factor', 
-       'termino "/" seen_oper_div factor',
+    @_('factor seen_factor', 
+       'factor "*" seen_oper_mult termino', 
+       'factor "/" seen_oper_div termino',
     )
     def termino(self, p): pass
+    
+    @_('')
+    def seen_factor(self, p):
+        pilaOperadores = cuadruplos.pilaOperadores
+        pilaOperandos = cuadruplos.pilaOperandos
+        if len(pilaOperadores) > 0 and (pilaOperadores[-1] == "*" or pilaOperadores[-1] == "/"):
+            rightOperand, rightType = pilaOperandos.pop()
+            leftOperand, leftType = pilaOperandos.pop()
+            operator = pilaOperadores.pop()
+            resultType = cuboSemantico[(leftType, rightType, operator)]
+            # print(leftType, rightType, operator, resultType)
+            if (resultType != 'error'):
+                result = addrCounter.nextTemporalAddr(resultType)
+                quad = (operator, leftOperand, rightOperand, result)
+                cuadruplos.pilaCuadruplos.append(quad)
+                pilaOperandos.append((result, resultType))
+            else:
+                raise Exception('Type mismatch')
+        pass
     
     @_('')
     def seen_oper_mult(self, p):
@@ -258,8 +296,8 @@ class MyParser(Parser):
     def factor(self, p): pass
 
     @_('id_dim', 
-       'CTE_INT', 
-       'CTE_FLOAT', 
+       'CTE_INT seen_int_cte', 
+       'CTE_FLOAT seen_float_cte', 
        'call_fun'
     )
     def var_cte(self, p): pass
@@ -269,18 +307,32 @@ class MyParser(Parser):
         ID = p[0]
         funcId = dirFunc.funcStack[-1]
         varTable = dirFunc.getFuncion(funcId).tablaVariables
-        varType = None
+        varType = idAddr = None
         if varTable.isVarInTable(ID):
             varObj = varTable.getVar(ID)
             varType = varObj.getType()
+            idAddr = varObj.getAddr()
         elif varTable.isVarInGlobalTable(ID):
             varObj = varTable.getGlobalVarTable().getVar(ID)
             varType = varObj.getType()
+            idAddr = varObj.getAddr()
         else:
             raise Exception(f'Undefined variable {ID}')
-        cuadruplos.pilaOperandos.append((funcId, varType))
+        cuadruplos.pilaOperandos.append((idAddr, varType))
         return p[0]
 
+    @_('')
+    def seen_int_cte(self, p):
+        cte = p[-1]
+        cuadruplos.pilaOperandos.append((cte, 'int'))
+        pass
+        
+    @_('')
+    def seen_float_cte(self, p):
+        cte = p[-1]
+        cuadruplos.pilaOperandos.append((cte, 'float'))
+        pass
+    
     # Seria otra expresion regular NOMBRE_MODULO?
     @_('ID "(" call_fun1 ")"')
     def call_fun(self, p): pass
@@ -346,7 +398,7 @@ if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
 
-    inputFile = open("./TestProgram.txt", "r")
+    inputFile = open("./TestProgram3.txt", "r")
     inputText = inputFile.read()
     print(inputText)
 
@@ -361,3 +413,7 @@ if __name__ == '__main__':
     result = parser.parse(lexer.tokenize(inputText))
     print(result)
     inputFile.close()
+    
+    print(cuadruplos.pilaCuadruplos)
+    print(cuadruplos.pilaOperandos)
+    print(cuadruplos.pilaOperadores)
