@@ -310,6 +310,7 @@ class MyParser(Parser):
         funcId = dirFunc.funcStack[-1]
         varTable = dirFunc.getFuncion(funcId).tablaVariables
         varType = idAddr = None
+        # checa si la variable esta en la tabla local o global
         if varTable.isVarInTable(ID):
             varObj = varTable.getVar(ID)
             varType = varObj.getType()
@@ -380,6 +381,8 @@ class MyParser(Parser):
     
     @_('')
     def seen_main(self, p):
+        # saca el nombre de funcion anterior 
+        # y define programName como la funcion actual en funcStack
         dirFunc.funcStack.pop()
         programName = dirFunc.programName
         dirFunc.funcStack.append(programName)
@@ -417,6 +420,7 @@ if __name__ == '__main__':
     print(result)
     inputFile.close()
     
+    # Print de pilas de cuadruplos
     print('Pila cuadruplos', cuadruplos.pilaCuadruplos)
     print('Pila operandos', cuadruplos.pilaOperandos)
     print('Pila operadores', cuadruplos.pilaOperadores)
