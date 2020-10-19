@@ -1,8 +1,9 @@
 program Ejemplo;
 var
-    int a, b, c, d;
+    int a, b, c, d, e;
 
 main () 
 {
-    d = a + b * c;
+    d = (a + b) * c;
+    e = a + b * c;
 }

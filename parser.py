@@ -237,7 +237,6 @@ class MyParser(Parser):
             leftOperand, leftType = pilaOperandos.pop()
             operator = pilaOperadores.pop()
             resultType = cuboSemantico[(leftType, rightType, operator)]
-            # print(leftType, rightType, operator, resultType)
             if (resultType != 'error'):
                 result = addrCounter.nextTemporalAddr(resultType)
                 quad = (operator, leftOperand, rightOperand, result)
@@ -270,7 +269,6 @@ class MyParser(Parser):
             leftOperand, leftType = pilaOperandos.pop()
             operator = pilaOperadores.pop()
             resultType = cuboSemantico[(leftType, rightType, operator)]
-            # print(leftType, rightType, operator, resultType)
             if (resultType != 'error'):
                 result = addrCounter.nextTemporalAddr(resultType)
                 quad = (operator, leftOperand, rightOperand, result)
@@ -288,12 +286,22 @@ class MyParser(Parser):
     def seen_oper_div(self, p):
         cuadruplos.pilaOperadores.append("/")
 
-    @_('"(" expresion ")"', 
+    @_('"(" seen_left_paren expresion ")" seen_right_paren', 
        'var_cte', 
        '"+" var_cte', 
        '"-" var_cte',
     )
     def factor(self, p): pass
+
+    @_('')
+    def seen_left_paren(self, p):
+        cuadruplos.pilaOperadores.append("(")
+        pass
+    
+    @_('')
+    def seen_right_paren(self, p):
+        cuadruplos.pilaOperadores.pop()
+        pass
 
     @_('id_dim', 
        'CTE_INT seen_int_cte', 
@@ -415,5 +423,5 @@ if __name__ == '__main__':
     inputFile.close()
     
     print(cuadruplos.pilaCuadruplos)
-    print(cuadruplos.pilaOperandos)
-    print(cuadruplos.pilaOperadores)
+    # print(cuadruplos.pilaOperandos)
+    # print(cuadruplos.pilaOperadores)
