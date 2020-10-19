@@ -3,3 +3,4 @@ class Cuadruplos:
         self.pilaOperandos = []
         self.pilaOperadores = []
         self.pilaSaltos = []
+        self.pilaCuadruplos = []
