@@ -12,6 +12,7 @@ cuadruplos = Cuadruplos()
 filePath = os.path.abspath('./utils/combinaciones.json')
 cuboSemantico = CuboSemantico(filePath).getCuboSemantico()
 
+
 class MyParser(Parser):
     start = 'program'
     tokens = MyLexer.tokens
@@ -109,7 +110,8 @@ class MyParser(Parser):
         # busca el tope del stack para ver la siguiente entrada
         if len(dirFunc.funcStack) > 0:
             funcId = dirFunc.funcStack[-1]
-            dirFunc.dirFunciones[funcId].tablaVariables.setTempTypeValue(typeValue)
+            dirFunc.dirFunciones[funcId].tablaVariables.setTempTypeValue(
+                typeValue)
         return p[0]
 
     # FUNCTION
@@ -137,20 +139,23 @@ class MyParser(Parser):
         if not dirFunc.isNameInDir(funcName):
             dirFunc.addFuncion(funcName, funcType)
             # agrega referencia a la tabla de variables global
-            globalVarTable = dirFunc.getFuncion(dirFunc.programName).tablaVariables
-            dirFunc.getFuncion(funcName).tablaVariables.setGlobalVarTable(globalVarTable)
+            globalVarTable = dirFunc.getFuncion(
+                dirFunc.programName).tablaVariables
+            dirFunc.getFuncion(
+                funcName).tablaVariables.setGlobalVarTable(globalVarTable)
             # saca el nombre de fucion anterior y agrega el nuevo a funcStack
             dirFunc.funcStack.pop()
             dirFunc.funcStack.append(funcName)
         else:
-            raise Exception(f'MultipleDeclaration: module {funcName} already defined')
+            raise Exception(
+                f'MultipleDeclaration: module {funcName} already defined')
         pass
 
     @_('')
     def seen_func_end(self, p):
         addrCounter.resetLocalCounter()
         return
-    
+
     @_('vars bloque', 'bloque')
     def func_body(self, p): pass
 
@@ -185,7 +190,7 @@ class MyParser(Parser):
     # ASIGNACION
     @_('id_dim seen_id_asignacion "=" expresion seen_asignacion ";"')
     def asignacion(self, p): pass
-    
+
     @_('')
     def seen_id_asignacion(self, p):
         ID = p[-1]
@@ -205,7 +210,7 @@ class MyParser(Parser):
             raise Exception(f'Undefined variable {ID}')
         cuadruplos.pilaOperandos.append((idAddr, varType))
         pass
-    
+
     @_('')
     def seen_asignacion(self, p):
         # TODO: para validar el tipo del id falta agregar al cubo el operador '='
@@ -219,8 +224,14 @@ class MyParser(Parser):
     @_('WRITE "(" escritura1 ")" ";"')
     def escritura(self, p): pass
 
-    @_('out "," escritura1', 'out')
+    @_('out seen_write "," escritura1', 'out seen_write')
     def escritura1(self, p): pass
+
+    @_('')
+    def seen_write(self, p):
+        exp = cuadruplos.pilaOperandos.pop()
+        quad = ('print', None, None, exp)
+        cuadruplos.pilaCuadruplos.append(quad)
 
     @_('CTE_STRING', 'expresion')
     def out(self, p): pass
@@ -307,10 +318,10 @@ class MyParser(Parser):
     def seen_oper_resta(self, p):
         cuadruplos.pilaOperadores.append("-")
 
-    @_('factor seen_factor', 
-       'factor seen_factor "*" seen_oper_mult termino', 
+    @_('factor seen_factor',
+       'factor seen_factor "*" seen_oper_mult termino',
        'factor seen_factor "/" seen_oper_div termino',
-    )
+       )
     def termino(self, p): pass
 
     @_('')
@@ -330,20 +341,20 @@ class MyParser(Parser):
             else:
                 raise Exception('Type mismatch')
         pass
-    
+
     @_('')
     def seen_oper_mult(self, p):
         cuadruplos.pilaOperadores.append("*")
-        
+
     @_('')
     def seen_oper_div(self, p):
         cuadruplos.pilaOperadores.append("/")
 
-    @_('"(" seen_left_paren expresion ")" seen_right_paren', 
-       'var_cte', 
-       '"+" var_cte', 
+    @_('"(" seen_left_paren expresion ")" seen_right_paren',
+       'var_cte',
+       '"+" var_cte',
        '"-" var_cte',
-    )
+       )
     def factor(self, p): pass
 
     @_('')
@@ -356,13 +367,13 @@ class MyParser(Parser):
         cuadruplos.pilaOperadores.pop()
         pass
 
-    @_('id_dim', 
-       'CTE_INT seen_int_cte', 
-       'CTE_FLOAT seen_float_cte', 
+    @_('id_dim',
+       'CTE_INT seen_int_cte',
+       'CTE_FLOAT seen_float_cte',
        'call_fun'
-    )
+       )
     def var_cte(self, p): pass
-    
+
     @_('ID', 'ID "[" expresion "]"', 'ID "[" expresion "," expresion "]"')
     def id_dim(self, p):
         ID = p[0]
@@ -388,13 +399,13 @@ class MyParser(Parser):
         cte = p[-1]
         cuadruplos.pilaOperandos.append((cte, 'int'))
         pass
-        
+
     @_('')
     def seen_float_cte(self, p):
         cte = p[-1]
         cuadruplos.pilaOperandos.append((cte, 'float'))
         pass
-    
+
     # Seria otra expresion regular NOMBRE_MODULO?
     @_('ID "(" call_fun1 ")"')
     def call_fun(self, p): pass
@@ -437,10 +448,10 @@ class MyParser(Parser):
     # MAIN
     @_('MAIN seen_main "(" ")" bloque')
     def main(self, p): pass
-    
+
     @_('')
     def seen_main(self, p):
-        # saca el nombre de funcion anterior 
+        # saca el nombre de funcion anterior
         # y define programName como la funcion actual en funcStack
         dirFunc.funcStack.pop()
         programName = dirFunc.programName
@@ -478,7 +489,7 @@ if __name__ == '__main__':
     result = parser.parse(lexer.tokenize(inputText))
     print(result)
     inputFile.close()
-    
+
     # Print de pilas de cuadruplos
     print('Pila cuadruplos', cuadruplos.pilaCuadruplos)
     print('Pila operandos', cuadruplos.pilaOperandos)

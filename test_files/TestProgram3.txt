@@ -5,4 +5,5 @@ var
 main () 
 {
     d = a + b * (d + c) / e > b + c * d / h - g;
+    write(d);
 }
