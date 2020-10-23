@@ -183,8 +183,37 @@ class MyParser(Parser):
     def estatuto(self, p): pass
 
     # ASIGNACION
-    @_('id_dim "=" expresion ";"')
+    @_('id_dim seen_id_asignacion "=" expresion seen_asignacion ";"')
     def asignacion(self, p): pass
+    
+    @_('')
+    def seen_id_asignacion(self, p):
+        ID = p[-1]
+        funcId = dirFunc.funcStack[-1]
+        varTable = dirFunc.getFuncion(funcId).tablaVariables
+        varType = idAddr = None
+        # checa si la variable esta en la tabla local o global
+        if varTable.isVarInTable(ID):
+            varObj = varTable.getVar(ID)
+            varType = varObj.getType()
+            idAddr = varObj.getAddr()
+        elif varTable.isVarInGlobalTable(ID):
+            varObj = varTable.getGlobalVarTable().getVar(ID)
+            varType = varObj.getType()
+            idAddr = varObj.getAddr()
+        else:
+            raise Exception(f'Undefined variable {ID}')
+        cuadruplos.pilaOperandos.append((idAddr, varType))
+        pass
+    
+    @_('')
+    def seen_asignacion(self, p):
+        # TODO: para validar el tipo del id falta agregar al cubo el operador '='
+        exp, exp_tipo = cuadruplos.pilaOperandos.pop()
+        var, var_tipo = cuadruplos.pilaOperandos.pop()
+        quad = ('=', exp, None, var)
+        cuadruplos.pilaCuadruplos.append(quad)
+        pass
 
     # ESCRITURA
     @_('WRITE "(" escritura1 ")" ";"')
@@ -351,7 +380,7 @@ class MyParser(Parser):
             idAddr = varObj.getAddr()
         else:
             raise Exception(f'Undefined variable {ID}')
-        cuadruplos.pilaOperandos.append((ID, varType))
+        cuadruplos.pilaOperandos.append((idAddr, varType))
         return p[0]
 
     @_('')
