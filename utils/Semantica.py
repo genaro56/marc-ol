@@ -48,12 +48,13 @@ class AddrGenerator:
             'temporalAddr': {
                 'int': 7000,
                 'float': 8000,
-                'char': 9000
+                'char': 9000,
+                'boolean': 10000
             },
             'constAddr': {
-                'int': 10000,
-                'float': 11000,
-                'char': 12000
+                'int': 11000,
+                'float': 12000,
+                'char': 13000
             }
         }
 
