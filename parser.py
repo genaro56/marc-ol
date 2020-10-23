@@ -208,12 +208,42 @@ class MyParser(Parser):
        )
     def logic_exp(self, p): pass
 
-    @_('exp',
-       'exp "<" exp',
-       'exp ">" exp',
-       'exp EQUALS exp',
+    @_('exp seen_exp',
+       'exp "<" seen_oper_menor exp seen_exp',
+       'exp ">" seen_oper_mayor exp seen_exp',
+       'exp EQUALS seen_oper_equals exp seen_exp',
        )
     def relation_exp(self, p): pass
+
+    @_('')
+    def seen_exp(self, p):
+        pilaOperadores = cuadruplos.pilaOperadores
+        pilaOperandos = cuadruplos.pilaOperandos
+        if len(pilaOperadores) > 0 and (pilaOperadores[-1] in set(['<', '>', '=='])):
+            rightOperand, rightType = pilaOperandos.pop()
+            leftOperand, leftType = pilaOperandos.pop()
+            operator = pilaOperadores.pop()
+            resultType = cuboSemantico[(leftType, rightType, operator)]
+            if (resultType != 'error'):
+                result = addrCounter.nextTemporalAddr(resultType)
+                quad = (operator, leftOperand, rightOperand, result)
+                cuadruplos.pilaCuadruplos.append(quad)
+                pilaOperandos.append((result, resultType))
+            else:
+                raise Exception('Type mismatch')
+        pass
+
+    @_('')
+    def seen_oper_menor(self, p):
+        cuadruplos.pilaOperadores.append("<")
+
+    @_('')
+    def seen_oper_mayor(self, p):
+        cuadruplos.pilaOperadores.append(">")
+
+    @_('')
+    def seen_oper_equals(self, p):
+        cuadruplos.pilaOperadores.append("==")
 
     @_(
         'termino seen_termino "+" seen_oper_suma exp',
@@ -221,7 +251,7 @@ class MyParser(Parser):
         'termino seen_termino',
     )
     def exp(self, p): pass
-    
+
     @_('')
     def seen_termino(self, p):
         pilaOperadores = cuadruplos.pilaOperadores
@@ -239,11 +269,11 @@ class MyParser(Parser):
             else:
                 raise Exception('Type mismatch')
         pass
-    
+
     @_('')
     def seen_oper_suma(self, p):
         cuadruplos.pilaOperadores.append("+")
-        
+
     @_('')
     def seen_oper_resta(self, p):
         cuadruplos.pilaOperadores.append("-")
@@ -253,7 +283,7 @@ class MyParser(Parser):
        'factor seen_factor "/" seen_oper_div termino',
     )
     def termino(self, p): pass
-    
+
     @_('')
     def seen_factor(self, p):
         pilaOperadores = cuadruplos.pilaOperadores
@@ -291,7 +321,7 @@ class MyParser(Parser):
     def seen_left_paren(self, p):
         cuadruplos.pilaOperadores.append("(")
         pass
-    
+
     @_('')
     def seen_right_paren(self, p):
         cuadruplos.pilaOperadores.pop()
@@ -321,7 +351,7 @@ class MyParser(Parser):
             idAddr = varObj.getAddr()
         else:
             raise Exception(f'Undefined variable {ID}')
-        cuadruplos.pilaOperandos.append((idAddr, varType))
+        cuadruplos.pilaOperandos.append((ID, varType))
         return p[0]
 
     @_('')
