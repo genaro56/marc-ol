@@ -228,6 +228,7 @@ class MyParser(Parser):
     def seen_exp(self, p):
         pilaOperadores = cuadruplos.pilaOperadores
         pilaOperandos = cuadruplos.pilaOperandos
+        # TODO: extract this to a function.
         if len(pilaOperadores) > 0 and (pilaOperadores[-1] in set(['<', '>', '=='])):
             rightOperand, rightType = pilaOperandos.pop()
             leftOperand, leftType = pilaOperandos.pop()
