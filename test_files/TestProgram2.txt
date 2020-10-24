@@ -1,0 +1,26 @@
+program Ejemplo;
+var
+    int i, j;
+
+func
+int module uno(int a);
+var int i;
+{
+    i = a * 2;
+    if(i < a + 4) then
+    {
+        i = j - i;
+    }
+}
+
+int module dos(int b);
+{
+    b = b * i + j;
+    return(b*2);
+}
+
+main () 
+{
+    i = 2;
+    j = i * 2 - 1;
+}

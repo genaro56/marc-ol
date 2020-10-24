@@ -1,11 +1,16 @@
 import os
-from utils.Semantica import CuboSemantico
+from utils.Semantica import CuboSemantico, AddrGenerator
 from utils.Tablas import DirFunciones, TablaDeVars
+from utils.Cuadruplos import Cuadruplos
 from sly import Parser
 from lexer import MyLexer
 
 dirFunc = None
+addrCounter = AddrGenerator()
+cuadruplos = Cuadruplos()
 
+filePath = os.path.abspath('./utils/combinaciones.json')
+cuboSemantico = CuboSemantico(filePath).getCuboSemantico()
 
 class MyParser(Parser):
     start = 'program'
@@ -49,6 +54,7 @@ class MyParser(Parser):
         # agrega el siguiente ID de función para la lista de variables
         dirFunc.funcStack.append(funcName)
         dirFunc.addFuncion(funcName, 'PROGRAM')
+        dirFunc.programName = funcName
         pass
 
     @_('vars functions main',
@@ -58,29 +64,14 @@ class MyParser(Parser):
     def begin(self, p): pass
 
     # VARS
-    @_('VAR vars1 seen_endof_vars')
+    @_('VAR vars1')
     def vars(self, p): pass
-    
-    @_('')
-    def seen_endof_vars(self, p):
-        if len(dirFunc.funcStack) > 0:
-            dirFunc.funcStack.pop()
-        pass
 
     @_('var_def ";" vars1', 'var_def ";"')
     def vars1(self, p): pass
 
-    @_('tipo var_list seen_var_list')
+    @_('tipo var_list')
     def var_def(self, p): pass
-
-    @_('')
-    def seen_var_list(self, p):
-        # p[-1] es el tipo de la listas de variables
-        listType = p[-2]
-        # busca el tope del stack para ver la siguiente entrada
-        if len(dirFunc.funcStack) > 0:
-            funcId = dirFunc.funcStack[-1]
-            dirFunc.dirFunciones[funcId].tablaVariables.setTempTypeValue(listType)
 
     @_('var "," var_list', 'var')
     def var_list(self, p):
@@ -96,8 +87,16 @@ class MyParser(Parser):
             varName = p[-1]
             varType = dirFunc.dirFunciones[funcId].tablaVariables.tempTypeValue
             if not dirFunc.dirFunciones[funcId].tablaVariables.isVarInTable(varName):
+                nextAdrr = None
+                scope = dirFunc.dirFunciones[funcId].type
+                # checa si la variable pertenece al scope global o local
+                if scope == "PROGRAM":
+                    nextAdrr = addrCounter.nextGlobalAddr(varType)
+                else:
+                    nextAdrr = addrCounter.nextLocalAddr(varType)
+
                 dirFunc.dirFunciones[funcId].tablaVariables.addVar(
-                    varName, varType)
+                    varName, varType, nextAdrr)
             else:
                 raise Exception('Variable arleady declared in Table')
         pass
@@ -105,6 +104,12 @@ class MyParser(Parser):
     # TIPO
     @_('INT', 'FLOAT', 'CHAR')
     def tipo(self, p):
+        # p[-1] es el tipo de la listas de variables
+        typeValue = p[0]
+        # busca el tope del stack para ver la siguiente entrada
+        if len(dirFunc.funcStack) > 0:
+            funcId = dirFunc.funcStack[-1]
+            dirFunc.dirFunciones[funcId].tablaVariables.setTempTypeValue(typeValue)
         return p[0]
 
     # FUNCTION
@@ -116,7 +121,7 @@ class MyParser(Parser):
     def func_list(self, p):
         pass
 
-    @_('tipo_fun MODULE ID seen_funcId "(" params ")" ";" func_body')
+    @_('tipo_fun MODULE ID seen_funcId "(" params ")" ";" func_body seen_func_end')
     def func_def(self, p): pass
 
     @_('')
@@ -131,10 +136,21 @@ class MyParser(Parser):
 
         if not dirFunc.isNameInDir(funcName):
             dirFunc.addFuncion(funcName, funcType)
+            # agrega referencia a la tabla de variables global
+            globalVarTable = dirFunc.getFuncion(dirFunc.programName).tablaVariables
+            dirFunc.getFuncion(funcName).tablaVariables.setGlobalVarTable(globalVarTable)
+            # saca el nombre de fucion anterior y agrega el nuevo a funcStack
+            dirFunc.funcStack.pop()
+            dirFunc.funcStack.append(funcName)
         else:
-            raise Exception('MultipleDeclaration')
+            raise Exception(f'MultipleDeclaration: module {funcName} already defined')
         pass
 
+    @_('')
+    def seen_func_end(self, p):
+        addrCounter.resetLocalCounter()
+        return
+    
     @_('vars bloque', 'bloque')
     def func_body(self, p): pass
 
@@ -167,11 +183,17 @@ class MyParser(Parser):
     def estatuto(self, p): pass
 
     # ASIGNACION
-    @_('id_dim "=" expresion ";"')
+    @_('id_dim "=" expresion seen_asignacion ";"')
     def asignacion(self, p): pass
-
-    @_('ID', 'ID "[" expresion "]"', 'ID "[" expresion "," expresion "]"')
-    def id_dim(self, p): pass
+    
+    @_('')
+    def seen_asignacion(self, p):
+        # TODO: para validar el tipo del id falta agregar al cubo el operador '='
+        exp, exp_tipo = cuadruplos.pilaOperandos.pop()
+        var, var_tipo = cuadruplos.pilaOperandos.pop()
+        quad = ('=', exp, None, var)
+        cuadruplos.pilaCuadruplos.append(quad)
+        pass
 
     # ESCRITURA
     @_('WRITE "(" escritura1 ")" ";"')
@@ -195,29 +217,165 @@ class MyParser(Parser):
        )
     def logic_exp(self, p): pass
 
-    @_('exp',
-       'exp "<" exp',
-       'exp ">" exp',
-       'exp EQUALS exp',
+    @_('exp seen_exp',
+       'exp "<" seen_oper_menor exp seen_exp',
+       'exp ">" seen_oper_mayor exp seen_exp',
+       'exp EQUALS seen_oper_equals exp seen_exp',
        )
     def relation_exp(self, p): pass
 
+    @_('')
+    def seen_exp(self, p):
+        pilaOperadores = cuadruplos.pilaOperadores
+        pilaOperandos = cuadruplos.pilaOperandos
+        # TODO: extract this to a function.
+        if len(pilaOperadores) > 0 and (pilaOperadores[-1] in set(['<', '>', '=='])):
+            rightOperand, rightType = pilaOperandos.pop()
+            leftOperand, leftType = pilaOperandos.pop()
+            operator = pilaOperadores.pop()
+            resultType = cuboSemantico[(leftType, rightType, operator)]
+            if (resultType != 'error'):
+                result = addrCounter.nextTemporalAddr(resultType)
+                quad = (operator, leftOperand, rightOperand, result)
+                cuadruplos.pilaCuadruplos.append(quad)
+                pilaOperandos.append((result, resultType))
+            else:
+                raise Exception('Type mismatch')
+        pass
+
+    @_('')
+    def seen_oper_menor(self, p):
+        cuadruplos.pilaOperadores.append("<")
+
+    @_('')
+    def seen_oper_mayor(self, p):
+        cuadruplos.pilaOperadores.append(">")
+
+    @_('')
+    def seen_oper_equals(self, p):
+        cuadruplos.pilaOperadores.append("==")
+
     @_(
-        'termino "+" exp',
-        'termino "-" exp',
-        'termino',
+        'termino seen_termino "+" seen_oper_suma exp',
+        'termino seen_termino "-" seen_oper_resta exp',
+        'termino seen_termino',
     )
     def exp(self, p): pass
 
-    @_('factor', 'termino "*" factor', 'termino "/" factor')
+    @_('')
+    def seen_termino(self, p):
+        pilaOperadores = cuadruplos.pilaOperadores
+        pilaOperandos = cuadruplos.pilaOperandos
+        if len(pilaOperadores) > 0 and (pilaOperadores[-1] == "+" or pilaOperadores[-1] == "-"):
+            rightOperand, rightType = pilaOperandos.pop()
+            leftOperand, leftType = pilaOperandos.pop()
+            operator = pilaOperadores.pop()
+            resultType = cuboSemantico[(leftType, rightType, operator)]
+            if (resultType != 'error'):
+                result = addrCounter.nextTemporalAddr(resultType)
+                quad = (operator, leftOperand, rightOperand, result)
+                cuadruplos.pilaCuadruplos.append(quad)
+                pilaOperandos.append((result, resultType))
+            else:
+                raise Exception('Type mismatch')
+        pass
+
+    @_('')
+    def seen_oper_suma(self, p):
+        cuadruplos.pilaOperadores.append("+")
+
+    @_('')
+    def seen_oper_resta(self, p):
+        cuadruplos.pilaOperadores.append("-")
+
+    @_('factor seen_factor', 
+       'factor seen_factor "*" seen_oper_mult termino', 
+       'factor seen_factor "/" seen_oper_div termino',
+    )
     def termino(self, p): pass
 
-    @_('"(" expresion ")"', 'var_cte', '"+" var_cte', '"-" var_cte')
+    @_('')
+    def seen_factor(self, p):
+        pilaOperadores = cuadruplos.pilaOperadores
+        pilaOperandos = cuadruplos.pilaOperandos
+        if len(pilaOperadores) > 0 and (pilaOperadores[-1] == "*" or pilaOperadores[-1] == "/"):
+            rightOperand, rightType = pilaOperandos.pop()
+            leftOperand, leftType = pilaOperandos.pop()
+            operator = pilaOperadores.pop()
+            resultType = cuboSemantico[(leftType, rightType, operator)]
+            if (resultType != 'error'):
+                result = addrCounter.nextTemporalAddr(resultType)
+                quad = (operator, leftOperand, rightOperand, result)
+                cuadruplos.pilaCuadruplos.append(quad)
+                pilaOperandos.append((result, resultType))
+            else:
+                raise Exception('Type mismatch')
+        pass
+    
+    @_('')
+    def seen_oper_mult(self, p):
+        cuadruplos.pilaOperadores.append("*")
+        
+    @_('')
+    def seen_oper_div(self, p):
+        cuadruplos.pilaOperadores.append("/")
+
+    @_('"(" seen_left_paren expresion ")" seen_right_paren', 
+       'var_cte', 
+       '"+" var_cte', 
+       '"-" var_cte',
+    )
     def factor(self, p): pass
 
-    @_('id_dim', 'CTE_INT', 'CTE_FLOAT', 'call_fun')
-    def var_cte(self, p): pass
+    @_('')
+    def seen_left_paren(self, p):
+        cuadruplos.pilaOperadores.append("(")
+        pass
 
+    @_('')
+    def seen_right_paren(self, p):
+        cuadruplos.pilaOperadores.pop()
+        pass
+
+    @_('id_dim', 
+       'CTE_INT seen_int_cte', 
+       'CTE_FLOAT seen_float_cte', 
+       'call_fun'
+    )
+    def var_cte(self, p): pass
+    
+    @_('ID', 'ID "[" expresion "]"', 'ID "[" expresion "," expresion "]"')
+    def id_dim(self, p):
+        ID = p[0]
+        funcId = dirFunc.funcStack[-1]
+        varTable = dirFunc.getFuncion(funcId).tablaVariables
+        varType = idAddr = None
+        # checa si la variable esta en la tabla local o global
+        if varTable.isVarInTable(ID):
+            varObj = varTable.getVar(ID)
+            varType = varObj.getType()
+            idAddr = varObj.getAddr()
+        elif varTable.isVarInGlobalTable(ID):
+            varObj = varTable.getGlobalVarTable().getVar(ID)
+            varType = varObj.getType()
+            idAddr = varObj.getAddr()
+        else:
+            raise Exception(f'Undefined variable {ID}')
+        cuadruplos.pilaOperandos.append((idAddr, varType))
+        return p[0]
+
+    @_('')
+    def seen_int_cte(self, p):
+        cte = p[-1]
+        cuadruplos.pilaOperandos.append((cte, 'int'))
+        pass
+        
+    @_('')
+    def seen_float_cte(self, p):
+        cte = p[-1]
+        cuadruplos.pilaOperandos.append((cte, 'float'))
+        pass
+    
     # Seria otra expresion regular NOMBRE_MODULO?
     @_('ID "(" call_fun1 ")"')
     def call_fun(self, p): pass
@@ -258,8 +416,17 @@ class MyParser(Parser):
     def _for(self, p): pass
 
     # MAIN
-    @_('MAIN "(" ")" bloque')
+    @_('MAIN seen_main "(" ")" bloque')
     def main(self, p): pass
+    
+    @_('')
+    def seen_main(self, p):
+        # saca el nombre de funcion anterior 
+        # y define programName como la funcion actual en funcStack
+        dirFunc.funcStack.pop()
+        programName = dirFunc.programName
+        dirFunc.funcStack.append(programName)
+        pass
 
     # ERROR
     def error(self, p):
@@ -273,15 +440,11 @@ class MyParser(Parser):
 
 
 if __name__ == '__main__':
-
-    filePath = os.path.abspath('./utils/combinaciones.json')
-    semantica = CuboSemantico(filePath)
-    cubo = semantica.getCuboSemantico()
-
     parser = MyParser()
     lexer = MyLexer()
 
-    inputFile = open("./TestProgram.txt", "r")
+    testFilePath = os.path.abspath('test_files/TestProgram3.txt')
+    inputFile = open(testFilePath, "r")
     inputText = inputFile.read()
     print(inputText)
 
@@ -296,3 +459,8 @@ if __name__ == '__main__':
     result = parser.parse(lexer.tokenize(inputText))
     print(result)
     inputFile.close()
+    
+    # Print de pilas de cuadruplos
+    print('Pila cuadruplos', cuadruplos.pilaCuadruplos)
+    print('Pila operandos', cuadruplos.pilaOperandos)
+    print('Pila operadores', cuadruplos.pilaOperadores)
