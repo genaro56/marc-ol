@@ -42,3 +42,8 @@ Ariel Méndez | A01020690
     por scope.
   - Utiliza métodos útiles para manipular la memoria y generar los cuadruplos con sus ids únicos.
 
+- Faltantes: 
+  - Expresiones no lineales para ciclo FOR y WHILE.
+
+- Correcciones:
+  - Cambiar la forma en que se obtiene la tabla global ya que en main no funciona pues no tiene su tabla global, utilizar una variable que no existe en ese scope es "incachable".
