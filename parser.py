@@ -189,28 +189,8 @@ class MyParser(Parser):
     def estatuto(self, p): pass
 
     # ASIGNACION
-    @_('id_dim seen_id_asignacion "=" expresion seen_asignacion ";"')
+    @_('id_dim "=" expresion seen_asignacion ";"')
     def asignacion(self, p): pass
-
-    @_('')
-    def seen_id_asignacion(self, p):
-        ID = p[-1]
-        funcId = dirFunc.funcStack[-1]
-        varTable = dirFunc.getFuncion(funcId).tablaVariables
-        varType = idAddr = None
-        # checa si la variable esta en la tabla local o global
-        if varTable.isVarInTable(ID):
-            varObj = varTable.getVar(ID)
-            varType = varObj.getType()
-            idAddr = varObj.getAddr()
-        elif varTable.isVarInGlobalTable(ID):
-            varObj = varTable.getGlobalVarTable().getVar(ID)
-            varType = varObj.getType()
-            idAddr = varObj.getAddr()
-        else:
-            raise Exception(f'Undefined variable {ID}')
-        cuadruplos.pilaOperandos.append((idAddr, varType))
-        pass
 
     @_('')
     def seen_asignacion(self, p):
@@ -258,6 +238,7 @@ class MyParser(Parser):
     def seen_exp(self, p):
         pilaOperadores = cuadruplos.pilaOperadores
         pilaOperandos = cuadruplos.pilaOperandos
+        # TODO: extract this to a function.
         if len(pilaOperadores) > 0 and (pilaOperadores[-1] in set(['<', '>', '=='])):
             rightOperand, rightType = pilaOperandos.pop()
             leftOperand, leftType = pilaOperandos.pop()
