@@ -15,5 +15,9 @@ var int i, j;
 main () 
 {
     d = a + b * (d + c) / e > b + c * d / h - g;
-    read(s);
+    if (a == b) then
+    {
+        print("hi")
+    }
+
 }

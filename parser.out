@@ -1,0 +1,3415 @@
+Grammar:
+
+Rule 0     S' -> program
+Rule 1     empty -> <empty>
+Rule 2     program -> PROGRAM seen_program ID seen_programId ; begin
+Rule 3     seen_program -> <empty>
+Rule 4     seen_programId -> <empty>
+Rule 5     begin -> main
+Rule 6     begin -> functions main
+Rule 7     begin -> vars main
+Rule 8     begin -> vars functions main
+Rule 9     vars -> VAR vars1
+Rule 10    vars1 -> var_def ;
+Rule 11    vars1 -> var_def ; vars1
+Rule 12    var_def -> tipo var_list
+Rule 13    var_list -> var
+Rule 14    var_list -> var , var_list
+Rule 15    var -> ID seen_var_name [ CTE_INT ] [ CTE_INT ]
+Rule 16    var -> ID seen_var_name [ CTE_INT ]
+Rule 17    var -> ID seen_var_name
+Rule 18    seen_var_name -> <empty>
+Rule 19    tipo -> CHAR
+Rule 20    tipo -> FLOAT
+Rule 21    tipo -> INT
+Rule 22    functions -> FUNC func_list
+Rule 23    func_list -> func_def
+Rule 24    func_list -> func_def func_list
+Rule 25    func_def -> tipo_fun MODULE ID seen_funcId ( params ) ; func_body seen_func_end
+Rule 26    seen_funcId -> <empty>
+Rule 27    seen_func_end -> <empty>
+Rule 28    func_body -> bloque
+Rule 29    func_body -> vars bloque
+Rule 30    tipo_fun -> VOID
+Rule 31    tipo_fun -> tipo
+Rule 32    params -> tipo var
+Rule 33    params -> tipo var , params
+Rule 34    bloque -> { empty }
+Rule 35    bloque -> { bloque1 }
+Rule 36    bloque1 -> estatuto
+Rule 37    bloque1 -> estatuto bloque1
+Rule 38    estatuto -> repeticion
+Rule 39    estatuto -> condicion
+Rule 40    estatuto -> escritura
+Rule 41    estatuto -> lectura
+Rule 42    estatuto -> _return
+Rule 43    estatuto -> void_fun
+Rule 44    estatuto -> asignacion
+Rule 45    asignacion -> id_dim seen_id_asignacion = expresion seen_asignacion ;
+Rule 46    seen_id_asignacion -> <empty>
+Rule 47    seen_asignacion -> <empty>
+Rule 48    escritura -> WRITE ( escritura1 ) ;
+Rule 49    escritura1 -> out seen_write
+Rule 50    escritura1 -> out seen_write , escritura1
+Rule 51    seen_write -> <empty>
+Rule 52    out -> expresion
+Rule 53    out -> CTE_STRING
+Rule 54    expresion -> logic_exp | expresion
+Rule 55    expresion -> logic_exp
+Rule 56    logic_exp -> relation_exp ! logic_exp
+Rule 57    logic_exp -> relation_exp & logic_exp
+Rule 58    logic_exp -> relation_exp
+Rule 59    relation_exp -> exp EQUALS seen_oper_equals exp seen_exp
+Rule 60    relation_exp -> exp > seen_oper_mayor exp seen_exp  [precedence=nonassoc, level=1]
+Rule 61    relation_exp -> exp < seen_oper_menor exp seen_exp  [precedence=nonassoc, level=1]
+Rule 62    relation_exp -> exp seen_exp
+Rule 63    seen_exp -> <empty>
+Rule 64    seen_oper_menor -> <empty>
+Rule 65    seen_oper_mayor -> <empty>
+Rule 66    seen_oper_equals -> <empty>
+Rule 67    exp -> termino seen_termino
+Rule 68    exp -> termino seen_termino - seen_oper_resta exp  [precedence=left, level=2]
+Rule 69    exp -> termino seen_termino + seen_oper_suma exp  [precedence=left, level=2]
+Rule 70    seen_termino -> <empty>
+Rule 71    seen_oper_suma -> <empty>
+Rule 72    seen_oper_resta -> <empty>
+Rule 73    termino -> factor seen_factor / seen_oper_div termino  [precedence=left, level=3]
+Rule 74    termino -> factor seen_factor * seen_oper_mult termino  [precedence=left, level=3]
+Rule 75    termino -> factor seen_factor
+Rule 76    seen_factor -> <empty>
+Rule 77    seen_oper_mult -> <empty>
+Rule 78    seen_oper_div -> <empty>
+Rule 79    factor -> - var_cte  [precedence=left, level=2]
+Rule 80    factor -> + var_cte  [precedence=left, level=2]
+Rule 81    factor -> var_cte
+Rule 82    factor -> ( seen_left_paren expresion ) seen_right_paren
+Rule 83    seen_left_paren -> <empty>
+Rule 84    seen_right_paren -> <empty>
+Rule 85    var_cte -> call_fun
+Rule 86    var_cte -> CTE_FLOAT seen_float_cte
+Rule 87    var_cte -> CTE_INT seen_int_cte
+Rule 88    var_cte -> id_dim
+Rule 89    id_dim -> ID [ expresion , expresion ]
+Rule 90    id_dim -> ID [ expresion ]
+Rule 91    id_dim -> ID
+Rule 92    seen_int_cte -> <empty>
+Rule 93    seen_float_cte -> <empty>
+Rule 94    call_fun -> ID ( call_fun1 )
+Rule 95    call_fun1 -> expresion
+Rule 96    call_fun1 -> expresion , call_fun1
+Rule 97    void_fun -> call_fun ;
+Rule 98    _return -> RETURN ( expresion ) ;
+Rule 99    lectura -> READ ( lectura1 ) ;
+Rule 100   lectura1 -> id_dim seen_read
+Rule 101   lectura1 -> id_dim seen_read , lectura1
+Rule 102   seen_read -> <empty>
+Rule 103   condicion -> IF ( expresion ) seen_gotof THEN bloque ELSE seen_goto bloque seen_end_if
+Rule 104   condicion -> IF ( expresion ) seen_gotof THEN bloque seen_end_if
+Rule 105   seen_gotof -> <empty>
+Rule 106   seen_goto -> <empty>
+Rule 107   seen_end_if -> <empty>
+Rule 108   repeticion -> _for
+Rule 109   repeticion -> _while
+Rule 110   _while -> WHILE ( expresion ) DO bloque
+Rule 111   _for -> FOR id_dim = expresion TO expresion DO bloque
+Rule 112   main -> MAIN seen_main ( ) bloque
+Rule 113   seen_main -> <empty>
+
+Terminals, with rules where they appear:
+
+!                    : 56
+&                    : 57
+(                    : 25 48 82 94 98 99 103 104 110 112
+)                    : 25 48 82 94 98 99 103 104 110 112
+*                    : 74
++                    : 69 80
+,                    : 14 33 50 89 96 101
+-                    : 68 79
+/                    : 73
+;                    : 2 10 11 25 45 48 97 98 99
+<                    : 61
+=                    : 45 111
+>                    : 60
+CHAR                 : 19
+CTE_FLOAT            : 86
+CTE_INT              : 15 15 16 87
+CTE_STRING           : 53
+DO                   : 110 111
+ELSE                 : 103
+EQUALS               : 59
+FLOAT                : 20
+FOR                  : 111
+FUNC                 : 22
+ID                   : 2 15 16 17 25 89 90 91 94
+IF                   : 103 104
+INT                  : 21
+MAIN                 : 112
+MODULE               : 25
+PROGRAM              : 2
+READ                 : 99
+RETURN               : 98
+THEN                 : 103 104
+TO                   : 111
+VAR                  : 9
+VOID                 : 30
+WHILE                : 110
+WRITE                : 48
+[                    : 15 15 16 89 90
+]                    : 15 15 16 89 90
+error                : 
+{                    : 34 35
+|                    : 54
+}                    : 34 35
+
+Nonterminals, with rules where they appear:
+
+_for                 : 108
+_return              : 42
+_while               : 109
+asignacion           : 44
+begin                : 2
+bloque               : 28 29 103 103 104 110 111 112
+bloque1              : 35 37
+call_fun             : 85 97
+call_fun1            : 94 96
+condicion            : 39
+empty                : 34
+escritura            : 40
+escritura1           : 48 50
+estatuto             : 36 37
+exp                  : 59 59 60 60 61 61 62 68 69
+expresion            : 45 52 54 82 89 89 90 95 96 98 103 104 110 111 111
+factor               : 73 74 75
+func_body            : 25
+func_def             : 23 24
+func_list            : 22 24
+functions            : 6 8
+id_dim               : 45 88 100 101 111
+lectura              : 41
+lectura1             : 99 101
+logic_exp            : 54 55 56 57
+main                 : 5 6 7 8
+out                  : 49 50
+params               : 25 33
+program              : 0
+relation_exp         : 56 57 58
+repeticion           : 38
+seen_asignacion      : 45
+seen_end_if          : 103 104
+seen_exp             : 59 60 61 62
+seen_factor          : 73 74 75
+seen_float_cte       : 86
+seen_funcId          : 25
+seen_func_end        : 25
+seen_goto            : 103
+seen_gotof           : 103 104
+seen_id_asignacion   : 45
+seen_int_cte         : 87
+seen_left_paren      : 82
+seen_main            : 112
+seen_oper_div        : 73
+seen_oper_equals     : 59
+seen_oper_mayor      : 60
+seen_oper_menor      : 61
+seen_oper_mult       : 74
+seen_oper_resta      : 68
+seen_oper_suma       : 69
+seen_program         : 2
+seen_programId       : 2
+seen_read            : 100 101
+seen_right_paren     : 82
+seen_termino         : 67 68 69
+seen_var_name        : 15 16 17
+seen_write           : 49 50
+termino              : 67 68 69 73 74
+tipo                 : 12 31 32 33
+tipo_fun             : 25
+var                  : 13 14 32 33
+var_cte              : 79 80 81
+var_def              : 10 11
+var_list             : 12 14
+vars                 : 7 8 29
+vars1                : 9 11
+void_fun             : 43
+
+
+state 0
+
+    (0) S' -> . program
+    (2) program -> . PROGRAM seen_program ID seen_programId ; begin
+    PROGRAM         shift and go to state 2
+
+    program                        shift and go to state 1
+
+state 1
+
+    (0) S' -> program .
+
+
+state 2
+
+    (2) program -> PROGRAM . seen_program ID seen_programId ; begin
+    (3) seen_program -> .
+    ID              reduce using rule 3 (seen_program -> .)
+
+    seen_program                   shift and go to state 3
+
+state 3
+
+    (2) program -> PROGRAM seen_program . ID seen_programId ; begin
+    ID              shift and go to state 4
+
+
+state 4
+
+    (2) program -> PROGRAM seen_program ID . seen_programId ; begin
+    (4) seen_programId -> .
+    ;               reduce using rule 4 (seen_programId -> .)
+
+    seen_programId                 shift and go to state 5
+
+state 5
+
+    (2) program -> PROGRAM seen_program ID seen_programId . ; begin
+    ;               shift and go to state 6
+
+
+state 6
+
+    (2) program -> PROGRAM seen_program ID seen_programId ; . begin
+    (5) begin -> . main
+    (6) begin -> . functions main
+    (7) begin -> . vars main
+    (8) begin -> . vars functions main
+    (112) main -> . MAIN seen_main ( ) bloque
+    (22) functions -> . FUNC func_list
+    (9) vars -> . VAR vars1
+    MAIN            shift and go to state 11
+    FUNC            shift and go to state 12
+    VAR             shift and go to state 13
+
+    begin                          shift and go to state 7
+    main                           shift and go to state 8
+    functions                      shift and go to state 9
+    vars                           shift and go to state 10
+
+state 7
+
+    (2) program -> PROGRAM seen_program ID seen_programId ; begin .
+    $end            reduce using rule 2 (program -> PROGRAM seen_program ID seen_programId ; begin .)
+
+
+state 8
+
+    (5) begin -> main .
+    $end            reduce using rule 5 (begin -> main .)
+
+
+state 9
+
+    (6) begin -> functions . main
+    (112) main -> . MAIN seen_main ( ) bloque
+    MAIN            shift and go to state 11
+
+    main                           shift and go to state 14
+
+state 10
+
+    (7) begin -> vars . main
+    (8) begin -> vars . functions main
+    (112) main -> . MAIN seen_main ( ) bloque
+    (22) functions -> . FUNC func_list
+    MAIN            shift and go to state 11
+    FUNC            shift and go to state 12
+
+    main                           shift and go to state 15
+    functions                      shift and go to state 16
+
+state 11
+
+    (112) main -> MAIN . seen_main ( ) bloque
+    (113) seen_main -> .
+    (               reduce using rule 113 (seen_main -> .)
+
+    seen_main                      shift and go to state 17
+
+state 12
+
+    (22) functions -> FUNC . func_list
+    (23) func_list -> . func_def
+    (24) func_list -> . func_def func_list
+    (25) func_def -> . tipo_fun MODULE ID seen_funcId ( params ) ; func_body seen_func_end
+    (30) tipo_fun -> . VOID
+    (31) tipo_fun -> . tipo
+    (19) tipo -> . CHAR
+    (20) tipo -> . FLOAT
+    (21) tipo -> . INT
+    VOID            shift and go to state 21
+    CHAR            shift and go to state 23
+    FLOAT           shift and go to state 24
+    INT             shift and go to state 25
+
+    func_list                      shift and go to state 18
+    func_def                       shift and go to state 19
+    tipo_fun                       shift and go to state 20
+    tipo                           shift and go to state 22
+
+state 13
+
+    (9) vars -> VAR . vars1
+    (10) vars1 -> . var_def ;
+    (11) vars1 -> . var_def ; vars1
+    (12) var_def -> . tipo var_list
+    (19) tipo -> . CHAR
+    (20) tipo -> . FLOAT
+    (21) tipo -> . INT
+    CHAR            shift and go to state 23
+    FLOAT           shift and go to state 24
+    INT             shift and go to state 25
+
+    vars1                          shift and go to state 26
+    var_def                        shift and go to state 27
+    tipo                           shift and go to state 28
+
+state 14
+
+    (6) begin -> functions main .
+    $end            reduce using rule 6 (begin -> functions main .)
+
+
+state 15
+
+    (7) begin -> vars main .
+    $end            reduce using rule 7 (begin -> vars main .)
+
+
+state 16
+
+    (8) begin -> vars functions . main
+    (112) main -> . MAIN seen_main ( ) bloque
+    MAIN            shift and go to state 11
+
+    main                           shift and go to state 29
+
+state 17
+
+    (112) main -> MAIN seen_main . ( ) bloque
+    (               shift and go to state 30
+
+
+state 18
+
+    (22) functions -> FUNC func_list .
+    MAIN            reduce using rule 22 (functions -> FUNC func_list .)
+
+
+state 19
+
+    (23) func_list -> func_def .
+    (24) func_list -> func_def . func_list
+    (23) func_list -> . func_def
+    (24) func_list -> . func_def func_list
+    (25) func_def -> . tipo_fun MODULE ID seen_funcId ( params ) ; func_body seen_func_end
+    (30) tipo_fun -> . VOID
+    (31) tipo_fun -> . tipo
+    (19) tipo -> . CHAR
+    (20) tipo -> . FLOAT
+    (21) tipo -> . INT
+    MAIN            reduce using rule 23 (func_list -> func_def .)
+    VOID            shift and go to state 21
+    CHAR            shift and go to state 23
+    FLOAT           shift and go to state 24
+    INT             shift and go to state 25
+
+    func_def                       shift and go to state 19
+    func_list                      shift and go to state 31
+    tipo_fun                       shift and go to state 20
+    tipo                           shift and go to state 22
+
+state 20
+
+    (25) func_def -> tipo_fun . MODULE ID seen_funcId ( params ) ; func_body seen_func_end
+    MODULE          shift and go to state 32
+
+
+state 21
+
+    (30) tipo_fun -> VOID .
+    MODULE          reduce using rule 30 (tipo_fun -> VOID .)
+
+
+state 22
+
+    (31) tipo_fun -> tipo .
+    MODULE          reduce using rule 31 (tipo_fun -> tipo .)
+
+
+state 23
+
+    (19) tipo -> CHAR .
+    MODULE          reduce using rule 19 (tipo -> CHAR .)
+    ID              reduce using rule 19 (tipo -> CHAR .)
+
+
+state 24
+
+    (20) tipo -> FLOAT .
+    MODULE          reduce using rule 20 (tipo -> FLOAT .)
+    ID              reduce using rule 20 (tipo -> FLOAT .)
+
+
+state 25
+
+    (21) tipo -> INT .
+    MODULE          reduce using rule 21 (tipo -> INT .)
+    ID              reduce using rule 21 (tipo -> INT .)
+
+
+state 26
+
+    (9) vars -> VAR vars1 .
+    MAIN            reduce using rule 9 (vars -> VAR vars1 .)
+    FUNC            reduce using rule 9 (vars -> VAR vars1 .)
+    {               reduce using rule 9 (vars -> VAR vars1 .)
+
+
+state 27
+
+    (10) vars1 -> var_def . ;
+    (11) vars1 -> var_def . ; vars1
+    ;               shift and go to state 33
+
+
+state 28
+
+    (12) var_def -> tipo . var_list
+    (13) var_list -> . var
+    (14) var_list -> . var , var_list
+    (15) var -> . ID seen_var_name [ CTE_INT ] [ CTE_INT ]
+    (16) var -> . ID seen_var_name [ CTE_INT ]
+    (17) var -> . ID seen_var_name
+    ID              shift and go to state 36
+
+    var_list                       shift and go to state 34
+    var                            shift and go to state 35
+
+state 29
+
+    (8) begin -> vars functions main .
+    $end            reduce using rule 8 (begin -> vars functions main .)
+
+
+state 30
+
+    (112) main -> MAIN seen_main ( . ) bloque
+    )               shift and go to state 37
+
+
+state 31
+
+    (24) func_list -> func_def func_list .
+    MAIN            reduce using rule 24 (func_list -> func_def func_list .)
+
+
+state 32
+
+    (25) func_def -> tipo_fun MODULE . ID seen_funcId ( params ) ; func_body seen_func_end
+    ID              shift and go to state 38
+
+
+state 33
+
+    (10) vars1 -> var_def ; .
+    (11) vars1 -> var_def ; . vars1
+    (10) vars1 -> . var_def ;
+    (11) vars1 -> . var_def ; vars1
+    (12) var_def -> . tipo var_list
+    (19) tipo -> . CHAR
+    (20) tipo -> . FLOAT
+    (21) tipo -> . INT
+    MAIN            reduce using rule 10 (vars1 -> var_def ; .)
+    FUNC            reduce using rule 10 (vars1 -> var_def ; .)
+    {               reduce using rule 10 (vars1 -> var_def ; .)
+    CHAR            shift and go to state 23
+    FLOAT           shift and go to state 24
+    INT             shift and go to state 25
+
+    var_def                        shift and go to state 27
+    vars1                          shift and go to state 39
+    tipo                           shift and go to state 28
+
+state 34
+
+    (12) var_def -> tipo var_list .
+    ;               reduce using rule 12 (var_def -> tipo var_list .)
+
+
+state 35
+
+    (13) var_list -> var .
+    (14) var_list -> var . , var_list
+    ;               reduce using rule 13 (var_list -> var .)
+    ,               shift and go to state 40
+
+
+state 36
+
+    (15) var -> ID . seen_var_name [ CTE_INT ] [ CTE_INT ]
+    (16) var -> ID . seen_var_name [ CTE_INT ]
+    (17) var -> ID . seen_var_name
+    (18) seen_var_name -> .
+    [               reduce using rule 18 (seen_var_name -> .)
+    ,               reduce using rule 18 (seen_var_name -> .)
+    ;               reduce using rule 18 (seen_var_name -> .)
+    )               reduce using rule 18 (seen_var_name -> .)
+
+    seen_var_name                  shift and go to state 41
+
+state 37
+
+    (112) main -> MAIN seen_main ( ) . bloque
+    (34) bloque -> . { empty }
+    (35) bloque -> . { bloque1 }
+    {               shift and go to state 43
+
+    bloque                         shift and go to state 42
+
+state 38
+
+    (25) func_def -> tipo_fun MODULE ID . seen_funcId ( params ) ; func_body seen_func_end
+    (26) seen_funcId -> .
+    (               reduce using rule 26 (seen_funcId -> .)
+
+    seen_funcId                    shift and go to state 44
+
+state 39
+
+    (11) vars1 -> var_def ; vars1 .
+    MAIN            reduce using rule 11 (vars1 -> var_def ; vars1 .)
+    FUNC            reduce using rule 11 (vars1 -> var_def ; vars1 .)
+    {               reduce using rule 11 (vars1 -> var_def ; vars1 .)
+
+
+state 40
+
+    (14) var_list -> var , . var_list
+    (13) var_list -> . var
+    (14) var_list -> . var , var_list
+    (15) var -> . ID seen_var_name [ CTE_INT ] [ CTE_INT ]
+    (16) var -> . ID seen_var_name [ CTE_INT ]
+    (17) var -> . ID seen_var_name
+    ID              shift and go to state 36
+
+    var                            shift and go to state 35
+    var_list                       shift and go to state 45
+
+state 41
+
+    (15) var -> ID seen_var_name . [ CTE_INT ] [ CTE_INT ]
+    (16) var -> ID seen_var_name . [ CTE_INT ]
+    (17) var -> ID seen_var_name .
+    [               shift and go to state 46
+    ,               reduce using rule 17 (var -> ID seen_var_name .)
+    ;               reduce using rule 17 (var -> ID seen_var_name .)
+    )               reduce using rule 17 (var -> ID seen_var_name .)
+
+
+state 42
+
+    (112) main -> MAIN seen_main ( ) bloque .
+    $end            reduce using rule 112 (main -> MAIN seen_main ( ) bloque .)
+
+
+state 43
+
+    (34) bloque -> { . empty }
+    (35) bloque -> { . bloque1 }
+    (1) empty -> .
+    (36) bloque1 -> . estatuto
+    (37) bloque1 -> . estatuto bloque1
+    (38) estatuto -> . repeticion
+    (39) estatuto -> . condicion
+    (40) estatuto -> . escritura
+    (41) estatuto -> . lectura
+    (42) estatuto -> . _return
+    (43) estatuto -> . void_fun
+    (44) estatuto -> . asignacion
+    (108) repeticion -> . _for
+    (109) repeticion -> . _while
+    (103) condicion -> . IF ( expresion ) seen_gotof THEN bloque ELSE seen_goto bloque seen_end_if
+    (104) condicion -> . IF ( expresion ) seen_gotof THEN bloque seen_end_if
+    (48) escritura -> . WRITE ( escritura1 ) ;
+    (99) lectura -> . READ ( lectura1 ) ;
+    (98) _return -> . RETURN ( expresion ) ;
+    (97) void_fun -> . call_fun ;
+    (45) asignacion -> . id_dim seen_id_asignacion = expresion seen_asignacion ;
+    (111) _for -> . FOR id_dim = expresion TO expresion DO bloque
+    (110) _while -> . WHILE ( expresion ) DO bloque
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    }               reduce using rule 1 (empty -> .)
+    IF              shift and go to state 59
+    WRITE           shift and go to state 60
+    READ            shift and go to state 61
+    RETURN          shift and go to state 62
+    FOR             shift and go to state 65
+    WHILE           shift and go to state 66
+    ID              shift and go to state 67
+
+    empty                          shift and go to state 47
+    bloque1                        shift and go to state 48
+    estatuto                       shift and go to state 49
+    repeticion                     shift and go to state 50
+    condicion                      shift and go to state 51
+    escritura                      shift and go to state 52
+    lectura                        shift and go to state 53
+    _return                        shift and go to state 54
+    void_fun                       shift and go to state 55
+    asignacion                     shift and go to state 56
+    _for                           shift and go to state 57
+    _while                         shift and go to state 58
+    call_fun                       shift and go to state 63
+    id_dim                         shift and go to state 64
+
+state 44
+
+    (25) func_def -> tipo_fun MODULE ID seen_funcId . ( params ) ; func_body seen_func_end
+    (               shift and go to state 68
+
+
+state 45
+
+    (14) var_list -> var , var_list .
+    ;               reduce using rule 14 (var_list -> var , var_list .)
+
+
+state 46
+
+    (15) var -> ID seen_var_name [ . CTE_INT ] [ CTE_INT ]
+    (16) var -> ID seen_var_name [ . CTE_INT ]
+    CTE_INT         shift and go to state 69
+
+
+state 47
+
+    (34) bloque -> { empty . }
+    }               shift and go to state 70
+
+
+state 48
+
+    (35) bloque -> { bloque1 . }
+    }               shift and go to state 71
+
+
+state 49
+
+    (36) bloque1 -> estatuto .
+    (37) bloque1 -> estatuto . bloque1
+    (36) bloque1 -> . estatuto
+    (37) bloque1 -> . estatuto bloque1
+    (38) estatuto -> . repeticion
+    (39) estatuto -> . condicion
+    (40) estatuto -> . escritura
+    (41) estatuto -> . lectura
+    (42) estatuto -> . _return
+    (43) estatuto -> . void_fun
+    (44) estatuto -> . asignacion
+    (108) repeticion -> . _for
+    (109) repeticion -> . _while
+    (103) condicion -> . IF ( expresion ) seen_gotof THEN bloque ELSE seen_goto bloque seen_end_if
+    (104) condicion -> . IF ( expresion ) seen_gotof THEN bloque seen_end_if
+    (48) escritura -> . WRITE ( escritura1 ) ;
+    (99) lectura -> . READ ( lectura1 ) ;
+    (98) _return -> . RETURN ( expresion ) ;
+    (97) void_fun -> . call_fun ;
+    (45) asignacion -> . id_dim seen_id_asignacion = expresion seen_asignacion ;
+    (111) _for -> . FOR id_dim = expresion TO expresion DO bloque
+    (110) _while -> . WHILE ( expresion ) DO bloque
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    }               reduce using rule 36 (bloque1 -> estatuto .)
+    IF              shift and go to state 59
+    WRITE           shift and go to state 60
+    READ            shift and go to state 61
+    RETURN          shift and go to state 62
+    FOR             shift and go to state 65
+    WHILE           shift and go to state 66
+    ID              shift and go to state 67
+
+    estatuto                       shift and go to state 49
+    bloque1                        shift and go to state 72
+    repeticion                     shift and go to state 50
+    condicion                      shift and go to state 51
+    escritura                      shift and go to state 52
+    lectura                        shift and go to state 53
+    _return                        shift and go to state 54
+    void_fun                       shift and go to state 55
+    asignacion                     shift and go to state 56
+    _for                           shift and go to state 57
+    _while                         shift and go to state 58
+    call_fun                       shift and go to state 63
+    id_dim                         shift and go to state 64
+
+state 50
+
+    (38) estatuto -> repeticion .
+    IF              reduce using rule 38 (estatuto -> repeticion .)
+    WRITE           reduce using rule 38 (estatuto -> repeticion .)
+    READ            reduce using rule 38 (estatuto -> repeticion .)
+    RETURN          reduce using rule 38 (estatuto -> repeticion .)
+    FOR             reduce using rule 38 (estatuto -> repeticion .)
+    WHILE           reduce using rule 38 (estatuto -> repeticion .)
+    ID              reduce using rule 38 (estatuto -> repeticion .)
+    }               reduce using rule 38 (estatuto -> repeticion .)
+
+
+state 51
+
+    (39) estatuto -> condicion .
+    IF              reduce using rule 39 (estatuto -> condicion .)
+    WRITE           reduce using rule 39 (estatuto -> condicion .)
+    READ            reduce using rule 39 (estatuto -> condicion .)
+    RETURN          reduce using rule 39 (estatuto -> condicion .)
+    FOR             reduce using rule 39 (estatuto -> condicion .)
+    WHILE           reduce using rule 39 (estatuto -> condicion .)
+    ID              reduce using rule 39 (estatuto -> condicion .)
+    }               reduce using rule 39 (estatuto -> condicion .)
+
+
+state 52
+
+    (40) estatuto -> escritura .
+    IF              reduce using rule 40 (estatuto -> escritura .)
+    WRITE           reduce using rule 40 (estatuto -> escritura .)
+    READ            reduce using rule 40 (estatuto -> escritura .)
+    RETURN          reduce using rule 40 (estatuto -> escritura .)
+    FOR             reduce using rule 40 (estatuto -> escritura .)
+    WHILE           reduce using rule 40 (estatuto -> escritura .)
+    ID              reduce using rule 40 (estatuto -> escritura .)
+    }               reduce using rule 40 (estatuto -> escritura .)
+
+
+state 53
+
+    (41) estatuto -> lectura .
+    IF              reduce using rule 41 (estatuto -> lectura .)
+    WRITE           reduce using rule 41 (estatuto -> lectura .)
+    READ            reduce using rule 41 (estatuto -> lectura .)
+    RETURN          reduce using rule 41 (estatuto -> lectura .)
+    FOR             reduce using rule 41 (estatuto -> lectura .)
+    WHILE           reduce using rule 41 (estatuto -> lectura .)
+    ID              reduce using rule 41 (estatuto -> lectura .)
+    }               reduce using rule 41 (estatuto -> lectura .)
+
+
+state 54
+
+    (42) estatuto -> _return .
+    IF              reduce using rule 42 (estatuto -> _return .)
+    WRITE           reduce using rule 42 (estatuto -> _return .)
+    READ            reduce using rule 42 (estatuto -> _return .)
+    RETURN          reduce using rule 42 (estatuto -> _return .)
+    FOR             reduce using rule 42 (estatuto -> _return .)
+    WHILE           reduce using rule 42 (estatuto -> _return .)
+    ID              reduce using rule 42 (estatuto -> _return .)
+    }               reduce using rule 42 (estatuto -> _return .)
+
+
+state 55
+
+    (43) estatuto -> void_fun .
+    IF              reduce using rule 43 (estatuto -> void_fun .)
+    WRITE           reduce using rule 43 (estatuto -> void_fun .)
+    READ            reduce using rule 43 (estatuto -> void_fun .)
+    RETURN          reduce using rule 43 (estatuto -> void_fun .)
+    FOR             reduce using rule 43 (estatuto -> void_fun .)
+    WHILE           reduce using rule 43 (estatuto -> void_fun .)
+    ID              reduce using rule 43 (estatuto -> void_fun .)
+    }               reduce using rule 43 (estatuto -> void_fun .)
+
+
+state 56
+
+    (44) estatuto -> asignacion .
+    IF              reduce using rule 44 (estatuto -> asignacion .)
+    WRITE           reduce using rule 44 (estatuto -> asignacion .)
+    READ            reduce using rule 44 (estatuto -> asignacion .)
+    RETURN          reduce using rule 44 (estatuto -> asignacion .)
+    FOR             reduce using rule 44 (estatuto -> asignacion .)
+    WHILE           reduce using rule 44 (estatuto -> asignacion .)
+    ID              reduce using rule 44 (estatuto -> asignacion .)
+    }               reduce using rule 44 (estatuto -> asignacion .)
+
+
+state 57
+
+    (108) repeticion -> _for .
+    IF              reduce using rule 108 (repeticion -> _for .)
+    WRITE           reduce using rule 108 (repeticion -> _for .)
+    READ            reduce using rule 108 (repeticion -> _for .)
+    RETURN          reduce using rule 108 (repeticion -> _for .)
+    FOR             reduce using rule 108 (repeticion -> _for .)
+    WHILE           reduce using rule 108 (repeticion -> _for .)
+    ID              reduce using rule 108 (repeticion -> _for .)
+    }               reduce using rule 108 (repeticion -> _for .)
+
+
+state 58
+
+    (109) repeticion -> _while .
+    IF              reduce using rule 109 (repeticion -> _while .)
+    WRITE           reduce using rule 109 (repeticion -> _while .)
+    READ            reduce using rule 109 (repeticion -> _while .)
+    RETURN          reduce using rule 109 (repeticion -> _while .)
+    FOR             reduce using rule 109 (repeticion -> _while .)
+    WHILE           reduce using rule 109 (repeticion -> _while .)
+    ID              reduce using rule 109 (repeticion -> _while .)
+    }               reduce using rule 109 (repeticion -> _while .)
+
+
+state 59
+
+    (103) condicion -> IF . ( expresion ) seen_gotof THEN bloque ELSE seen_goto bloque seen_end_if
+    (104) condicion -> IF . ( expresion ) seen_gotof THEN bloque seen_end_if
+    (               shift and go to state 73
+
+
+state 60
+
+    (48) escritura -> WRITE . ( escritura1 ) ;
+    (               shift and go to state 74
+
+
+state 61
+
+    (99) lectura -> READ . ( lectura1 ) ;
+    (               shift and go to state 75
+
+
+state 62
+
+    (98) _return -> RETURN . ( expresion ) ;
+    (               shift and go to state 76
+
+
+state 63
+
+    (97) void_fun -> call_fun . ;
+    ;               shift and go to state 77
+
+
+state 64
+
+    (45) asignacion -> id_dim . seen_id_asignacion = expresion seen_asignacion ;
+    (46) seen_id_asignacion -> .
+    =               reduce using rule 46 (seen_id_asignacion -> .)
+
+    seen_id_asignacion             shift and go to state 78
+
+state 65
+
+    (111) _for -> FOR . id_dim = expresion TO expresion DO bloque
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    ID              shift and go to state 80
+
+    id_dim                         shift and go to state 79
+
+state 66
+
+    (110) _while -> WHILE . ( expresion ) DO bloque
+    (               shift and go to state 81
+
+
+state 67
+
+    (94) call_fun -> ID . ( call_fun1 )
+    (89) id_dim -> ID . [ expresion , expresion ]
+    (90) id_dim -> ID . [ expresion ]
+    (91) id_dim -> ID .
+    (               shift and go to state 82
+    [               shift and go to state 83
+    =               reduce using rule 91 (id_dim -> ID .)
+    /               reduce using rule 91 (id_dim -> ID .)
+    *               reduce using rule 91 (id_dim -> ID .)
+    -               reduce using rule 91 (id_dim -> ID .)
+    +               reduce using rule 91 (id_dim -> ID .)
+    EQUALS          reduce using rule 91 (id_dim -> ID .)
+    >               reduce using rule 91 (id_dim -> ID .)
+    <               reduce using rule 91 (id_dim -> ID .)
+    !               reduce using rule 91 (id_dim -> ID .)
+    &               reduce using rule 91 (id_dim -> ID .)
+    |               reduce using rule 91 (id_dim -> ID .)
+    )               reduce using rule 91 (id_dim -> ID .)
+    ,               reduce using rule 91 (id_dim -> ID .)
+    ]               reduce using rule 91 (id_dim -> ID .)
+    ;               reduce using rule 91 (id_dim -> ID .)
+    TO              reduce using rule 91 (id_dim -> ID .)
+    DO              reduce using rule 91 (id_dim -> ID .)
+
+
+state 68
+
+    (25) func_def -> tipo_fun MODULE ID seen_funcId ( . params ) ; func_body seen_func_end
+    (32) params -> . tipo var
+    (33) params -> . tipo var , params
+    (19) tipo -> . CHAR
+    (20) tipo -> . FLOAT
+    (21) tipo -> . INT
+    CHAR            shift and go to state 23
+    FLOAT           shift and go to state 24
+    INT             shift and go to state 25
+
+    params                         shift and go to state 84
+    tipo                           shift and go to state 85
+
+state 69
+
+    (15) var -> ID seen_var_name [ CTE_INT . ] [ CTE_INT ]
+    (16) var -> ID seen_var_name [ CTE_INT . ]
+    ]               shift and go to state 86
+
+
+state 70
+
+    (34) bloque -> { empty } .
+    $end            reduce using rule 34 (bloque -> { empty } .)
+    VOID            reduce using rule 34 (bloque -> { empty } .)
+    CHAR            reduce using rule 34 (bloque -> { empty } .)
+    FLOAT           reduce using rule 34 (bloque -> { empty } .)
+    INT             reduce using rule 34 (bloque -> { empty } .)
+    MAIN            reduce using rule 34 (bloque -> { empty } .)
+    IF              reduce using rule 34 (bloque -> { empty } .)
+    WRITE           reduce using rule 34 (bloque -> { empty } .)
+    READ            reduce using rule 34 (bloque -> { empty } .)
+    RETURN          reduce using rule 34 (bloque -> { empty } .)
+    FOR             reduce using rule 34 (bloque -> { empty } .)
+    WHILE           reduce using rule 34 (bloque -> { empty } .)
+    ID              reduce using rule 34 (bloque -> { empty } .)
+    }               reduce using rule 34 (bloque -> { empty } .)
+    ELSE            reduce using rule 34 (bloque -> { empty } .)
+
+
+state 71
+
+    (35) bloque -> { bloque1 } .
+    $end            reduce using rule 35 (bloque -> { bloque1 } .)
+    VOID            reduce using rule 35 (bloque -> { bloque1 } .)
+    CHAR            reduce using rule 35 (bloque -> { bloque1 } .)
+    FLOAT           reduce using rule 35 (bloque -> { bloque1 } .)
+    INT             reduce using rule 35 (bloque -> { bloque1 } .)
+    MAIN            reduce using rule 35 (bloque -> { bloque1 } .)
+    IF              reduce using rule 35 (bloque -> { bloque1 } .)
+    WRITE           reduce using rule 35 (bloque -> { bloque1 } .)
+    READ            reduce using rule 35 (bloque -> { bloque1 } .)
+    RETURN          reduce using rule 35 (bloque -> { bloque1 } .)
+    FOR             reduce using rule 35 (bloque -> { bloque1 } .)
+    WHILE           reduce using rule 35 (bloque -> { bloque1 } .)
+    ID              reduce using rule 35 (bloque -> { bloque1 } .)
+    }               reduce using rule 35 (bloque -> { bloque1 } .)
+    ELSE            reduce using rule 35 (bloque -> { bloque1 } .)
+
+
+state 72
+
+    (37) bloque1 -> estatuto bloque1 .
+    }               reduce using rule 37 (bloque1 -> estatuto bloque1 .)
+
+
+state 73
+
+    (103) condicion -> IF ( . expresion ) seen_gotof THEN bloque ELSE seen_goto bloque seen_end_if
+    (104) condicion -> IF ( . expresion ) seen_gotof THEN bloque seen_end_if
+    (54) expresion -> . logic_exp | expresion
+    (55) expresion -> . logic_exp
+    (56) logic_exp -> . relation_exp ! logic_exp
+    (57) logic_exp -> . relation_exp & logic_exp
+    (58) logic_exp -> . relation_exp
+    (59) relation_exp -> . exp EQUALS seen_oper_equals exp seen_exp
+    (60) relation_exp -> . exp > seen_oper_mayor exp seen_exp
+    (61) relation_exp -> . exp < seen_oper_menor exp seen_exp
+    (62) relation_exp -> . exp seen_exp
+    (67) exp -> . termino seen_termino
+    (68) exp -> . termino seen_termino - seen_oper_resta exp
+    (69) exp -> . termino seen_termino + seen_oper_suma exp
+    (73) termino -> . factor seen_factor / seen_oper_div termino
+    (74) termino -> . factor seen_factor * seen_oper_mult termino
+    (75) termino -> . factor seen_factor
+    (79) factor -> . - var_cte
+    (80) factor -> . + var_cte
+    (81) factor -> . var_cte
+    (82) factor -> . ( seen_left_paren expresion ) seen_right_paren
+    (85) var_cte -> . call_fun
+    (86) var_cte -> . CTE_FLOAT seen_float_cte
+    (87) var_cte -> . CTE_INT seen_int_cte
+    (88) var_cte -> . id_dim
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    -               shift and go to state 93
+    +               shift and go to state 94
+    (               shift and go to state 87
+    CTE_FLOAT       shift and go to state 98
+    CTE_INT         shift and go to state 99
+    ID              shift and go to state 67
+
+    expresion                      shift and go to state 88
+    logic_exp                      shift and go to state 89
+    relation_exp                   shift and go to state 90
+    exp                            shift and go to state 91
+    termino                        shift and go to state 92
+    factor                         shift and go to state 95
+    var_cte                        shift and go to state 96
+    call_fun                       shift and go to state 97
+    id_dim                         shift and go to state 100
+
+state 74
+
+    (48) escritura -> WRITE ( . escritura1 ) ;
+    (49) escritura1 -> . out seen_write
+    (50) escritura1 -> . out seen_write , escritura1
+    (52) out -> . expresion
+    (53) out -> . CTE_STRING
+    (54) expresion -> . logic_exp | expresion
+    (55) expresion -> . logic_exp
+    (56) logic_exp -> . relation_exp ! logic_exp
+    (57) logic_exp -> . relation_exp & logic_exp
+    (58) logic_exp -> . relation_exp
+    (59) relation_exp -> . exp EQUALS seen_oper_equals exp seen_exp
+    (60) relation_exp -> . exp > seen_oper_mayor exp seen_exp
+    (61) relation_exp -> . exp < seen_oper_menor exp seen_exp
+    (62) relation_exp -> . exp seen_exp
+    (67) exp -> . termino seen_termino
+    (68) exp -> . termino seen_termino - seen_oper_resta exp
+    (69) exp -> . termino seen_termino + seen_oper_suma exp
+    (73) termino -> . factor seen_factor / seen_oper_div termino
+    (74) termino -> . factor seen_factor * seen_oper_mult termino
+    (75) termino -> . factor seen_factor
+    (79) factor -> . - var_cte
+    (80) factor -> . + var_cte
+    (81) factor -> . var_cte
+    (82) factor -> . ( seen_left_paren expresion ) seen_right_paren
+    (85) var_cte -> . call_fun
+    (86) var_cte -> . CTE_FLOAT seen_float_cte
+    (87) var_cte -> . CTE_INT seen_int_cte
+    (88) var_cte -> . id_dim
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    CTE_STRING      shift and go to state 104
+    -               shift and go to state 93
+    +               shift and go to state 94
+    (               shift and go to state 87
+    CTE_FLOAT       shift and go to state 98
+    CTE_INT         shift and go to state 99
+    ID              shift and go to state 67
+
+    escritura1                     shift and go to state 101
+    out                            shift and go to state 102
+    expresion                      shift and go to state 103
+    logic_exp                      shift and go to state 89
+    relation_exp                   shift and go to state 90
+    exp                            shift and go to state 91
+    termino                        shift and go to state 92
+    factor                         shift and go to state 95
+    var_cte                        shift and go to state 96
+    call_fun                       shift and go to state 97
+    id_dim                         shift and go to state 100
+
+state 75
+
+    (99) lectura -> READ ( . lectura1 ) ;
+    (100) lectura1 -> . id_dim seen_read
+    (101) lectura1 -> . id_dim seen_read , lectura1
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    ID              shift and go to state 80
+
+    lectura1                       shift and go to state 105
+    id_dim                         shift and go to state 106
+
+state 76
+
+    (98) _return -> RETURN ( . expresion ) ;
+    (54) expresion -> . logic_exp | expresion
+    (55) expresion -> . logic_exp
+    (56) logic_exp -> . relation_exp ! logic_exp
+    (57) logic_exp -> . relation_exp & logic_exp
+    (58) logic_exp -> . relation_exp
+    (59) relation_exp -> . exp EQUALS seen_oper_equals exp seen_exp
+    (60) relation_exp -> . exp > seen_oper_mayor exp seen_exp
+    (61) relation_exp -> . exp < seen_oper_menor exp seen_exp
+    (62) relation_exp -> . exp seen_exp
+    (67) exp -> . termino seen_termino
+    (68) exp -> . termino seen_termino - seen_oper_resta exp
+    (69) exp -> . termino seen_termino + seen_oper_suma exp
+    (73) termino -> . factor seen_factor / seen_oper_div termino
+    (74) termino -> . factor seen_factor * seen_oper_mult termino
+    (75) termino -> . factor seen_factor
+    (79) factor -> . - var_cte
+    (80) factor -> . + var_cte
+    (81) factor -> . var_cte
+    (82) factor -> . ( seen_left_paren expresion ) seen_right_paren
+    (85) var_cte -> . call_fun
+    (86) var_cte -> . CTE_FLOAT seen_float_cte
+    (87) var_cte -> . CTE_INT seen_int_cte
+    (88) var_cte -> . id_dim
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    -               shift and go to state 93
+    +               shift and go to state 94
+    (               shift and go to state 87
+    CTE_FLOAT       shift and go to state 98
+    CTE_INT         shift and go to state 99
+    ID              shift and go to state 67
+
+    expresion                      shift and go to state 107
+    logic_exp                      shift and go to state 89
+    relation_exp                   shift and go to state 90
+    exp                            shift and go to state 91
+    termino                        shift and go to state 92
+    factor                         shift and go to state 95
+    var_cte                        shift and go to state 96
+    call_fun                       shift and go to state 97
+    id_dim                         shift and go to state 100
+
+state 77
+
+    (97) void_fun -> call_fun ; .
+    IF              reduce using rule 97 (void_fun -> call_fun ; .)
+    WRITE           reduce using rule 97 (void_fun -> call_fun ; .)
+    READ            reduce using rule 97 (void_fun -> call_fun ; .)
+    RETURN          reduce using rule 97 (void_fun -> call_fun ; .)
+    FOR             reduce using rule 97 (void_fun -> call_fun ; .)
+    WHILE           reduce using rule 97 (void_fun -> call_fun ; .)
+    ID              reduce using rule 97 (void_fun -> call_fun ; .)
+    }               reduce using rule 97 (void_fun -> call_fun ; .)
+
+
+state 78
+
+    (45) asignacion -> id_dim seen_id_asignacion . = expresion seen_asignacion ;
+    =               shift and go to state 108
+
+
+state 79
+
+    (111) _for -> FOR id_dim . = expresion TO expresion DO bloque
+    =               shift and go to state 109
+
+
+state 80
+
+    (89) id_dim -> ID . [ expresion , expresion ]
+    (90) id_dim -> ID . [ expresion ]
+    (91) id_dim -> ID .
+    [               shift and go to state 83
+    =               reduce using rule 91 (id_dim -> ID .)
+    ,               reduce using rule 91 (id_dim -> ID .)
+    )               reduce using rule 91 (id_dim -> ID .)
+
+
+state 81
+
+    (110) _while -> WHILE ( . expresion ) DO bloque
+    (54) expresion -> . logic_exp | expresion
+    (55) expresion -> . logic_exp
+    (56) logic_exp -> . relation_exp ! logic_exp
+    (57) logic_exp -> . relation_exp & logic_exp
+    (58) logic_exp -> . relation_exp
+    (59) relation_exp -> . exp EQUALS seen_oper_equals exp seen_exp
+    (60) relation_exp -> . exp > seen_oper_mayor exp seen_exp
+    (61) relation_exp -> . exp < seen_oper_menor exp seen_exp
+    (62) relation_exp -> . exp seen_exp
+    (67) exp -> . termino seen_termino
+    (68) exp -> . termino seen_termino - seen_oper_resta exp
+    (69) exp -> . termino seen_termino + seen_oper_suma exp
+    (73) termino -> . factor seen_factor / seen_oper_div termino
+    (74) termino -> . factor seen_factor * seen_oper_mult termino
+    (75) termino -> . factor seen_factor
+    (79) factor -> . - var_cte
+    (80) factor -> . + var_cte
+    (81) factor -> . var_cte
+    (82) factor -> . ( seen_left_paren expresion ) seen_right_paren
+    (85) var_cte -> . call_fun
+    (86) var_cte -> . CTE_FLOAT seen_float_cte
+    (87) var_cte -> . CTE_INT seen_int_cte
+    (88) var_cte -> . id_dim
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    -               shift and go to state 93
+    +               shift and go to state 94
+    (               shift and go to state 87
+    CTE_FLOAT       shift and go to state 98
+    CTE_INT         shift and go to state 99
+    ID              shift and go to state 67
+
+    expresion                      shift and go to state 110
+    logic_exp                      shift and go to state 89
+    relation_exp                   shift and go to state 90
+    exp                            shift and go to state 91
+    termino                        shift and go to state 92
+    factor                         shift and go to state 95
+    var_cte                        shift and go to state 96
+    call_fun                       shift and go to state 97
+    id_dim                         shift and go to state 100
+
+state 82
+
+    (94) call_fun -> ID ( . call_fun1 )
+    (95) call_fun1 -> . expresion
+    (96) call_fun1 -> . expresion , call_fun1
+    (54) expresion -> . logic_exp | expresion
+    (55) expresion -> . logic_exp
+    (56) logic_exp -> . relation_exp ! logic_exp
+    (57) logic_exp -> . relation_exp & logic_exp
+    (58) logic_exp -> . relation_exp
+    (59) relation_exp -> . exp EQUALS seen_oper_equals exp seen_exp
+    (60) relation_exp -> . exp > seen_oper_mayor exp seen_exp
+    (61) relation_exp -> . exp < seen_oper_menor exp seen_exp
+    (62) relation_exp -> . exp seen_exp
+    (67) exp -> . termino seen_termino
+    (68) exp -> . termino seen_termino - seen_oper_resta exp
+    (69) exp -> . termino seen_termino + seen_oper_suma exp
+    (73) termino -> . factor seen_factor / seen_oper_div termino
+    (74) termino -> . factor seen_factor * seen_oper_mult termino
+    (75) termino -> . factor seen_factor
+    (79) factor -> . - var_cte
+    (80) factor -> . + var_cte
+    (81) factor -> . var_cte
+    (82) factor -> . ( seen_left_paren expresion ) seen_right_paren
+    (85) var_cte -> . call_fun
+    (86) var_cte -> . CTE_FLOAT seen_float_cte
+    (87) var_cte -> . CTE_INT seen_int_cte
+    (88) var_cte -> . id_dim
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    -               shift and go to state 93
+    +               shift and go to state 94
+    (               shift and go to state 87
+    CTE_FLOAT       shift and go to state 98
+    CTE_INT         shift and go to state 99
+    ID              shift and go to state 67
+
+    call_fun1                      shift and go to state 111
+    expresion                      shift and go to state 112
+    logic_exp                      shift and go to state 89
+    relation_exp                   shift and go to state 90
+    exp                            shift and go to state 91
+    termino                        shift and go to state 92
+    factor                         shift and go to state 95
+    var_cte                        shift and go to state 96
+    call_fun                       shift and go to state 97
+    id_dim                         shift and go to state 100
+
+state 83
+
+    (89) id_dim -> ID [ . expresion , expresion ]
+    (90) id_dim -> ID [ . expresion ]
+    (54) expresion -> . logic_exp | expresion
+    (55) expresion -> . logic_exp
+    (56) logic_exp -> . relation_exp ! logic_exp
+    (57) logic_exp -> . relation_exp & logic_exp
+    (58) logic_exp -> . relation_exp
+    (59) relation_exp -> . exp EQUALS seen_oper_equals exp seen_exp
+    (60) relation_exp -> . exp > seen_oper_mayor exp seen_exp
+    (61) relation_exp -> . exp < seen_oper_menor exp seen_exp
+    (62) relation_exp -> . exp seen_exp
+    (67) exp -> . termino seen_termino
+    (68) exp -> . termino seen_termino - seen_oper_resta exp
+    (69) exp -> . termino seen_termino + seen_oper_suma exp
+    (73) termino -> . factor seen_factor / seen_oper_div termino
+    (74) termino -> . factor seen_factor * seen_oper_mult termino
+    (75) termino -> . factor seen_factor
+    (79) factor -> . - var_cte
+    (80) factor -> . + var_cte
+    (81) factor -> . var_cte
+    (82) factor -> . ( seen_left_paren expresion ) seen_right_paren
+    (85) var_cte -> . call_fun
+    (86) var_cte -> . CTE_FLOAT seen_float_cte
+    (87) var_cte -> . CTE_INT seen_int_cte
+    (88) var_cte -> . id_dim
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    -               shift and go to state 93
+    +               shift and go to state 94
+    (               shift and go to state 87
+    CTE_FLOAT       shift and go to state 98
+    CTE_INT         shift and go to state 99
+    ID              shift and go to state 67
+
+    expresion                      shift and go to state 113
+    logic_exp                      shift and go to state 89
+    relation_exp                   shift and go to state 90
+    exp                            shift and go to state 91
+    termino                        shift and go to state 92
+    factor                         shift and go to state 95
+    var_cte                        shift and go to state 96
+    call_fun                       shift and go to state 97
+    id_dim                         shift and go to state 100
+
+state 84
+
+    (25) func_def -> tipo_fun MODULE ID seen_funcId ( params . ) ; func_body seen_func_end
+    )               shift and go to state 114
+
+
+state 85
+
+    (32) params -> tipo . var
+    (33) params -> tipo . var , params
+    (15) var -> . ID seen_var_name [ CTE_INT ] [ CTE_INT ]
+    (16) var -> . ID seen_var_name [ CTE_INT ]
+    (17) var -> . ID seen_var_name
+    ID              shift and go to state 36
+
+    var                            shift and go to state 115
+
+state 86
+
+    (15) var -> ID seen_var_name [ CTE_INT ] . [ CTE_INT ]
+    (16) var -> ID seen_var_name [ CTE_INT ] .
+    [               shift and go to state 116
+    ,               reduce using rule 16 (var -> ID seen_var_name [ CTE_INT ] .)
+    ;               reduce using rule 16 (var -> ID seen_var_name [ CTE_INT ] .)
+    )               reduce using rule 16 (var -> ID seen_var_name [ CTE_INT ] .)
+
+
+state 87
+
+    (82) factor -> ( . seen_left_paren expresion ) seen_right_paren
+    (83) seen_left_paren -> .
+    -               reduce using rule 83 (seen_left_paren -> .)
+    +               reduce using rule 83 (seen_left_paren -> .)
+    (               reduce using rule 83 (seen_left_paren -> .)
+    CTE_FLOAT       reduce using rule 83 (seen_left_paren -> .)
+    CTE_INT         reduce using rule 83 (seen_left_paren -> .)
+    ID              reduce using rule 83 (seen_left_paren -> .)
+
+    seen_left_paren                shift and go to state 117
+
+state 88
+
+    (103) condicion -> IF ( expresion . ) seen_gotof THEN bloque ELSE seen_goto bloque seen_end_if
+    (104) condicion -> IF ( expresion . ) seen_gotof THEN bloque seen_end_if
+    )               shift and go to state 118
+
+
+state 89
+
+    (54) expresion -> logic_exp . | expresion
+    (55) expresion -> logic_exp .
+    |               shift and go to state 119
+    )               reduce using rule 55 (expresion -> logic_exp .)
+    ,               reduce using rule 55 (expresion -> logic_exp .)
+    ]               reduce using rule 55 (expresion -> logic_exp .)
+    ;               reduce using rule 55 (expresion -> logic_exp .)
+    TO              reduce using rule 55 (expresion -> logic_exp .)
+    DO              reduce using rule 55 (expresion -> logic_exp .)
+
+
+state 90
+
+    (56) logic_exp -> relation_exp . ! logic_exp
+    (57) logic_exp -> relation_exp . & logic_exp
+    (58) logic_exp -> relation_exp .
+    !               shift and go to state 120
+    &               shift and go to state 121
+    |               reduce using rule 58 (logic_exp -> relation_exp .)
+    )               reduce using rule 58 (logic_exp -> relation_exp .)
+    ,               reduce using rule 58 (logic_exp -> relation_exp .)
+    ]               reduce using rule 58 (logic_exp -> relation_exp .)
+    ;               reduce using rule 58 (logic_exp -> relation_exp .)
+    TO              reduce using rule 58 (logic_exp -> relation_exp .)
+    DO              reduce using rule 58 (logic_exp -> relation_exp .)
+
+
+state 91
+
+    (59) relation_exp -> exp . EQUALS seen_oper_equals exp seen_exp
+    (60) relation_exp -> exp . > seen_oper_mayor exp seen_exp
+    (61) relation_exp -> exp . < seen_oper_menor exp seen_exp
+    (62) relation_exp -> exp . seen_exp
+    (63) seen_exp -> .
+    EQUALS          shift and go to state 122
+    >               shift and go to state 124
+    <               shift and go to state 125
+    !               reduce using rule 63 (seen_exp -> .)
+    &               reduce using rule 63 (seen_exp -> .)
+    |               reduce using rule 63 (seen_exp -> .)
+    )               reduce using rule 63 (seen_exp -> .)
+    ,               reduce using rule 63 (seen_exp -> .)
+    ]               reduce using rule 63 (seen_exp -> .)
+    ;               reduce using rule 63 (seen_exp -> .)
+    TO              reduce using rule 63 (seen_exp -> .)
+    DO              reduce using rule 63 (seen_exp -> .)
+
+    seen_exp                       shift and go to state 123
+
+state 92
+
+    (67) exp -> termino . seen_termino
+    (68) exp -> termino . seen_termino - seen_oper_resta exp
+    (69) exp -> termino . seen_termino + seen_oper_suma exp
+    (70) seen_termino -> .
+    -               reduce using rule 70 (seen_termino -> .)
+    +               reduce using rule 70 (seen_termino -> .)
+    EQUALS          reduce using rule 70 (seen_termino -> .)
+    >               reduce using rule 70 (seen_termino -> .)
+    <               reduce using rule 70 (seen_termino -> .)
+    !               reduce using rule 70 (seen_termino -> .)
+    &               reduce using rule 70 (seen_termino -> .)
+    |               reduce using rule 70 (seen_termino -> .)
+    )               reduce using rule 70 (seen_termino -> .)
+    ,               reduce using rule 70 (seen_termino -> .)
+    ]               reduce using rule 70 (seen_termino -> .)
+    ;               reduce using rule 70 (seen_termino -> .)
+    TO              reduce using rule 70 (seen_termino -> .)
+    DO              reduce using rule 70 (seen_termino -> .)
+
+    seen_termino                   shift and go to state 126
+
+state 93
+
+    (79) factor -> - . var_cte
+    (85) var_cte -> . call_fun
+    (86) var_cte -> . CTE_FLOAT seen_float_cte
+    (87) var_cte -> . CTE_INT seen_int_cte
+    (88) var_cte -> . id_dim
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    CTE_FLOAT       shift and go to state 98
+    CTE_INT         shift and go to state 99
+    ID              shift and go to state 67
+
+    var_cte                        shift and go to state 127
+    call_fun                       shift and go to state 97
+    id_dim                         shift and go to state 100
+
+state 94
+
+    (80) factor -> + . var_cte
+    (85) var_cte -> . call_fun
+    (86) var_cte -> . CTE_FLOAT seen_float_cte
+    (87) var_cte -> . CTE_INT seen_int_cte
+    (88) var_cte -> . id_dim
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    CTE_FLOAT       shift and go to state 98
+    CTE_INT         shift and go to state 99
+    ID              shift and go to state 67
+
+    var_cte                        shift and go to state 128
+    call_fun                       shift and go to state 97
+    id_dim                         shift and go to state 100
+
+state 95
+
+    (73) termino -> factor . seen_factor / seen_oper_div termino
+    (74) termino -> factor . seen_factor * seen_oper_mult termino
+    (75) termino -> factor . seen_factor
+    (76) seen_factor -> .
+    /               reduce using rule 76 (seen_factor -> .)
+    *               reduce using rule 76 (seen_factor -> .)
+    -               reduce using rule 76 (seen_factor -> .)
+    +               reduce using rule 76 (seen_factor -> .)
+    EQUALS          reduce using rule 76 (seen_factor -> .)
+    >               reduce using rule 76 (seen_factor -> .)
+    <               reduce using rule 76 (seen_factor -> .)
+    !               reduce using rule 76 (seen_factor -> .)
+    &               reduce using rule 76 (seen_factor -> .)
+    |               reduce using rule 76 (seen_factor -> .)
+    )               reduce using rule 76 (seen_factor -> .)
+    ,               reduce using rule 76 (seen_factor -> .)
+    ]               reduce using rule 76 (seen_factor -> .)
+    ;               reduce using rule 76 (seen_factor -> .)
+    TO              reduce using rule 76 (seen_factor -> .)
+    DO              reduce using rule 76 (seen_factor -> .)
+
+    seen_factor                    shift and go to state 129
+
+state 96
+
+    (81) factor -> var_cte .
+    /               reduce using rule 81 (factor -> var_cte .)
+    *               reduce using rule 81 (factor -> var_cte .)
+    -               reduce using rule 81 (factor -> var_cte .)
+    +               reduce using rule 81 (factor -> var_cte .)
+    EQUALS          reduce using rule 81 (factor -> var_cte .)
+    >               reduce using rule 81 (factor -> var_cte .)
+    <               reduce using rule 81 (factor -> var_cte .)
+    !               reduce using rule 81 (factor -> var_cte .)
+    &               reduce using rule 81 (factor -> var_cte .)
+    |               reduce using rule 81 (factor -> var_cte .)
+    )               reduce using rule 81 (factor -> var_cte .)
+    ,               reduce using rule 81 (factor -> var_cte .)
+    ]               reduce using rule 81 (factor -> var_cte .)
+    ;               reduce using rule 81 (factor -> var_cte .)
+    TO              reduce using rule 81 (factor -> var_cte .)
+    DO              reduce using rule 81 (factor -> var_cte .)
+
+
+state 97
+
+    (85) var_cte -> call_fun .
+    /               reduce using rule 85 (var_cte -> call_fun .)
+    *               reduce using rule 85 (var_cte -> call_fun .)
+    -               reduce using rule 85 (var_cte -> call_fun .)
+    +               reduce using rule 85 (var_cte -> call_fun .)
+    EQUALS          reduce using rule 85 (var_cte -> call_fun .)
+    >               reduce using rule 85 (var_cte -> call_fun .)
+    <               reduce using rule 85 (var_cte -> call_fun .)
+    !               reduce using rule 85 (var_cte -> call_fun .)
+    &               reduce using rule 85 (var_cte -> call_fun .)
+    |               reduce using rule 85 (var_cte -> call_fun .)
+    )               reduce using rule 85 (var_cte -> call_fun .)
+    ,               reduce using rule 85 (var_cte -> call_fun .)
+    ]               reduce using rule 85 (var_cte -> call_fun .)
+    ;               reduce using rule 85 (var_cte -> call_fun .)
+    TO              reduce using rule 85 (var_cte -> call_fun .)
+    DO              reduce using rule 85 (var_cte -> call_fun .)
+
+
+state 98
+
+    (86) var_cte -> CTE_FLOAT . seen_float_cte
+    (93) seen_float_cte -> .
+    /               reduce using rule 93 (seen_float_cte -> .)
+    *               reduce using rule 93 (seen_float_cte -> .)
+    -               reduce using rule 93 (seen_float_cte -> .)
+    +               reduce using rule 93 (seen_float_cte -> .)
+    EQUALS          reduce using rule 93 (seen_float_cte -> .)
+    >               reduce using rule 93 (seen_float_cte -> .)
+    <               reduce using rule 93 (seen_float_cte -> .)
+    !               reduce using rule 93 (seen_float_cte -> .)
+    &               reduce using rule 93 (seen_float_cte -> .)
+    |               reduce using rule 93 (seen_float_cte -> .)
+    )               reduce using rule 93 (seen_float_cte -> .)
+    ,               reduce using rule 93 (seen_float_cte -> .)
+    ]               reduce using rule 93 (seen_float_cte -> .)
+    ;               reduce using rule 93 (seen_float_cte -> .)
+    TO              reduce using rule 93 (seen_float_cte -> .)
+    DO              reduce using rule 93 (seen_float_cte -> .)
+
+    seen_float_cte                 shift and go to state 130
+
+state 99
+
+    (87) var_cte -> CTE_INT . seen_int_cte
+    (92) seen_int_cte -> .
+    /               reduce using rule 92 (seen_int_cte -> .)
+    *               reduce using rule 92 (seen_int_cte -> .)
+    -               reduce using rule 92 (seen_int_cte -> .)
+    +               reduce using rule 92 (seen_int_cte -> .)
+    EQUALS          reduce using rule 92 (seen_int_cte -> .)
+    >               reduce using rule 92 (seen_int_cte -> .)
+    <               reduce using rule 92 (seen_int_cte -> .)
+    !               reduce using rule 92 (seen_int_cte -> .)
+    &               reduce using rule 92 (seen_int_cte -> .)
+    |               reduce using rule 92 (seen_int_cte -> .)
+    )               reduce using rule 92 (seen_int_cte -> .)
+    ,               reduce using rule 92 (seen_int_cte -> .)
+    ]               reduce using rule 92 (seen_int_cte -> .)
+    ;               reduce using rule 92 (seen_int_cte -> .)
+    TO              reduce using rule 92 (seen_int_cte -> .)
+    DO              reduce using rule 92 (seen_int_cte -> .)
+
+    seen_int_cte                   shift and go to state 131
+
+state 100
+
+    (88) var_cte -> id_dim .
+    /               reduce using rule 88 (var_cte -> id_dim .)
+    *               reduce using rule 88 (var_cte -> id_dim .)
+    -               reduce using rule 88 (var_cte -> id_dim .)
+    +               reduce using rule 88 (var_cte -> id_dim .)
+    EQUALS          reduce using rule 88 (var_cte -> id_dim .)
+    >               reduce using rule 88 (var_cte -> id_dim .)
+    <               reduce using rule 88 (var_cte -> id_dim .)
+    !               reduce using rule 88 (var_cte -> id_dim .)
+    &               reduce using rule 88 (var_cte -> id_dim .)
+    |               reduce using rule 88 (var_cte -> id_dim .)
+    )               reduce using rule 88 (var_cte -> id_dim .)
+    ,               reduce using rule 88 (var_cte -> id_dim .)
+    ]               reduce using rule 88 (var_cte -> id_dim .)
+    ;               reduce using rule 88 (var_cte -> id_dim .)
+    TO              reduce using rule 88 (var_cte -> id_dim .)
+    DO              reduce using rule 88 (var_cte -> id_dim .)
+
+
+state 101
+
+    (48) escritura -> WRITE ( escritura1 . ) ;
+    )               shift and go to state 132
+
+
+state 102
+
+    (49) escritura1 -> out . seen_write
+    (50) escritura1 -> out . seen_write , escritura1
+    (51) seen_write -> .
+    ,               reduce using rule 51 (seen_write -> .)
+    )               reduce using rule 51 (seen_write -> .)
+
+    seen_write                     shift and go to state 133
+
+state 103
+
+    (52) out -> expresion .
+    ,               reduce using rule 52 (out -> expresion .)
+    )               reduce using rule 52 (out -> expresion .)
+
+
+state 104
+
+    (53) out -> CTE_STRING .
+    ,               reduce using rule 53 (out -> CTE_STRING .)
+    )               reduce using rule 53 (out -> CTE_STRING .)
+
+
+state 105
+
+    (99) lectura -> READ ( lectura1 . ) ;
+    )               shift and go to state 134
+
+
+state 106
+
+    (100) lectura1 -> id_dim . seen_read
+    (101) lectura1 -> id_dim . seen_read , lectura1
+    (102) seen_read -> .
+    ,               reduce using rule 102 (seen_read -> .)
+    )               reduce using rule 102 (seen_read -> .)
+
+    seen_read                      shift and go to state 135
+
+state 107
+
+    (98) _return -> RETURN ( expresion . ) ;
+    )               shift and go to state 136
+
+
+state 108
+
+    (45) asignacion -> id_dim seen_id_asignacion = . expresion seen_asignacion ;
+    (54) expresion -> . logic_exp | expresion
+    (55) expresion -> . logic_exp
+    (56) logic_exp -> . relation_exp ! logic_exp
+    (57) logic_exp -> . relation_exp & logic_exp
+    (58) logic_exp -> . relation_exp
+    (59) relation_exp -> . exp EQUALS seen_oper_equals exp seen_exp
+    (60) relation_exp -> . exp > seen_oper_mayor exp seen_exp
+    (61) relation_exp -> . exp < seen_oper_menor exp seen_exp
+    (62) relation_exp -> . exp seen_exp
+    (67) exp -> . termino seen_termino
+    (68) exp -> . termino seen_termino - seen_oper_resta exp
+    (69) exp -> . termino seen_termino + seen_oper_suma exp
+    (73) termino -> . factor seen_factor / seen_oper_div termino
+    (74) termino -> . factor seen_factor * seen_oper_mult termino
+    (75) termino -> . factor seen_factor
+    (79) factor -> . - var_cte
+    (80) factor -> . + var_cte
+    (81) factor -> . var_cte
+    (82) factor -> . ( seen_left_paren expresion ) seen_right_paren
+    (85) var_cte -> . call_fun
+    (86) var_cte -> . CTE_FLOAT seen_float_cte
+    (87) var_cte -> . CTE_INT seen_int_cte
+    (88) var_cte -> . id_dim
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    -               shift and go to state 93
+    +               shift and go to state 94
+    (               shift and go to state 87
+    CTE_FLOAT       shift and go to state 98
+    CTE_INT         shift and go to state 99
+    ID              shift and go to state 67
+
+    id_dim                         shift and go to state 100
+    expresion                      shift and go to state 137
+    logic_exp                      shift and go to state 89
+    relation_exp                   shift and go to state 90
+    exp                            shift and go to state 91
+    termino                        shift and go to state 92
+    factor                         shift and go to state 95
+    var_cte                        shift and go to state 96
+    call_fun                       shift and go to state 97
+
+state 109
+
+    (111) _for -> FOR id_dim = . expresion TO expresion DO bloque
+    (54) expresion -> . logic_exp | expresion
+    (55) expresion -> . logic_exp
+    (56) logic_exp -> . relation_exp ! logic_exp
+    (57) logic_exp -> . relation_exp & logic_exp
+    (58) logic_exp -> . relation_exp
+    (59) relation_exp -> . exp EQUALS seen_oper_equals exp seen_exp
+    (60) relation_exp -> . exp > seen_oper_mayor exp seen_exp
+    (61) relation_exp -> . exp < seen_oper_menor exp seen_exp
+    (62) relation_exp -> . exp seen_exp
+    (67) exp -> . termino seen_termino
+    (68) exp -> . termino seen_termino - seen_oper_resta exp
+    (69) exp -> . termino seen_termino + seen_oper_suma exp
+    (73) termino -> . factor seen_factor / seen_oper_div termino
+    (74) termino -> . factor seen_factor * seen_oper_mult termino
+    (75) termino -> . factor seen_factor
+    (79) factor -> . - var_cte
+    (80) factor -> . + var_cte
+    (81) factor -> . var_cte
+    (82) factor -> . ( seen_left_paren expresion ) seen_right_paren
+    (85) var_cte -> . call_fun
+    (86) var_cte -> . CTE_FLOAT seen_float_cte
+    (87) var_cte -> . CTE_INT seen_int_cte
+    (88) var_cte -> . id_dim
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    -               shift and go to state 93
+    +               shift and go to state 94
+    (               shift and go to state 87
+    CTE_FLOAT       shift and go to state 98
+    CTE_INT         shift and go to state 99
+    ID              shift and go to state 67
+
+    id_dim                         shift and go to state 100
+    expresion                      shift and go to state 138
+    logic_exp                      shift and go to state 89
+    relation_exp                   shift and go to state 90
+    exp                            shift and go to state 91
+    termino                        shift and go to state 92
+    factor                         shift and go to state 95
+    var_cte                        shift and go to state 96
+    call_fun                       shift and go to state 97
+
+state 110
+
+    (110) _while -> WHILE ( expresion . ) DO bloque
+    )               shift and go to state 139
+
+
+state 111
+
+    (94) call_fun -> ID ( call_fun1 . )
+    )               shift and go to state 140
+
+
+state 112
+
+    (95) call_fun1 -> expresion .
+    (96) call_fun1 -> expresion . , call_fun1
+    )               reduce using rule 95 (call_fun1 -> expresion .)
+    ,               shift and go to state 141
+
+
+state 113
+
+    (89) id_dim -> ID [ expresion . , expresion ]
+    (90) id_dim -> ID [ expresion . ]
+    ,               shift and go to state 142
+    ]               shift and go to state 143
+
+
+state 114
+
+    (25) func_def -> tipo_fun MODULE ID seen_funcId ( params ) . ; func_body seen_func_end
+    ;               shift and go to state 144
+
+
+state 115
+
+    (32) params -> tipo var .
+    (33) params -> tipo var . , params
+    )               reduce using rule 32 (params -> tipo var .)
+    ,               shift and go to state 145
+
+
+state 116
+
+    (15) var -> ID seen_var_name [ CTE_INT ] [ . CTE_INT ]
+    CTE_INT         shift and go to state 146
+
+
+state 117
+
+    (82) factor -> ( seen_left_paren . expresion ) seen_right_paren
+    (54) expresion -> . logic_exp | expresion
+    (55) expresion -> . logic_exp
+    (56) logic_exp -> . relation_exp ! logic_exp
+    (57) logic_exp -> . relation_exp & logic_exp
+    (58) logic_exp -> . relation_exp
+    (59) relation_exp -> . exp EQUALS seen_oper_equals exp seen_exp
+    (60) relation_exp -> . exp > seen_oper_mayor exp seen_exp
+    (61) relation_exp -> . exp < seen_oper_menor exp seen_exp
+    (62) relation_exp -> . exp seen_exp
+    (67) exp -> . termino seen_termino
+    (68) exp -> . termino seen_termino - seen_oper_resta exp
+    (69) exp -> . termino seen_termino + seen_oper_suma exp
+    (73) termino -> . factor seen_factor / seen_oper_div termino
+    (74) termino -> . factor seen_factor * seen_oper_mult termino
+    (75) termino -> . factor seen_factor
+    (79) factor -> . - var_cte
+    (80) factor -> . + var_cte
+    (81) factor -> . var_cte
+    (82) factor -> . ( seen_left_paren expresion ) seen_right_paren
+    (85) var_cte -> . call_fun
+    (86) var_cte -> . CTE_FLOAT seen_float_cte
+    (87) var_cte -> . CTE_INT seen_int_cte
+    (88) var_cte -> . id_dim
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    -               shift and go to state 93
+    +               shift and go to state 94
+    (               shift and go to state 87
+    CTE_FLOAT       shift and go to state 98
+    CTE_INT         shift and go to state 99
+    ID              shift and go to state 67
+
+    expresion                      shift and go to state 147
+    logic_exp                      shift and go to state 89
+    relation_exp                   shift and go to state 90
+    exp                            shift and go to state 91
+    termino                        shift and go to state 92
+    factor                         shift and go to state 95
+    var_cte                        shift and go to state 96
+    call_fun                       shift and go to state 97
+    id_dim                         shift and go to state 100
+
+state 118
+
+    (103) condicion -> IF ( expresion ) . seen_gotof THEN bloque ELSE seen_goto bloque seen_end_if
+    (104) condicion -> IF ( expresion ) . seen_gotof THEN bloque seen_end_if
+    (105) seen_gotof -> .
+    THEN            reduce using rule 105 (seen_gotof -> .)
+
+    seen_gotof                     shift and go to state 148
+
+state 119
+
+    (54) expresion -> logic_exp | . expresion
+    (54) expresion -> . logic_exp | expresion
+    (55) expresion -> . logic_exp
+    (56) logic_exp -> . relation_exp ! logic_exp
+    (57) logic_exp -> . relation_exp & logic_exp
+    (58) logic_exp -> . relation_exp
+    (59) relation_exp -> . exp EQUALS seen_oper_equals exp seen_exp
+    (60) relation_exp -> . exp > seen_oper_mayor exp seen_exp
+    (61) relation_exp -> . exp < seen_oper_menor exp seen_exp
+    (62) relation_exp -> . exp seen_exp
+    (67) exp -> . termino seen_termino
+    (68) exp -> . termino seen_termino - seen_oper_resta exp
+    (69) exp -> . termino seen_termino + seen_oper_suma exp
+    (73) termino -> . factor seen_factor / seen_oper_div termino
+    (74) termino -> . factor seen_factor * seen_oper_mult termino
+    (75) termino -> . factor seen_factor
+    (79) factor -> . - var_cte
+    (80) factor -> . + var_cte
+    (81) factor -> . var_cte
+    (82) factor -> . ( seen_left_paren expresion ) seen_right_paren
+    (85) var_cte -> . call_fun
+    (86) var_cte -> . CTE_FLOAT seen_float_cte
+    (87) var_cte -> . CTE_INT seen_int_cte
+    (88) var_cte -> . id_dim
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    -               shift and go to state 93
+    +               shift and go to state 94
+    (               shift and go to state 87
+    CTE_FLOAT       shift and go to state 98
+    CTE_INT         shift and go to state 99
+    ID              shift and go to state 67
+
+    logic_exp                      shift and go to state 89
+    expresion                      shift and go to state 149
+    relation_exp                   shift and go to state 90
+    exp                            shift and go to state 91
+    termino                        shift and go to state 92
+    factor                         shift and go to state 95
+    var_cte                        shift and go to state 96
+    call_fun                       shift and go to state 97
+    id_dim                         shift and go to state 100
+
+state 120
+
+    (56) logic_exp -> relation_exp ! . logic_exp
+    (56) logic_exp -> . relation_exp ! logic_exp
+    (57) logic_exp -> . relation_exp & logic_exp
+    (58) logic_exp -> . relation_exp
+    (59) relation_exp -> . exp EQUALS seen_oper_equals exp seen_exp
+    (60) relation_exp -> . exp > seen_oper_mayor exp seen_exp
+    (61) relation_exp -> . exp < seen_oper_menor exp seen_exp
+    (62) relation_exp -> . exp seen_exp
+    (67) exp -> . termino seen_termino
+    (68) exp -> . termino seen_termino - seen_oper_resta exp
+    (69) exp -> . termino seen_termino + seen_oper_suma exp
+    (73) termino -> . factor seen_factor / seen_oper_div termino
+    (74) termino -> . factor seen_factor * seen_oper_mult termino
+    (75) termino -> . factor seen_factor
+    (79) factor -> . - var_cte
+    (80) factor -> . + var_cte
+    (81) factor -> . var_cte
+    (82) factor -> . ( seen_left_paren expresion ) seen_right_paren
+    (85) var_cte -> . call_fun
+    (86) var_cte -> . CTE_FLOAT seen_float_cte
+    (87) var_cte -> . CTE_INT seen_int_cte
+    (88) var_cte -> . id_dim
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    -               shift and go to state 93
+    +               shift and go to state 94
+    (               shift and go to state 87
+    CTE_FLOAT       shift and go to state 98
+    CTE_INT         shift and go to state 99
+    ID              shift and go to state 67
+
+    relation_exp                   shift and go to state 90
+    logic_exp                      shift and go to state 150
+    exp                            shift and go to state 91
+    termino                        shift and go to state 92
+    factor                         shift and go to state 95
+    var_cte                        shift and go to state 96
+    call_fun                       shift and go to state 97
+    id_dim                         shift and go to state 100
+
+state 121
+
+    (57) logic_exp -> relation_exp & . logic_exp
+    (56) logic_exp -> . relation_exp ! logic_exp
+    (57) logic_exp -> . relation_exp & logic_exp
+    (58) logic_exp -> . relation_exp
+    (59) relation_exp -> . exp EQUALS seen_oper_equals exp seen_exp
+    (60) relation_exp -> . exp > seen_oper_mayor exp seen_exp
+    (61) relation_exp -> . exp < seen_oper_menor exp seen_exp
+    (62) relation_exp -> . exp seen_exp
+    (67) exp -> . termino seen_termino
+    (68) exp -> . termino seen_termino - seen_oper_resta exp
+    (69) exp -> . termino seen_termino + seen_oper_suma exp
+    (73) termino -> . factor seen_factor / seen_oper_div termino
+    (74) termino -> . factor seen_factor * seen_oper_mult termino
+    (75) termino -> . factor seen_factor
+    (79) factor -> . - var_cte
+    (80) factor -> . + var_cte
+    (81) factor -> . var_cte
+    (82) factor -> . ( seen_left_paren expresion ) seen_right_paren
+    (85) var_cte -> . call_fun
+    (86) var_cte -> . CTE_FLOAT seen_float_cte
+    (87) var_cte -> . CTE_INT seen_int_cte
+    (88) var_cte -> . id_dim
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    -               shift and go to state 93
+    +               shift and go to state 94
+    (               shift and go to state 87
+    CTE_FLOAT       shift and go to state 98
+    CTE_INT         shift and go to state 99
+    ID              shift and go to state 67
+
+    relation_exp                   shift and go to state 90
+    logic_exp                      shift and go to state 151
+    exp                            shift and go to state 91
+    termino                        shift and go to state 92
+    factor                         shift and go to state 95
+    var_cte                        shift and go to state 96
+    call_fun                       shift and go to state 97
+    id_dim                         shift and go to state 100
+
+state 122
+
+    (59) relation_exp -> exp EQUALS . seen_oper_equals exp seen_exp
+    (66) seen_oper_equals -> .
+    -               reduce using rule 66 (seen_oper_equals -> .)
+    +               reduce using rule 66 (seen_oper_equals -> .)
+    (               reduce using rule 66 (seen_oper_equals -> .)
+    CTE_FLOAT       reduce using rule 66 (seen_oper_equals -> .)
+    CTE_INT         reduce using rule 66 (seen_oper_equals -> .)
+    ID              reduce using rule 66 (seen_oper_equals -> .)
+
+    seen_oper_equals               shift and go to state 152
+
+state 123
+
+    (62) relation_exp -> exp seen_exp .
+    !               reduce using rule 62 (relation_exp -> exp seen_exp .)
+    &               reduce using rule 62 (relation_exp -> exp seen_exp .)
+    |               reduce using rule 62 (relation_exp -> exp seen_exp .)
+    )               reduce using rule 62 (relation_exp -> exp seen_exp .)
+    ,               reduce using rule 62 (relation_exp -> exp seen_exp .)
+    ]               reduce using rule 62 (relation_exp -> exp seen_exp .)
+    ;               reduce using rule 62 (relation_exp -> exp seen_exp .)
+    TO              reduce using rule 62 (relation_exp -> exp seen_exp .)
+    DO              reduce using rule 62 (relation_exp -> exp seen_exp .)
+
+
+state 124
+
+    (60) relation_exp -> exp > . seen_oper_mayor exp seen_exp
+    (65) seen_oper_mayor -> .
+    -               reduce using rule 65 (seen_oper_mayor -> .)
+    +               reduce using rule 65 (seen_oper_mayor -> .)
+    (               reduce using rule 65 (seen_oper_mayor -> .)
+    CTE_FLOAT       reduce using rule 65 (seen_oper_mayor -> .)
+    CTE_INT         reduce using rule 65 (seen_oper_mayor -> .)
+    ID              reduce using rule 65 (seen_oper_mayor -> .)
+
+    seen_oper_mayor                shift and go to state 153
+
+state 125
+
+    (61) relation_exp -> exp < . seen_oper_menor exp seen_exp
+    (64) seen_oper_menor -> .
+    -               reduce using rule 64 (seen_oper_menor -> .)
+    +               reduce using rule 64 (seen_oper_menor -> .)
+    (               reduce using rule 64 (seen_oper_menor -> .)
+    CTE_FLOAT       reduce using rule 64 (seen_oper_menor -> .)
+    CTE_INT         reduce using rule 64 (seen_oper_menor -> .)
+    ID              reduce using rule 64 (seen_oper_menor -> .)
+
+    seen_oper_menor                shift and go to state 154
+
+state 126
+
+    (67) exp -> termino seen_termino .
+    (68) exp -> termino seen_termino . - seen_oper_resta exp
+    (69) exp -> termino seen_termino . + seen_oper_suma exp
+    EQUALS          reduce using rule 67 (exp -> termino seen_termino .)
+    >               reduce using rule 67 (exp -> termino seen_termino .)
+    <               reduce using rule 67 (exp -> termino seen_termino .)
+    !               reduce using rule 67 (exp -> termino seen_termino .)
+    &               reduce using rule 67 (exp -> termino seen_termino .)
+    |               reduce using rule 67 (exp -> termino seen_termino .)
+    )               reduce using rule 67 (exp -> termino seen_termino .)
+    ,               reduce using rule 67 (exp -> termino seen_termino .)
+    ]               reduce using rule 67 (exp -> termino seen_termino .)
+    ;               reduce using rule 67 (exp -> termino seen_termino .)
+    TO              reduce using rule 67 (exp -> termino seen_termino .)
+    DO              reduce using rule 67 (exp -> termino seen_termino .)
+    -               shift and go to state 155
+    +               shift and go to state 156
+
+
+state 127
+
+    (79) factor -> - var_cte .
+    /               reduce using rule 79 (factor -> - var_cte .)
+    *               reduce using rule 79 (factor -> - var_cte .)
+    -               reduce using rule 79 (factor -> - var_cte .)
+    +               reduce using rule 79 (factor -> - var_cte .)
+    EQUALS          reduce using rule 79 (factor -> - var_cte .)
+    >               reduce using rule 79 (factor -> - var_cte .)
+    <               reduce using rule 79 (factor -> - var_cte .)
+    !               reduce using rule 79 (factor -> - var_cte .)
+    &               reduce using rule 79 (factor -> - var_cte .)
+    |               reduce using rule 79 (factor -> - var_cte .)
+    )               reduce using rule 79 (factor -> - var_cte .)
+    ,               reduce using rule 79 (factor -> - var_cte .)
+    ]               reduce using rule 79 (factor -> - var_cte .)
+    ;               reduce using rule 79 (factor -> - var_cte .)
+    TO              reduce using rule 79 (factor -> - var_cte .)
+    DO              reduce using rule 79 (factor -> - var_cte .)
+
+
+state 128
+
+    (80) factor -> + var_cte .
+    /               reduce using rule 80 (factor -> + var_cte .)
+    *               reduce using rule 80 (factor -> + var_cte .)
+    -               reduce using rule 80 (factor -> + var_cte .)
+    +               reduce using rule 80 (factor -> + var_cte .)
+    EQUALS          reduce using rule 80 (factor -> + var_cte .)
+    >               reduce using rule 80 (factor -> + var_cte .)
+    <               reduce using rule 80 (factor -> + var_cte .)
+    !               reduce using rule 80 (factor -> + var_cte .)
+    &               reduce using rule 80 (factor -> + var_cte .)
+    |               reduce using rule 80 (factor -> + var_cte .)
+    )               reduce using rule 80 (factor -> + var_cte .)
+    ,               reduce using rule 80 (factor -> + var_cte .)
+    ]               reduce using rule 80 (factor -> + var_cte .)
+    ;               reduce using rule 80 (factor -> + var_cte .)
+    TO              reduce using rule 80 (factor -> + var_cte .)
+    DO              reduce using rule 80 (factor -> + var_cte .)
+
+
+state 129
+
+    (73) termino -> factor seen_factor . / seen_oper_div termino
+    (74) termino -> factor seen_factor . * seen_oper_mult termino
+    (75) termino -> factor seen_factor .
+    /               shift and go to state 157
+    *               shift and go to state 158
+    -               reduce using rule 75 (termino -> factor seen_factor .)
+    +               reduce using rule 75 (termino -> factor seen_factor .)
+    EQUALS          reduce using rule 75 (termino -> factor seen_factor .)
+    >               reduce using rule 75 (termino -> factor seen_factor .)
+    <               reduce using rule 75 (termino -> factor seen_factor .)
+    !               reduce using rule 75 (termino -> factor seen_factor .)
+    &               reduce using rule 75 (termino -> factor seen_factor .)
+    |               reduce using rule 75 (termino -> factor seen_factor .)
+    )               reduce using rule 75 (termino -> factor seen_factor .)
+    ,               reduce using rule 75 (termino -> factor seen_factor .)
+    ]               reduce using rule 75 (termino -> factor seen_factor .)
+    ;               reduce using rule 75 (termino -> factor seen_factor .)
+    TO              reduce using rule 75 (termino -> factor seen_factor .)
+    DO              reduce using rule 75 (termino -> factor seen_factor .)
+
+
+state 130
+
+    (86) var_cte -> CTE_FLOAT seen_float_cte .
+    /               reduce using rule 86 (var_cte -> CTE_FLOAT seen_float_cte .)
+    *               reduce using rule 86 (var_cte -> CTE_FLOAT seen_float_cte .)
+    -               reduce using rule 86 (var_cte -> CTE_FLOAT seen_float_cte .)
+    +               reduce using rule 86 (var_cte -> CTE_FLOAT seen_float_cte .)
+    EQUALS          reduce using rule 86 (var_cte -> CTE_FLOAT seen_float_cte .)
+    >               reduce using rule 86 (var_cte -> CTE_FLOAT seen_float_cte .)
+    <               reduce using rule 86 (var_cte -> CTE_FLOAT seen_float_cte .)
+    !               reduce using rule 86 (var_cte -> CTE_FLOAT seen_float_cte .)
+    &               reduce using rule 86 (var_cte -> CTE_FLOAT seen_float_cte .)
+    |               reduce using rule 86 (var_cte -> CTE_FLOAT seen_float_cte .)
+    )               reduce using rule 86 (var_cte -> CTE_FLOAT seen_float_cte .)
+    ,               reduce using rule 86 (var_cte -> CTE_FLOAT seen_float_cte .)
+    ]               reduce using rule 86 (var_cte -> CTE_FLOAT seen_float_cte .)
+    ;               reduce using rule 86 (var_cte -> CTE_FLOAT seen_float_cte .)
+    TO              reduce using rule 86 (var_cte -> CTE_FLOAT seen_float_cte .)
+    DO              reduce using rule 86 (var_cte -> CTE_FLOAT seen_float_cte .)
+
+
+state 131
+
+    (87) var_cte -> CTE_INT seen_int_cte .
+    /               reduce using rule 87 (var_cte -> CTE_INT seen_int_cte .)
+    *               reduce using rule 87 (var_cte -> CTE_INT seen_int_cte .)
+    -               reduce using rule 87 (var_cte -> CTE_INT seen_int_cte .)
+    +               reduce using rule 87 (var_cte -> CTE_INT seen_int_cte .)
+    EQUALS          reduce using rule 87 (var_cte -> CTE_INT seen_int_cte .)
+    >               reduce using rule 87 (var_cte -> CTE_INT seen_int_cte .)
+    <               reduce using rule 87 (var_cte -> CTE_INT seen_int_cte .)
+    !               reduce using rule 87 (var_cte -> CTE_INT seen_int_cte .)
+    &               reduce using rule 87 (var_cte -> CTE_INT seen_int_cte .)
+    |               reduce using rule 87 (var_cte -> CTE_INT seen_int_cte .)
+    )               reduce using rule 87 (var_cte -> CTE_INT seen_int_cte .)
+    ,               reduce using rule 87 (var_cte -> CTE_INT seen_int_cte .)
+    ]               reduce using rule 87 (var_cte -> CTE_INT seen_int_cte .)
+    ;               reduce using rule 87 (var_cte -> CTE_INT seen_int_cte .)
+    TO              reduce using rule 87 (var_cte -> CTE_INT seen_int_cte .)
+    DO              reduce using rule 87 (var_cte -> CTE_INT seen_int_cte .)
+
+
+state 132
+
+    (48) escritura -> WRITE ( escritura1 ) . ;
+    ;               shift and go to state 159
+
+
+state 133
+
+    (49) escritura1 -> out seen_write .
+    (50) escritura1 -> out seen_write . , escritura1
+    )               reduce using rule 49 (escritura1 -> out seen_write .)
+    ,               shift and go to state 160
+
+
+state 134
+
+    (99) lectura -> READ ( lectura1 ) . ;
+    ;               shift and go to state 161
+
+
+state 135
+
+    (100) lectura1 -> id_dim seen_read .
+    (101) lectura1 -> id_dim seen_read . , lectura1
+    )               reduce using rule 100 (lectura1 -> id_dim seen_read .)
+    ,               shift and go to state 162
+
+
+state 136
+
+    (98) _return -> RETURN ( expresion ) . ;
+    ;               shift and go to state 163
+
+
+state 137
+
+    (45) asignacion -> id_dim seen_id_asignacion = expresion . seen_asignacion ;
+    (47) seen_asignacion -> .
+    ;               reduce using rule 47 (seen_asignacion -> .)
+
+    seen_asignacion                shift and go to state 164
+
+state 138
+
+    (111) _for -> FOR id_dim = expresion . TO expresion DO bloque
+    TO              shift and go to state 165
+
+
+state 139
+
+    (110) _while -> WHILE ( expresion ) . DO bloque
+    DO              shift and go to state 166
+
+
+state 140
+
+    (94) call_fun -> ID ( call_fun1 ) .
+    ;               reduce using rule 94 (call_fun -> ID ( call_fun1 ) .)
+    /               reduce using rule 94 (call_fun -> ID ( call_fun1 ) .)
+    *               reduce using rule 94 (call_fun -> ID ( call_fun1 ) .)
+    -               reduce using rule 94 (call_fun -> ID ( call_fun1 ) .)
+    +               reduce using rule 94 (call_fun -> ID ( call_fun1 ) .)
+    EQUALS          reduce using rule 94 (call_fun -> ID ( call_fun1 ) .)
+    >               reduce using rule 94 (call_fun -> ID ( call_fun1 ) .)
+    <               reduce using rule 94 (call_fun -> ID ( call_fun1 ) .)
+    !               reduce using rule 94 (call_fun -> ID ( call_fun1 ) .)
+    &               reduce using rule 94 (call_fun -> ID ( call_fun1 ) .)
+    |               reduce using rule 94 (call_fun -> ID ( call_fun1 ) .)
+    )               reduce using rule 94 (call_fun -> ID ( call_fun1 ) .)
+    ,               reduce using rule 94 (call_fun -> ID ( call_fun1 ) .)
+    ]               reduce using rule 94 (call_fun -> ID ( call_fun1 ) .)
+    TO              reduce using rule 94 (call_fun -> ID ( call_fun1 ) .)
+    DO              reduce using rule 94 (call_fun -> ID ( call_fun1 ) .)
+
+
+state 141
+
+    (96) call_fun1 -> expresion , . call_fun1
+    (95) call_fun1 -> . expresion
+    (96) call_fun1 -> . expresion , call_fun1
+    (54) expresion -> . logic_exp | expresion
+    (55) expresion -> . logic_exp
+    (56) logic_exp -> . relation_exp ! logic_exp
+    (57) logic_exp -> . relation_exp & logic_exp
+    (58) logic_exp -> . relation_exp
+    (59) relation_exp -> . exp EQUALS seen_oper_equals exp seen_exp
+    (60) relation_exp -> . exp > seen_oper_mayor exp seen_exp
+    (61) relation_exp -> . exp < seen_oper_menor exp seen_exp
+    (62) relation_exp -> . exp seen_exp
+    (67) exp -> . termino seen_termino
+    (68) exp -> . termino seen_termino - seen_oper_resta exp
+    (69) exp -> . termino seen_termino + seen_oper_suma exp
+    (73) termino -> . factor seen_factor / seen_oper_div termino
+    (74) termino -> . factor seen_factor * seen_oper_mult termino
+    (75) termino -> . factor seen_factor
+    (79) factor -> . - var_cte
+    (80) factor -> . + var_cte
+    (81) factor -> . var_cte
+    (82) factor -> . ( seen_left_paren expresion ) seen_right_paren
+    (85) var_cte -> . call_fun
+    (86) var_cte -> . CTE_FLOAT seen_float_cte
+    (87) var_cte -> . CTE_INT seen_int_cte
+    (88) var_cte -> . id_dim
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    -               shift and go to state 93
+    +               shift and go to state 94
+    (               shift and go to state 87
+    CTE_FLOAT       shift and go to state 98
+    CTE_INT         shift and go to state 99
+    ID              shift and go to state 67
+
+    expresion                      shift and go to state 112
+    call_fun1                      shift and go to state 167
+    logic_exp                      shift and go to state 89
+    relation_exp                   shift and go to state 90
+    exp                            shift and go to state 91
+    termino                        shift and go to state 92
+    factor                         shift and go to state 95
+    var_cte                        shift and go to state 96
+    call_fun                       shift and go to state 97
+    id_dim                         shift and go to state 100
+
+state 142
+
+    (89) id_dim -> ID [ expresion , . expresion ]
+    (54) expresion -> . logic_exp | expresion
+    (55) expresion -> . logic_exp
+    (56) logic_exp -> . relation_exp ! logic_exp
+    (57) logic_exp -> . relation_exp & logic_exp
+    (58) logic_exp -> . relation_exp
+    (59) relation_exp -> . exp EQUALS seen_oper_equals exp seen_exp
+    (60) relation_exp -> . exp > seen_oper_mayor exp seen_exp
+    (61) relation_exp -> . exp < seen_oper_menor exp seen_exp
+    (62) relation_exp -> . exp seen_exp
+    (67) exp -> . termino seen_termino
+    (68) exp -> . termino seen_termino - seen_oper_resta exp
+    (69) exp -> . termino seen_termino + seen_oper_suma exp
+    (73) termino -> . factor seen_factor / seen_oper_div termino
+    (74) termino -> . factor seen_factor * seen_oper_mult termino
+    (75) termino -> . factor seen_factor
+    (79) factor -> . - var_cte
+    (80) factor -> . + var_cte
+    (81) factor -> . var_cte
+    (82) factor -> . ( seen_left_paren expresion ) seen_right_paren
+    (85) var_cte -> . call_fun
+    (86) var_cte -> . CTE_FLOAT seen_float_cte
+    (87) var_cte -> . CTE_INT seen_int_cte
+    (88) var_cte -> . id_dim
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    -               shift and go to state 93
+    +               shift and go to state 94
+    (               shift and go to state 87
+    CTE_FLOAT       shift and go to state 98
+    CTE_INT         shift and go to state 99
+    ID              shift and go to state 67
+
+    expresion                      shift and go to state 168
+    logic_exp                      shift and go to state 89
+    relation_exp                   shift and go to state 90
+    exp                            shift and go to state 91
+    termino                        shift and go to state 92
+    factor                         shift and go to state 95
+    var_cte                        shift and go to state 96
+    call_fun                       shift and go to state 97
+    id_dim                         shift and go to state 100
+
+state 143
+
+    (90) id_dim -> ID [ expresion ] .
+    =               reduce using rule 90 (id_dim -> ID [ expresion ] .)
+    /               reduce using rule 90 (id_dim -> ID [ expresion ] .)
+    *               reduce using rule 90 (id_dim -> ID [ expresion ] .)
+    -               reduce using rule 90 (id_dim -> ID [ expresion ] .)
+    +               reduce using rule 90 (id_dim -> ID [ expresion ] .)
+    EQUALS          reduce using rule 90 (id_dim -> ID [ expresion ] .)
+    >               reduce using rule 90 (id_dim -> ID [ expresion ] .)
+    <               reduce using rule 90 (id_dim -> ID [ expresion ] .)
+    !               reduce using rule 90 (id_dim -> ID [ expresion ] .)
+    &               reduce using rule 90 (id_dim -> ID [ expresion ] .)
+    |               reduce using rule 90 (id_dim -> ID [ expresion ] .)
+    )               reduce using rule 90 (id_dim -> ID [ expresion ] .)
+    ,               reduce using rule 90 (id_dim -> ID [ expresion ] .)
+    ]               reduce using rule 90 (id_dim -> ID [ expresion ] .)
+    ;               reduce using rule 90 (id_dim -> ID [ expresion ] .)
+    TO              reduce using rule 90 (id_dim -> ID [ expresion ] .)
+    DO              reduce using rule 90 (id_dim -> ID [ expresion ] .)
+
+
+state 144
+
+    (25) func_def -> tipo_fun MODULE ID seen_funcId ( params ) ; . func_body seen_func_end
+    (28) func_body -> . bloque
+    (29) func_body -> . vars bloque
+    (34) bloque -> . { empty }
+    (35) bloque -> . { bloque1 }
+    (9) vars -> . VAR vars1
+    {               shift and go to state 43
+    VAR             shift and go to state 13
+
+    func_body                      shift and go to state 169
+    bloque                         shift and go to state 170
+    vars                           shift and go to state 171
+
+state 145
+
+    (33) params -> tipo var , . params
+    (32) params -> . tipo var
+    (33) params -> . tipo var , params
+    (19) tipo -> . CHAR
+    (20) tipo -> . FLOAT
+    (21) tipo -> . INT
+    CHAR            shift and go to state 23
+    FLOAT           shift and go to state 24
+    INT             shift and go to state 25
+
+    tipo                           shift and go to state 85
+    params                         shift and go to state 172
+
+state 146
+
+    (15) var -> ID seen_var_name [ CTE_INT ] [ CTE_INT . ]
+    ]               shift and go to state 173
+
+
+state 147
+
+    (82) factor -> ( seen_left_paren expresion . ) seen_right_paren
+    )               shift and go to state 174
+
+
+state 148
+
+    (103) condicion -> IF ( expresion ) seen_gotof . THEN bloque ELSE seen_goto bloque seen_end_if
+    (104) condicion -> IF ( expresion ) seen_gotof . THEN bloque seen_end_if
+    THEN            shift and go to state 175
+
+
+state 149
+
+    (54) expresion -> logic_exp | expresion .
+    )               reduce using rule 54 (expresion -> logic_exp | expresion .)
+    ,               reduce using rule 54 (expresion -> logic_exp | expresion .)
+    ]               reduce using rule 54 (expresion -> logic_exp | expresion .)
+    ;               reduce using rule 54 (expresion -> logic_exp | expresion .)
+    TO              reduce using rule 54 (expresion -> logic_exp | expresion .)
+    DO              reduce using rule 54 (expresion -> logic_exp | expresion .)
+
+
+state 150
+
+    (56) logic_exp -> relation_exp ! logic_exp .
+    |               reduce using rule 56 (logic_exp -> relation_exp ! logic_exp .)
+    )               reduce using rule 56 (logic_exp -> relation_exp ! logic_exp .)
+    ,               reduce using rule 56 (logic_exp -> relation_exp ! logic_exp .)
+    ]               reduce using rule 56 (logic_exp -> relation_exp ! logic_exp .)
+    ;               reduce using rule 56 (logic_exp -> relation_exp ! logic_exp .)
+    TO              reduce using rule 56 (logic_exp -> relation_exp ! logic_exp .)
+    DO              reduce using rule 56 (logic_exp -> relation_exp ! logic_exp .)
+
+
+state 151
+
+    (57) logic_exp -> relation_exp & logic_exp .
+    |               reduce using rule 57 (logic_exp -> relation_exp & logic_exp .)
+    )               reduce using rule 57 (logic_exp -> relation_exp & logic_exp .)
+    ,               reduce using rule 57 (logic_exp -> relation_exp & logic_exp .)
+    ]               reduce using rule 57 (logic_exp -> relation_exp & logic_exp .)
+    ;               reduce using rule 57 (logic_exp -> relation_exp & logic_exp .)
+    TO              reduce using rule 57 (logic_exp -> relation_exp & logic_exp .)
+    DO              reduce using rule 57 (logic_exp -> relation_exp & logic_exp .)
+
+
+state 152
+
+    (59) relation_exp -> exp EQUALS seen_oper_equals . exp seen_exp
+    (67) exp -> . termino seen_termino
+    (68) exp -> . termino seen_termino - seen_oper_resta exp
+    (69) exp -> . termino seen_termino + seen_oper_suma exp
+    (73) termino -> . factor seen_factor / seen_oper_div termino
+    (74) termino -> . factor seen_factor * seen_oper_mult termino
+    (75) termino -> . factor seen_factor
+    (79) factor -> . - var_cte
+    (80) factor -> . + var_cte
+    (81) factor -> . var_cte
+    (82) factor -> . ( seen_left_paren expresion ) seen_right_paren
+    (85) var_cte -> . call_fun
+    (86) var_cte -> . CTE_FLOAT seen_float_cte
+    (87) var_cte -> . CTE_INT seen_int_cte
+    (88) var_cte -> . id_dim
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    -               shift and go to state 93
+    +               shift and go to state 94
+    (               shift and go to state 87
+    CTE_FLOAT       shift and go to state 98
+    CTE_INT         shift and go to state 99
+    ID              shift and go to state 67
+
+    exp                            shift and go to state 176
+    termino                        shift and go to state 92
+    factor                         shift and go to state 95
+    var_cte                        shift and go to state 96
+    call_fun                       shift and go to state 97
+    id_dim                         shift and go to state 100
+
+state 153
+
+    (60) relation_exp -> exp > seen_oper_mayor . exp seen_exp
+    (67) exp -> . termino seen_termino
+    (68) exp -> . termino seen_termino - seen_oper_resta exp
+    (69) exp -> . termino seen_termino + seen_oper_suma exp
+    (73) termino -> . factor seen_factor / seen_oper_div termino
+    (74) termino -> . factor seen_factor * seen_oper_mult termino
+    (75) termino -> . factor seen_factor
+    (79) factor -> . - var_cte
+    (80) factor -> . + var_cte
+    (81) factor -> . var_cte
+    (82) factor -> . ( seen_left_paren expresion ) seen_right_paren
+    (85) var_cte -> . call_fun
+    (86) var_cte -> . CTE_FLOAT seen_float_cte
+    (87) var_cte -> . CTE_INT seen_int_cte
+    (88) var_cte -> . id_dim
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    -               shift and go to state 93
+    +               shift and go to state 94
+    (               shift and go to state 87
+    CTE_FLOAT       shift and go to state 98
+    CTE_INT         shift and go to state 99
+    ID              shift and go to state 67
+
+    exp                            shift and go to state 177
+    termino                        shift and go to state 92
+    factor                         shift and go to state 95
+    var_cte                        shift and go to state 96
+    call_fun                       shift and go to state 97
+    id_dim                         shift and go to state 100
+
+state 154
+
+    (61) relation_exp -> exp < seen_oper_menor . exp seen_exp
+    (67) exp -> . termino seen_termino
+    (68) exp -> . termino seen_termino - seen_oper_resta exp
+    (69) exp -> . termino seen_termino + seen_oper_suma exp
+    (73) termino -> . factor seen_factor / seen_oper_div termino
+    (74) termino -> . factor seen_factor * seen_oper_mult termino
+    (75) termino -> . factor seen_factor
+    (79) factor -> . - var_cte
+    (80) factor -> . + var_cte
+    (81) factor -> . var_cte
+    (82) factor -> . ( seen_left_paren expresion ) seen_right_paren
+    (85) var_cte -> . call_fun
+    (86) var_cte -> . CTE_FLOAT seen_float_cte
+    (87) var_cte -> . CTE_INT seen_int_cte
+    (88) var_cte -> . id_dim
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    -               shift and go to state 93
+    +               shift and go to state 94
+    (               shift and go to state 87
+    CTE_FLOAT       shift and go to state 98
+    CTE_INT         shift and go to state 99
+    ID              shift and go to state 67
+
+    exp                            shift and go to state 178
+    termino                        shift and go to state 92
+    factor                         shift and go to state 95
+    var_cte                        shift and go to state 96
+    call_fun                       shift and go to state 97
+    id_dim                         shift and go to state 100
+
+state 155
+
+    (68) exp -> termino seen_termino - . seen_oper_resta exp
+    (72) seen_oper_resta -> .
+    -               reduce using rule 72 (seen_oper_resta -> .)
+    +               reduce using rule 72 (seen_oper_resta -> .)
+    (               reduce using rule 72 (seen_oper_resta -> .)
+    CTE_FLOAT       reduce using rule 72 (seen_oper_resta -> .)
+    CTE_INT         reduce using rule 72 (seen_oper_resta -> .)
+    ID              reduce using rule 72 (seen_oper_resta -> .)
+
+    seen_oper_resta                shift and go to state 179
+
+state 156
+
+    (69) exp -> termino seen_termino + . seen_oper_suma exp
+    (71) seen_oper_suma -> .
+    -               reduce using rule 71 (seen_oper_suma -> .)
+    +               reduce using rule 71 (seen_oper_suma -> .)
+    (               reduce using rule 71 (seen_oper_suma -> .)
+    CTE_FLOAT       reduce using rule 71 (seen_oper_suma -> .)
+    CTE_INT         reduce using rule 71 (seen_oper_suma -> .)
+    ID              reduce using rule 71 (seen_oper_suma -> .)
+
+    seen_oper_suma                 shift and go to state 180
+
+state 157
+
+    (73) termino -> factor seen_factor / . seen_oper_div termino
+    (78) seen_oper_div -> .
+    -               reduce using rule 78 (seen_oper_div -> .)
+    +               reduce using rule 78 (seen_oper_div -> .)
+    (               reduce using rule 78 (seen_oper_div -> .)
+    CTE_FLOAT       reduce using rule 78 (seen_oper_div -> .)
+    CTE_INT         reduce using rule 78 (seen_oper_div -> .)
+    ID              reduce using rule 78 (seen_oper_div -> .)
+
+    seen_oper_div                  shift and go to state 181
+
+state 158
+
+    (74) termino -> factor seen_factor * . seen_oper_mult termino
+    (77) seen_oper_mult -> .
+    -               reduce using rule 77 (seen_oper_mult -> .)
+    +               reduce using rule 77 (seen_oper_mult -> .)
+    (               reduce using rule 77 (seen_oper_mult -> .)
+    CTE_FLOAT       reduce using rule 77 (seen_oper_mult -> .)
+    CTE_INT         reduce using rule 77 (seen_oper_mult -> .)
+    ID              reduce using rule 77 (seen_oper_mult -> .)
+
+    seen_oper_mult                 shift and go to state 182
+
+state 159
+
+    (48) escritura -> WRITE ( escritura1 ) ; .
+    IF              reduce using rule 48 (escritura -> WRITE ( escritura1 ) ; .)
+    WRITE           reduce using rule 48 (escritura -> WRITE ( escritura1 ) ; .)
+    READ            reduce using rule 48 (escritura -> WRITE ( escritura1 ) ; .)
+    RETURN          reduce using rule 48 (escritura -> WRITE ( escritura1 ) ; .)
+    FOR             reduce using rule 48 (escritura -> WRITE ( escritura1 ) ; .)
+    WHILE           reduce using rule 48 (escritura -> WRITE ( escritura1 ) ; .)
+    ID              reduce using rule 48 (escritura -> WRITE ( escritura1 ) ; .)
+    }               reduce using rule 48 (escritura -> WRITE ( escritura1 ) ; .)
+
+
+state 160
+
+    (50) escritura1 -> out seen_write , . escritura1
+    (49) escritura1 -> . out seen_write
+    (50) escritura1 -> . out seen_write , escritura1
+    (52) out -> . expresion
+    (53) out -> . CTE_STRING
+    (54) expresion -> . logic_exp | expresion
+    (55) expresion -> . logic_exp
+    (56) logic_exp -> . relation_exp ! logic_exp
+    (57) logic_exp -> . relation_exp & logic_exp
+    (58) logic_exp -> . relation_exp
+    (59) relation_exp -> . exp EQUALS seen_oper_equals exp seen_exp
+    (60) relation_exp -> . exp > seen_oper_mayor exp seen_exp
+    (61) relation_exp -> . exp < seen_oper_menor exp seen_exp
+    (62) relation_exp -> . exp seen_exp
+    (67) exp -> . termino seen_termino
+    (68) exp -> . termino seen_termino - seen_oper_resta exp
+    (69) exp -> . termino seen_termino + seen_oper_suma exp
+    (73) termino -> . factor seen_factor / seen_oper_div termino
+    (74) termino -> . factor seen_factor * seen_oper_mult termino
+    (75) termino -> . factor seen_factor
+    (79) factor -> . - var_cte
+    (80) factor -> . + var_cte
+    (81) factor -> . var_cte
+    (82) factor -> . ( seen_left_paren expresion ) seen_right_paren
+    (85) var_cte -> . call_fun
+    (86) var_cte -> . CTE_FLOAT seen_float_cte
+    (87) var_cte -> . CTE_INT seen_int_cte
+    (88) var_cte -> . id_dim
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    CTE_STRING      shift and go to state 104
+    -               shift and go to state 93
+    +               shift and go to state 94
+    (               shift and go to state 87
+    CTE_FLOAT       shift and go to state 98
+    CTE_INT         shift and go to state 99
+    ID              shift and go to state 67
+
+    out                            shift and go to state 102
+    escritura1                     shift and go to state 183
+    expresion                      shift and go to state 103
+    logic_exp                      shift and go to state 89
+    relation_exp                   shift and go to state 90
+    exp                            shift and go to state 91
+    termino                        shift and go to state 92
+    factor                         shift and go to state 95
+    var_cte                        shift and go to state 96
+    call_fun                       shift and go to state 97
+    id_dim                         shift and go to state 100
+
+state 161
+
+    (99) lectura -> READ ( lectura1 ) ; .
+    IF              reduce using rule 99 (lectura -> READ ( lectura1 ) ; .)
+    WRITE           reduce using rule 99 (lectura -> READ ( lectura1 ) ; .)
+    READ            reduce using rule 99 (lectura -> READ ( lectura1 ) ; .)
+    RETURN          reduce using rule 99 (lectura -> READ ( lectura1 ) ; .)
+    FOR             reduce using rule 99 (lectura -> READ ( lectura1 ) ; .)
+    WHILE           reduce using rule 99 (lectura -> READ ( lectura1 ) ; .)
+    ID              reduce using rule 99 (lectura -> READ ( lectura1 ) ; .)
+    }               reduce using rule 99 (lectura -> READ ( lectura1 ) ; .)
+
+
+state 162
+
+    (101) lectura1 -> id_dim seen_read , . lectura1
+    (100) lectura1 -> . id_dim seen_read
+    (101) lectura1 -> . id_dim seen_read , lectura1
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    ID              shift and go to state 80
+
+    id_dim                         shift and go to state 106
+    lectura1                       shift and go to state 184
+
+state 163
+
+    (98) _return -> RETURN ( expresion ) ; .
+    IF              reduce using rule 98 (_return -> RETURN ( expresion ) ; .)
+    WRITE           reduce using rule 98 (_return -> RETURN ( expresion ) ; .)
+    READ            reduce using rule 98 (_return -> RETURN ( expresion ) ; .)
+    RETURN          reduce using rule 98 (_return -> RETURN ( expresion ) ; .)
+    FOR             reduce using rule 98 (_return -> RETURN ( expresion ) ; .)
+    WHILE           reduce using rule 98 (_return -> RETURN ( expresion ) ; .)
+    ID              reduce using rule 98 (_return -> RETURN ( expresion ) ; .)
+    }               reduce using rule 98 (_return -> RETURN ( expresion ) ; .)
+
+
+state 164
+
+    (45) asignacion -> id_dim seen_id_asignacion = expresion seen_asignacion . ;
+    ;               shift and go to state 185
+
+
+state 165
+
+    (111) _for -> FOR id_dim = expresion TO . expresion DO bloque
+    (54) expresion -> . logic_exp | expresion
+    (55) expresion -> . logic_exp
+    (56) logic_exp -> . relation_exp ! logic_exp
+    (57) logic_exp -> . relation_exp & logic_exp
+    (58) logic_exp -> . relation_exp
+    (59) relation_exp -> . exp EQUALS seen_oper_equals exp seen_exp
+    (60) relation_exp -> . exp > seen_oper_mayor exp seen_exp
+    (61) relation_exp -> . exp < seen_oper_menor exp seen_exp
+    (62) relation_exp -> . exp seen_exp
+    (67) exp -> . termino seen_termino
+    (68) exp -> . termino seen_termino - seen_oper_resta exp
+    (69) exp -> . termino seen_termino + seen_oper_suma exp
+    (73) termino -> . factor seen_factor / seen_oper_div termino
+    (74) termino -> . factor seen_factor * seen_oper_mult termino
+    (75) termino -> . factor seen_factor
+    (79) factor -> . - var_cte
+    (80) factor -> . + var_cte
+    (81) factor -> . var_cte
+    (82) factor -> . ( seen_left_paren expresion ) seen_right_paren
+    (85) var_cte -> . call_fun
+    (86) var_cte -> . CTE_FLOAT seen_float_cte
+    (87) var_cte -> . CTE_INT seen_int_cte
+    (88) var_cte -> . id_dim
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    -               shift and go to state 93
+    +               shift and go to state 94
+    (               shift and go to state 87
+    CTE_FLOAT       shift and go to state 98
+    CTE_INT         shift and go to state 99
+    ID              shift and go to state 67
+
+    id_dim                         shift and go to state 100
+    expresion                      shift and go to state 186
+    logic_exp                      shift and go to state 89
+    relation_exp                   shift and go to state 90
+    exp                            shift and go to state 91
+    termino                        shift and go to state 92
+    factor                         shift and go to state 95
+    var_cte                        shift and go to state 96
+    call_fun                       shift and go to state 97
+
+state 166
+
+    (110) _while -> WHILE ( expresion ) DO . bloque
+    (34) bloque -> . { empty }
+    (35) bloque -> . { bloque1 }
+    {               shift and go to state 43
+
+    bloque                         shift and go to state 187
+
+state 167
+
+    (96) call_fun1 -> expresion , call_fun1 .
+    )               reduce using rule 96 (call_fun1 -> expresion , call_fun1 .)
+
+
+state 168
+
+    (89) id_dim -> ID [ expresion , expresion . ]
+    ]               shift and go to state 188
+
+
+state 169
+
+    (25) func_def -> tipo_fun MODULE ID seen_funcId ( params ) ; func_body . seen_func_end
+    (27) seen_func_end -> .
+    VOID            reduce using rule 27 (seen_func_end -> .)
+    CHAR            reduce using rule 27 (seen_func_end -> .)
+    FLOAT           reduce using rule 27 (seen_func_end -> .)
+    INT             reduce using rule 27 (seen_func_end -> .)
+    MAIN            reduce using rule 27 (seen_func_end -> .)
+
+    seen_func_end                  shift and go to state 189
+
+state 170
+
+    (28) func_body -> bloque .
+    VOID            reduce using rule 28 (func_body -> bloque .)
+    CHAR            reduce using rule 28 (func_body -> bloque .)
+    FLOAT           reduce using rule 28 (func_body -> bloque .)
+    INT             reduce using rule 28 (func_body -> bloque .)
+    MAIN            reduce using rule 28 (func_body -> bloque .)
+
+
+state 171
+
+    (29) func_body -> vars . bloque
+    (34) bloque -> . { empty }
+    (35) bloque -> . { bloque1 }
+    {               shift and go to state 43
+
+    bloque                         shift and go to state 190
+
+state 172
+
+    (33) params -> tipo var , params .
+    )               reduce using rule 33 (params -> tipo var , params .)
+
+
+state 173
+
+    (15) var -> ID seen_var_name [ CTE_INT ] [ CTE_INT ] .
+    ,               reduce using rule 15 (var -> ID seen_var_name [ CTE_INT ] [ CTE_INT ] .)
+    ;               reduce using rule 15 (var -> ID seen_var_name [ CTE_INT ] [ CTE_INT ] .)
+    )               reduce using rule 15 (var -> ID seen_var_name [ CTE_INT ] [ CTE_INT ] .)
+
+
+state 174
+
+    (82) factor -> ( seen_left_paren expresion ) . seen_right_paren
+    (84) seen_right_paren -> .
+    /               reduce using rule 84 (seen_right_paren -> .)
+    *               reduce using rule 84 (seen_right_paren -> .)
+    -               reduce using rule 84 (seen_right_paren -> .)
+    +               reduce using rule 84 (seen_right_paren -> .)
+    EQUALS          reduce using rule 84 (seen_right_paren -> .)
+    >               reduce using rule 84 (seen_right_paren -> .)
+    <               reduce using rule 84 (seen_right_paren -> .)
+    !               reduce using rule 84 (seen_right_paren -> .)
+    &               reduce using rule 84 (seen_right_paren -> .)
+    |               reduce using rule 84 (seen_right_paren -> .)
+    )               reduce using rule 84 (seen_right_paren -> .)
+    ,               reduce using rule 84 (seen_right_paren -> .)
+    ]               reduce using rule 84 (seen_right_paren -> .)
+    ;               reduce using rule 84 (seen_right_paren -> .)
+    TO              reduce using rule 84 (seen_right_paren -> .)
+    DO              reduce using rule 84 (seen_right_paren -> .)
+
+    seen_right_paren               shift and go to state 191
+
+state 175
+
+    (103) condicion -> IF ( expresion ) seen_gotof THEN . bloque ELSE seen_goto bloque seen_end_if
+    (104) condicion -> IF ( expresion ) seen_gotof THEN . bloque seen_end_if
+    (34) bloque -> . { empty }
+    (35) bloque -> . { bloque1 }
+    {               shift and go to state 43
+
+    bloque                         shift and go to state 192
+
+state 176
+
+    (59) relation_exp -> exp EQUALS seen_oper_equals exp . seen_exp
+    (63) seen_exp -> .
+    !               reduce using rule 63 (seen_exp -> .)
+    &               reduce using rule 63 (seen_exp -> .)
+    |               reduce using rule 63 (seen_exp -> .)
+    )               reduce using rule 63 (seen_exp -> .)
+    ,               reduce using rule 63 (seen_exp -> .)
+    ]               reduce using rule 63 (seen_exp -> .)
+    ;               reduce using rule 63 (seen_exp -> .)
+    TO              reduce using rule 63 (seen_exp -> .)
+    DO              reduce using rule 63 (seen_exp -> .)
+
+    seen_exp                       shift and go to state 193
+
+state 177
+
+    (60) relation_exp -> exp > seen_oper_mayor exp . seen_exp
+    (63) seen_exp -> .
+    !               reduce using rule 63 (seen_exp -> .)
+    &               reduce using rule 63 (seen_exp -> .)
+    |               reduce using rule 63 (seen_exp -> .)
+    )               reduce using rule 63 (seen_exp -> .)
+    ,               reduce using rule 63 (seen_exp -> .)
+    ]               reduce using rule 63 (seen_exp -> .)
+    ;               reduce using rule 63 (seen_exp -> .)
+    TO              reduce using rule 63 (seen_exp -> .)
+    DO              reduce using rule 63 (seen_exp -> .)
+
+    seen_exp                       shift and go to state 194
+
+state 178
+
+    (61) relation_exp -> exp < seen_oper_menor exp . seen_exp
+    (63) seen_exp -> .
+    !               reduce using rule 63 (seen_exp -> .)
+    &               reduce using rule 63 (seen_exp -> .)
+    |               reduce using rule 63 (seen_exp -> .)
+    )               reduce using rule 63 (seen_exp -> .)
+    ,               reduce using rule 63 (seen_exp -> .)
+    ]               reduce using rule 63 (seen_exp -> .)
+    ;               reduce using rule 63 (seen_exp -> .)
+    TO              reduce using rule 63 (seen_exp -> .)
+    DO              reduce using rule 63 (seen_exp -> .)
+
+    seen_exp                       shift and go to state 195
+
+state 179
+
+    (68) exp -> termino seen_termino - seen_oper_resta . exp
+    (67) exp -> . termino seen_termino
+    (68) exp -> . termino seen_termino - seen_oper_resta exp
+    (69) exp -> . termino seen_termino + seen_oper_suma exp
+    (73) termino -> . factor seen_factor / seen_oper_div termino
+    (74) termino -> . factor seen_factor * seen_oper_mult termino
+    (75) termino -> . factor seen_factor
+    (79) factor -> . - var_cte
+    (80) factor -> . + var_cte
+    (81) factor -> . var_cte
+    (82) factor -> . ( seen_left_paren expresion ) seen_right_paren
+    (85) var_cte -> . call_fun
+    (86) var_cte -> . CTE_FLOAT seen_float_cte
+    (87) var_cte -> . CTE_INT seen_int_cte
+    (88) var_cte -> . id_dim
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    -               shift and go to state 93
+    +               shift and go to state 94
+    (               shift and go to state 87
+    CTE_FLOAT       shift and go to state 98
+    CTE_INT         shift and go to state 99
+    ID              shift and go to state 67
+
+    termino                        shift and go to state 92
+    exp                            shift and go to state 196
+    factor                         shift and go to state 95
+    var_cte                        shift and go to state 96
+    call_fun                       shift and go to state 97
+    id_dim                         shift and go to state 100
+
+state 180
+
+    (69) exp -> termino seen_termino + seen_oper_suma . exp
+    (67) exp -> . termino seen_termino
+    (68) exp -> . termino seen_termino - seen_oper_resta exp
+    (69) exp -> . termino seen_termino + seen_oper_suma exp
+    (73) termino -> . factor seen_factor / seen_oper_div termino
+    (74) termino -> . factor seen_factor * seen_oper_mult termino
+    (75) termino -> . factor seen_factor
+    (79) factor -> . - var_cte
+    (80) factor -> . + var_cte
+    (81) factor -> . var_cte
+    (82) factor -> . ( seen_left_paren expresion ) seen_right_paren
+    (85) var_cte -> . call_fun
+    (86) var_cte -> . CTE_FLOAT seen_float_cte
+    (87) var_cte -> . CTE_INT seen_int_cte
+    (88) var_cte -> . id_dim
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    -               shift and go to state 93
+    +               shift and go to state 94
+    (               shift and go to state 87
+    CTE_FLOAT       shift and go to state 98
+    CTE_INT         shift and go to state 99
+    ID              shift and go to state 67
+
+    termino                        shift and go to state 92
+    exp                            shift and go to state 197
+    factor                         shift and go to state 95
+    var_cte                        shift and go to state 96
+    call_fun                       shift and go to state 97
+    id_dim                         shift and go to state 100
+
+state 181
+
+    (73) termino -> factor seen_factor / seen_oper_div . termino
+    (73) termino -> . factor seen_factor / seen_oper_div termino
+    (74) termino -> . factor seen_factor * seen_oper_mult termino
+    (75) termino -> . factor seen_factor
+    (79) factor -> . - var_cte
+    (80) factor -> . + var_cte
+    (81) factor -> . var_cte
+    (82) factor -> . ( seen_left_paren expresion ) seen_right_paren
+    (85) var_cte -> . call_fun
+    (86) var_cte -> . CTE_FLOAT seen_float_cte
+    (87) var_cte -> . CTE_INT seen_int_cte
+    (88) var_cte -> . id_dim
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    -               shift and go to state 93
+    +               shift and go to state 94
+    (               shift and go to state 87
+    CTE_FLOAT       shift and go to state 98
+    CTE_INT         shift and go to state 99
+    ID              shift and go to state 67
+
+    factor                         shift and go to state 95
+    termino                        shift and go to state 198
+    var_cte                        shift and go to state 96
+    call_fun                       shift and go to state 97
+    id_dim                         shift and go to state 100
+
+state 182
+
+    (74) termino -> factor seen_factor * seen_oper_mult . termino
+    (73) termino -> . factor seen_factor / seen_oper_div termino
+    (74) termino -> . factor seen_factor * seen_oper_mult termino
+    (75) termino -> . factor seen_factor
+    (79) factor -> . - var_cte
+    (80) factor -> . + var_cte
+    (81) factor -> . var_cte
+    (82) factor -> . ( seen_left_paren expresion ) seen_right_paren
+    (85) var_cte -> . call_fun
+    (86) var_cte -> . CTE_FLOAT seen_float_cte
+    (87) var_cte -> . CTE_INT seen_int_cte
+    (88) var_cte -> . id_dim
+    (94) call_fun -> . ID ( call_fun1 )
+    (89) id_dim -> . ID [ expresion , expresion ]
+    (90) id_dim -> . ID [ expresion ]
+    (91) id_dim -> . ID
+    -               shift and go to state 93
+    +               shift and go to state 94
+    (               shift and go to state 87
+    CTE_FLOAT       shift and go to state 98
+    CTE_INT         shift and go to state 99
+    ID              shift and go to state 67
+
+    factor                         shift and go to state 95
+    termino                        shift and go to state 199
+    var_cte                        shift and go to state 96
+    call_fun                       shift and go to state 97
+    id_dim                         shift and go to state 100
+
+state 183
+
+    (50) escritura1 -> out seen_write , escritura1 .
+    )               reduce using rule 50 (escritura1 -> out seen_write , escritura1 .)
+
+
+state 184
+
+    (101) lectura1 -> id_dim seen_read , lectura1 .
+    )               reduce using rule 101 (lectura1 -> id_dim seen_read , lectura1 .)
+
+
+state 185
+
+    (45) asignacion -> id_dim seen_id_asignacion = expresion seen_asignacion ; .
+    IF              reduce using rule 45 (asignacion -> id_dim seen_id_asignacion = expresion seen_asignacion ; .)
+    WRITE           reduce using rule 45 (asignacion -> id_dim seen_id_asignacion = expresion seen_asignacion ; .)
+    READ            reduce using rule 45 (asignacion -> id_dim seen_id_asignacion = expresion seen_asignacion ; .)
+    RETURN          reduce using rule 45 (asignacion -> id_dim seen_id_asignacion = expresion seen_asignacion ; .)
+    FOR             reduce using rule 45 (asignacion -> id_dim seen_id_asignacion = expresion seen_asignacion ; .)
+    WHILE           reduce using rule 45 (asignacion -> id_dim seen_id_asignacion = expresion seen_asignacion ; .)
+    ID              reduce using rule 45 (asignacion -> id_dim seen_id_asignacion = expresion seen_asignacion ; .)
+    }               reduce using rule 45 (asignacion -> id_dim seen_id_asignacion = expresion seen_asignacion ; .)
+
+
+state 186
+
+    (111) _for -> FOR id_dim = expresion TO expresion . DO bloque
+    DO              shift and go to state 200
+
+
+state 187
+
+    (110) _while -> WHILE ( expresion ) DO bloque .
+    IF              reduce using rule 110 (_while -> WHILE ( expresion ) DO bloque .)
+    WRITE           reduce using rule 110 (_while -> WHILE ( expresion ) DO bloque .)
+    READ            reduce using rule 110 (_while -> WHILE ( expresion ) DO bloque .)
+    RETURN          reduce using rule 110 (_while -> WHILE ( expresion ) DO bloque .)
+    FOR             reduce using rule 110 (_while -> WHILE ( expresion ) DO bloque .)
+    WHILE           reduce using rule 110 (_while -> WHILE ( expresion ) DO bloque .)
+    ID              reduce using rule 110 (_while -> WHILE ( expresion ) DO bloque .)
+    }               reduce using rule 110 (_while -> WHILE ( expresion ) DO bloque .)
+
+
+state 188
+
+    (89) id_dim -> ID [ expresion , expresion ] .
+    =               reduce using rule 89 (id_dim -> ID [ expresion , expresion ] .)
+    /               reduce using rule 89 (id_dim -> ID [ expresion , expresion ] .)
+    *               reduce using rule 89 (id_dim -> ID [ expresion , expresion ] .)
+    -               reduce using rule 89 (id_dim -> ID [ expresion , expresion ] .)
+    +               reduce using rule 89 (id_dim -> ID [ expresion , expresion ] .)
+    EQUALS          reduce using rule 89 (id_dim -> ID [ expresion , expresion ] .)
+    >               reduce using rule 89 (id_dim -> ID [ expresion , expresion ] .)
+    <               reduce using rule 89 (id_dim -> ID [ expresion , expresion ] .)
+    !               reduce using rule 89 (id_dim -> ID [ expresion , expresion ] .)
+    &               reduce using rule 89 (id_dim -> ID [ expresion , expresion ] .)
+    |               reduce using rule 89 (id_dim -> ID [ expresion , expresion ] .)
+    )               reduce using rule 89 (id_dim -> ID [ expresion , expresion ] .)
+    ,               reduce using rule 89 (id_dim -> ID [ expresion , expresion ] .)
+    ]               reduce using rule 89 (id_dim -> ID [ expresion , expresion ] .)
+    ;               reduce using rule 89 (id_dim -> ID [ expresion , expresion ] .)
+    TO              reduce using rule 89 (id_dim -> ID [ expresion , expresion ] .)
+    DO              reduce using rule 89 (id_dim -> ID [ expresion , expresion ] .)
+
+
+state 189
+
+    (25) func_def -> tipo_fun MODULE ID seen_funcId ( params ) ; func_body seen_func_end .
+    VOID            reduce using rule 25 (func_def -> tipo_fun MODULE ID seen_funcId ( params ) ; func_body seen_func_end .)
+    CHAR            reduce using rule 25 (func_def -> tipo_fun MODULE ID seen_funcId ( params ) ; func_body seen_func_end .)
+    FLOAT           reduce using rule 25 (func_def -> tipo_fun MODULE ID seen_funcId ( params ) ; func_body seen_func_end .)
+    INT             reduce using rule 25 (func_def -> tipo_fun MODULE ID seen_funcId ( params ) ; func_body seen_func_end .)
+    MAIN            reduce using rule 25 (func_def -> tipo_fun MODULE ID seen_funcId ( params ) ; func_body seen_func_end .)
+
+
+state 190
+
+    (29) func_body -> vars bloque .
+    VOID            reduce using rule 29 (func_body -> vars bloque .)
+    CHAR            reduce using rule 29 (func_body -> vars bloque .)
+    FLOAT           reduce using rule 29 (func_body -> vars bloque .)
+    INT             reduce using rule 29 (func_body -> vars bloque .)
+    MAIN            reduce using rule 29 (func_body -> vars bloque .)
+
+
+state 191
+
+    (82) factor -> ( seen_left_paren expresion ) seen_right_paren .
+    /               reduce using rule 82 (factor -> ( seen_left_paren expresion ) seen_right_paren .)
+    *               reduce using rule 82 (factor -> ( seen_left_paren expresion ) seen_right_paren .)
+    -               reduce using rule 82 (factor -> ( seen_left_paren expresion ) seen_right_paren .)
+    +               reduce using rule 82 (factor -> ( seen_left_paren expresion ) seen_right_paren .)
+    EQUALS          reduce using rule 82 (factor -> ( seen_left_paren expresion ) seen_right_paren .)
+    >               reduce using rule 82 (factor -> ( seen_left_paren expresion ) seen_right_paren .)
+    <               reduce using rule 82 (factor -> ( seen_left_paren expresion ) seen_right_paren .)
+    !               reduce using rule 82 (factor -> ( seen_left_paren expresion ) seen_right_paren .)
+    &               reduce using rule 82 (factor -> ( seen_left_paren expresion ) seen_right_paren .)
+    |               reduce using rule 82 (factor -> ( seen_left_paren expresion ) seen_right_paren .)
+    )               reduce using rule 82 (factor -> ( seen_left_paren expresion ) seen_right_paren .)
+    ,               reduce using rule 82 (factor -> ( seen_left_paren expresion ) seen_right_paren .)
+    ]               reduce using rule 82 (factor -> ( seen_left_paren expresion ) seen_right_paren .)
+    ;               reduce using rule 82 (factor -> ( seen_left_paren expresion ) seen_right_paren .)
+    TO              reduce using rule 82 (factor -> ( seen_left_paren expresion ) seen_right_paren .)
+    DO              reduce using rule 82 (factor -> ( seen_left_paren expresion ) seen_right_paren .)
+
+
+state 192
+
+    (103) condicion -> IF ( expresion ) seen_gotof THEN bloque . ELSE seen_goto bloque seen_end_if
+    (104) condicion -> IF ( expresion ) seen_gotof THEN bloque . seen_end_if
+    (107) seen_end_if -> .
+    ELSE            shift and go to state 201
+    IF              reduce using rule 107 (seen_end_if -> .)
+    WRITE           reduce using rule 107 (seen_end_if -> .)
+    READ            reduce using rule 107 (seen_end_if -> .)
+    RETURN          reduce using rule 107 (seen_end_if -> .)
+    FOR             reduce using rule 107 (seen_end_if -> .)
+    WHILE           reduce using rule 107 (seen_end_if -> .)
+    ID              reduce using rule 107 (seen_end_if -> .)
+    }               reduce using rule 107 (seen_end_if -> .)
+
+    seen_end_if                    shift and go to state 202
+
+state 193
+
+    (59) relation_exp -> exp EQUALS seen_oper_equals exp seen_exp .
+    !               reduce using rule 59 (relation_exp -> exp EQUALS seen_oper_equals exp seen_exp .)
+    &               reduce using rule 59 (relation_exp -> exp EQUALS seen_oper_equals exp seen_exp .)
+    |               reduce using rule 59 (relation_exp -> exp EQUALS seen_oper_equals exp seen_exp .)
+    )               reduce using rule 59 (relation_exp -> exp EQUALS seen_oper_equals exp seen_exp .)
+    ,               reduce using rule 59 (relation_exp -> exp EQUALS seen_oper_equals exp seen_exp .)
+    ]               reduce using rule 59 (relation_exp -> exp EQUALS seen_oper_equals exp seen_exp .)
+    ;               reduce using rule 59 (relation_exp -> exp EQUALS seen_oper_equals exp seen_exp .)
+    TO              reduce using rule 59 (relation_exp -> exp EQUALS seen_oper_equals exp seen_exp .)
+    DO              reduce using rule 59 (relation_exp -> exp EQUALS seen_oper_equals exp seen_exp .)
+
+
+state 194
+
+    (60) relation_exp -> exp > seen_oper_mayor exp seen_exp .
+    !               reduce using rule 60 (relation_exp -> exp > seen_oper_mayor exp seen_exp .)
+    &               reduce using rule 60 (relation_exp -> exp > seen_oper_mayor exp seen_exp .)
+    |               reduce using rule 60 (relation_exp -> exp > seen_oper_mayor exp seen_exp .)
+    )               reduce using rule 60 (relation_exp -> exp > seen_oper_mayor exp seen_exp .)
+    ,               reduce using rule 60 (relation_exp -> exp > seen_oper_mayor exp seen_exp .)
+    ]               reduce using rule 60 (relation_exp -> exp > seen_oper_mayor exp seen_exp .)
+    ;               reduce using rule 60 (relation_exp -> exp > seen_oper_mayor exp seen_exp .)
+    TO              reduce using rule 60 (relation_exp -> exp > seen_oper_mayor exp seen_exp .)
+    DO              reduce using rule 60 (relation_exp -> exp > seen_oper_mayor exp seen_exp .)
+
+
+state 195
+
+    (61) relation_exp -> exp < seen_oper_menor exp seen_exp .
+    !               reduce using rule 61 (relation_exp -> exp < seen_oper_menor exp seen_exp .)
+    &               reduce using rule 61 (relation_exp -> exp < seen_oper_menor exp seen_exp .)
+    |               reduce using rule 61 (relation_exp -> exp < seen_oper_menor exp seen_exp .)
+    )               reduce using rule 61 (relation_exp -> exp < seen_oper_menor exp seen_exp .)
+    ,               reduce using rule 61 (relation_exp -> exp < seen_oper_menor exp seen_exp .)
+    ]               reduce using rule 61 (relation_exp -> exp < seen_oper_menor exp seen_exp .)
+    ;               reduce using rule 61 (relation_exp -> exp < seen_oper_menor exp seen_exp .)
+    TO              reduce using rule 61 (relation_exp -> exp < seen_oper_menor exp seen_exp .)
+    DO              reduce using rule 61 (relation_exp -> exp < seen_oper_menor exp seen_exp .)
+
+
+state 196
+
+    (68) exp -> termino seen_termino - seen_oper_resta exp .
+    EQUALS          reduce using rule 68 (exp -> termino seen_termino - seen_oper_resta exp .)
+    >               reduce using rule 68 (exp -> termino seen_termino - seen_oper_resta exp .)
+    <               reduce using rule 68 (exp -> termino seen_termino - seen_oper_resta exp .)
+    !               reduce using rule 68 (exp -> termino seen_termino - seen_oper_resta exp .)
+    &               reduce using rule 68 (exp -> termino seen_termino - seen_oper_resta exp .)
+    |               reduce using rule 68 (exp -> termino seen_termino - seen_oper_resta exp .)
+    )               reduce using rule 68 (exp -> termino seen_termino - seen_oper_resta exp .)
+    ,               reduce using rule 68 (exp -> termino seen_termino - seen_oper_resta exp .)
+    ]               reduce using rule 68 (exp -> termino seen_termino - seen_oper_resta exp .)
+    ;               reduce using rule 68 (exp -> termino seen_termino - seen_oper_resta exp .)
+    TO              reduce using rule 68 (exp -> termino seen_termino - seen_oper_resta exp .)
+    DO              reduce using rule 68 (exp -> termino seen_termino - seen_oper_resta exp .)
+
+
+state 197
+
+    (69) exp -> termino seen_termino + seen_oper_suma exp .
+    EQUALS          reduce using rule 69 (exp -> termino seen_termino + seen_oper_suma exp .)
+    >               reduce using rule 69 (exp -> termino seen_termino + seen_oper_suma exp .)
+    <               reduce using rule 69 (exp -> termino seen_termino + seen_oper_suma exp .)
+    !               reduce using rule 69 (exp -> termino seen_termino + seen_oper_suma exp .)
+    &               reduce using rule 69 (exp -> termino seen_termino + seen_oper_suma exp .)
+    |               reduce using rule 69 (exp -> termino seen_termino + seen_oper_suma exp .)
+    )               reduce using rule 69 (exp -> termino seen_termino + seen_oper_suma exp .)
+    ,               reduce using rule 69 (exp -> termino seen_termino + seen_oper_suma exp .)
+    ]               reduce using rule 69 (exp -> termino seen_termino + seen_oper_suma exp .)
+    ;               reduce using rule 69 (exp -> termino seen_termino + seen_oper_suma exp .)
+    TO              reduce using rule 69 (exp -> termino seen_termino + seen_oper_suma exp .)
+    DO              reduce using rule 69 (exp -> termino seen_termino + seen_oper_suma exp .)
+
+
+state 198
+
+    (73) termino -> factor seen_factor / seen_oper_div termino .
+    -               reduce using rule 73 (termino -> factor seen_factor / seen_oper_div termino .)
+    +               reduce using rule 73 (termino -> factor seen_factor / seen_oper_div termino .)
+    EQUALS          reduce using rule 73 (termino -> factor seen_factor / seen_oper_div termino .)
+    >               reduce using rule 73 (termino -> factor seen_factor / seen_oper_div termino .)
+    <               reduce using rule 73 (termino -> factor seen_factor / seen_oper_div termino .)
+    !               reduce using rule 73 (termino -> factor seen_factor / seen_oper_div termino .)
+    &               reduce using rule 73 (termino -> factor seen_factor / seen_oper_div termino .)
+    |               reduce using rule 73 (termino -> factor seen_factor / seen_oper_div termino .)
+    )               reduce using rule 73 (termino -> factor seen_factor / seen_oper_div termino .)
+    ,               reduce using rule 73 (termino -> factor seen_factor / seen_oper_div termino .)
+    ]               reduce using rule 73 (termino -> factor seen_factor / seen_oper_div termino .)
+    ;               reduce using rule 73 (termino -> factor seen_factor / seen_oper_div termino .)
+    TO              reduce using rule 73 (termino -> factor seen_factor / seen_oper_div termino .)
+    DO              reduce using rule 73 (termino -> factor seen_factor / seen_oper_div termino .)
+
+
+state 199
+
+    (74) termino -> factor seen_factor * seen_oper_mult termino .
+    -               reduce using rule 74 (termino -> factor seen_factor * seen_oper_mult termino .)
+    +               reduce using rule 74 (termino -> factor seen_factor * seen_oper_mult termino .)
+    EQUALS          reduce using rule 74 (termino -> factor seen_factor * seen_oper_mult termino .)
+    >               reduce using rule 74 (termino -> factor seen_factor * seen_oper_mult termino .)
+    <               reduce using rule 74 (termino -> factor seen_factor * seen_oper_mult termino .)
+    !               reduce using rule 74 (termino -> factor seen_factor * seen_oper_mult termino .)
+    &               reduce using rule 74 (termino -> factor seen_factor * seen_oper_mult termino .)
+    |               reduce using rule 74 (termino -> factor seen_factor * seen_oper_mult termino .)
+    )               reduce using rule 74 (termino -> factor seen_factor * seen_oper_mult termino .)
+    ,               reduce using rule 74 (termino -> factor seen_factor * seen_oper_mult termino .)
+    ]               reduce using rule 74 (termino -> factor seen_factor * seen_oper_mult termino .)
+    ;               reduce using rule 74 (termino -> factor seen_factor * seen_oper_mult termino .)
+    TO              reduce using rule 74 (termino -> factor seen_factor * seen_oper_mult termino .)
+    DO              reduce using rule 74 (termino -> factor seen_factor * seen_oper_mult termino .)
+
+
+state 200
+
+    (111) _for -> FOR id_dim = expresion TO expresion DO . bloque
+    (34) bloque -> . { empty }
+    (35) bloque -> . { bloque1 }
+    {               shift and go to state 43
+
+    bloque                         shift and go to state 203
+
+state 201
+
+    (103) condicion -> IF ( expresion ) seen_gotof THEN bloque ELSE . seen_goto bloque seen_end_if
+    (106) seen_goto -> .
+    {               reduce using rule 106 (seen_goto -> .)
+
+    seen_goto                      shift and go to state 204
+
+state 202
+
+    (104) condicion -> IF ( expresion ) seen_gotof THEN bloque seen_end_if .
+    IF              reduce using rule 104 (condicion -> IF ( expresion ) seen_gotof THEN bloque seen_end_if .)
+    WRITE           reduce using rule 104 (condicion -> IF ( expresion ) seen_gotof THEN bloque seen_end_if .)
+    READ            reduce using rule 104 (condicion -> IF ( expresion ) seen_gotof THEN bloque seen_end_if .)
+    RETURN          reduce using rule 104 (condicion -> IF ( expresion ) seen_gotof THEN bloque seen_end_if .)
+    FOR             reduce using rule 104 (condicion -> IF ( expresion ) seen_gotof THEN bloque seen_end_if .)
+    WHILE           reduce using rule 104 (condicion -> IF ( expresion ) seen_gotof THEN bloque seen_end_if .)
+    ID              reduce using rule 104 (condicion -> IF ( expresion ) seen_gotof THEN bloque seen_end_if .)
+    }               reduce using rule 104 (condicion -> IF ( expresion ) seen_gotof THEN bloque seen_end_if .)
+
+
+state 203
+
+    (111) _for -> FOR id_dim = expresion TO expresion DO bloque .
+    IF              reduce using rule 111 (_for -> FOR id_dim = expresion TO expresion DO bloque .)
+    WRITE           reduce using rule 111 (_for -> FOR id_dim = expresion TO expresion DO bloque .)
+    READ            reduce using rule 111 (_for -> FOR id_dim = expresion TO expresion DO bloque .)
+    RETURN          reduce using rule 111 (_for -> FOR id_dim = expresion TO expresion DO bloque .)
+    FOR             reduce using rule 111 (_for -> FOR id_dim = expresion TO expresion DO bloque .)
+    WHILE           reduce using rule 111 (_for -> FOR id_dim = expresion TO expresion DO bloque .)
+    ID              reduce using rule 111 (_for -> FOR id_dim = expresion TO expresion DO bloque .)
+    }               reduce using rule 111 (_for -> FOR id_dim = expresion TO expresion DO bloque .)
+
+
+state 204
+
+    (103) condicion -> IF ( expresion ) seen_gotof THEN bloque ELSE seen_goto . bloque seen_end_if
+    (34) bloque -> . { empty }
+    (35) bloque -> . { bloque1 }
+    {               shift and go to state 43
+
+    bloque                         shift and go to state 205
+
+state 205
+
+    (103) condicion -> IF ( expresion ) seen_gotof THEN bloque ELSE seen_goto bloque . seen_end_if
+    (107) seen_end_if -> .
+    IF              reduce using rule 107 (seen_end_if -> .)
+    WRITE           reduce using rule 107 (seen_end_if -> .)
+    READ            reduce using rule 107 (seen_end_if -> .)
+    RETURN          reduce using rule 107 (seen_end_if -> .)
+    FOR             reduce using rule 107 (seen_end_if -> .)
+    WHILE           reduce using rule 107 (seen_end_if -> .)
+    ID              reduce using rule 107 (seen_end_if -> .)
+    }               reduce using rule 107 (seen_end_if -> .)
+
+    seen_end_if                    shift and go to state 206
+
+state 206
+
+    (103) condicion -> IF ( expresion ) seen_gotof THEN bloque ELSE seen_goto bloque seen_end_if .
+    IF              reduce using rule 103 (condicion -> IF ( expresion ) seen_gotof THEN bloque ELSE seen_goto bloque seen_end_if .)
+    WRITE           reduce using rule 103 (condicion -> IF ( expresion ) seen_gotof THEN bloque ELSE seen_goto bloque seen_end_if .)
+    READ            reduce using rule 103 (condicion -> IF ( expresion ) seen_gotof THEN bloque ELSE seen_goto bloque seen_end_if .)
+    RETURN          reduce using rule 103 (condicion -> IF ( expresion ) seen_gotof THEN bloque ELSE seen_goto bloque seen_end_if .)
+    FOR             reduce using rule 103 (condicion -> IF ( expresion ) seen_gotof THEN bloque ELSE seen_goto bloque seen_end_if .)
+    WHILE           reduce using rule 103 (condicion -> IF ( expresion ) seen_gotof THEN bloque ELSE seen_goto bloque seen_end_if .)
+    ID              reduce using rule 103 (condicion -> IF ( expresion ) seen_gotof THEN bloque ELSE seen_goto bloque seen_end_if .)
+    }               reduce using rule 103 (condicion -> IF ( expresion ) seen_gotof THEN bloque ELSE seen_goto bloque seen_end_if .)

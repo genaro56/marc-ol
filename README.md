@@ -28,3 +28,17 @@ Ariel Méndez | A01020690
 
 - Creación del directorio de funciones que alberga el registro de cada función en un diccionario.
   - Utiliza una subclase Funcion pues sería utilizada para declarar atributos principales de una función (tipo, id, tabla de vars)
+
+### - Avance no. 3:
+
+- Desarrollo de la clase Cuadruplos (operaciones aritméticas, expresiones lógicas y expresiones no-lineales)
+  - Contiene métodos y atributos útiles para 
+    la generación de cuadruplos, cuya función 
+    es validar la lógica de operadores y de expresiones.
+  - Desarrollo de pilas (Operadores, Operandos, Cuadruplos y Saltos).
+
+- Se crearon las direcciones de memoria para cada variable (temporales, locales, constantes, globales)
+  - Cada rango de memoria está distribuido de tal suerte que el compilador pueda albergar rangos de 2mil a 3mil variables
+    por scope.
+  - Utiliza métodos útiles para manipular la memoria y generar los cuadruplos con sus ids únicos.
+
