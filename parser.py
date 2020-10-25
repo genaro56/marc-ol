@@ -15,6 +15,7 @@ cuboSemantico = CuboSemantico(filePath).getCuboSemantico()
 
 class MyParser(Parser):
     start = 'program'
+    debugfile = 'parser.out'
     tokens = MyLexer.tokens
     precedence = (
         ('nonassoc', '<', '>'),  # Nonassociative operators
@@ -129,8 +130,8 @@ class MyParser(Parser):
     @_('')
     def seen_funcId(self, p):
         '''
-        Agrega funcion al dir. de funciones 
-        con nomre funcName y tipo funcType
+        Agrega funcion al dir. de funciones
+        con nombre funcName y tipo funcType
         '''
 
         funcName = p[-1]
@@ -216,8 +217,7 @@ class MyParser(Parser):
         # TODO: para validar el tipo del id falta agregar al cubo el operador '='
         exp, exp_tipo = cuadruplos.pilaOperandos.pop()
         var, var_tipo = cuadruplos.pilaOperandos.pop()
-        quad = ('=', exp, None, var)
-        cuadruplos.pilaCuadruplos.append(quad)
+        cuadruplos.createQuad('=', exp, None, var)
         pass
 
     # ESCRITURA
@@ -229,9 +229,8 @@ class MyParser(Parser):
 
     @_('')
     def seen_write(self, p):
-        exp = cuadruplos.pilaOperandos.pop()
-        quad = ('print', None, None, exp)
-        cuadruplos.pilaCuadruplos.append(quad)
+        exp, expTipo = cuadruplos.pilaOperandos.pop()
+        cuadruplos.createQuad('print', None, None, exp)
 
     @_('CTE_STRING', 'expresion')
     def out(self, p): pass
@@ -266,8 +265,8 @@ class MyParser(Parser):
             resultType = cuboSemantico[(leftType, rightType, operator)]
             if (resultType != 'error'):
                 result = addrCounter.nextTemporalAddr(resultType)
-                quad = (operator, leftOperand, rightOperand, result)
-                cuadruplos.pilaCuadruplos.append(quad)
+                cuadruplos.createQuad(
+                    operator, leftOperand, rightOperand, result)
                 pilaOperandos.append((result, resultType))
             else:
                 raise Exception('Type mismatch')
@@ -303,8 +302,8 @@ class MyParser(Parser):
             resultType = cuboSemantico[(leftType, rightType, operator)]
             if (resultType != 'error'):
                 result = addrCounter.nextTemporalAddr(resultType)
-                quad = (operator, leftOperand, rightOperand, result)
-                cuadruplos.pilaCuadruplos.append(quad)
+                cuadruplos.createQuad(
+                    operator, leftOperand, rightOperand, result)
                 pilaOperandos.append((result, resultType))
             else:
                 raise Exception('Type mismatch')
@@ -335,8 +334,8 @@ class MyParser(Parser):
             resultType = cuboSemantico[(leftType, rightType, operator)]
             if (resultType != 'error'):
                 result = addrCounter.nextTemporalAddr(resultType)
-                quad = (operator, leftOperand, rightOperand, result)
-                cuadruplos.pilaCuadruplos.append(quad)
+                cuadruplos.createQuad(
+                    operator, leftOperand, rightOperand, result)
                 pilaOperandos.append((result, resultType))
             else:
                 raise Exception('Type mismatch')
@@ -380,12 +379,13 @@ class MyParser(Parser):
         funcId = dirFunc.funcStack[-1]
         varTable = dirFunc.getFuncion(funcId).tablaVariables
         varType = idAddr = None
+        globalVarTable = dirFunc.getFuncion(dirFunc.programName).tablaVariables
         # checa si la variable esta en la tabla local o global
         if varTable.isVarInTable(ID):
             varObj = varTable.getVar(ID)
             varType = varObj.getType()
             idAddr = varObj.getAddr()
-        elif varTable.isVarInGlobalTable(ID):
+        elif globalVarTable.isVarInTable(ID):
             varObj = varTable.getGlobalVarTable().getVar(ID)
             varType = varObj.getType()
             idAddr = varObj.getAddr()
@@ -425,16 +425,59 @@ class MyParser(Parser):
     @_('READ "(" lectura1 ")" ";"')
     def lectura(self, p): pass
 
-    @_('id_dim "," lectura1', 'id_dim')
+    @_('id_dim seen_read "," lectura1', 'id_dim seen_read')
     def lectura1(self, p): pass
+
+    @_('')
+    def seen_read(self, p):
+        ID = p[-1]
+        funcId = dirFunc.funcStack[-1]
+        varTable = dirFunc.getFuncion(funcId).tablaVariables
+        varType = idAddr = None
+        print('global', varTable.getGlobalVarTable())
+        globalVarTable = dirFunc.getFuncion(dirFunc.programName).tablaVariables
+        # checa si la variable esta en la tabla local o global
+        if varTable.isVarInTable(ID):
+            varObj = varTable.getVar(ID)
+            varType = varObj.getType()
+            idAddr = varObj.getAddr()
+        elif globalVarTable.isVarInTable(ID):
+            varObj = varTable.getGlobalVarTable().getVar(ID)
+            varType = varObj.getType()
+            idAddr = varObj.getAddr()
+        else:
+            raise Exception(f'Undefined variable {ID}')
+        cuadruplos.createQuadquad('read', None, None, idAddr)
 
     # CONDICION
     @_(
-        'IF "(" expresion ")" THEN bloque',
-        'IF "(" expresion ")" THEN bloque ELSE bloque'
+        'IF "(" expresion ")" seen_gotof THEN bloque seen_end_if',
+        'IF "(" expresion ")" seen_gotof THEN bloque ELSE seen_goto bloque seen_end_if'
     )
     def condicion(self, p): pass
 
+    @_('')
+    def seen_gotof(self, p):
+        _, _, _, result = cuadruplos.pilaCuadruplos[-1]
+        _, resultType = cuadruplos.pilaOperandos[-1]
+        if resultType != 'boolean':
+            raise Exception('Type mismatch.')
+        else:
+            cuadruplos.createQuad('gotof', result, None, None)
+            cuadruplos.pilaSaltos.append(cuadruplos.counter - 1)
+            pass
+
+    @_('')
+    def seen_goto(self, p):
+        cuadruplos.createQuad('goto', None, None, None)
+        cuadruplos.pilaSaltos.append(cuadruplos.counter - 1)
+        falseJumpIndex = cuadruplos.pilaSaltos.pop()
+        cuadruplos.updateJumpTo(falseJumpIndex, cuadruplos.counter)
+
+    @_('')
+    def seen_end_if(self, p):
+        endJumpIndex = cuadruplos.pilaSaltos.pop()
+        cuadruplos.updateJumpTo(endJumpIndex, cuadruplos.counter)
     # REPETICION
     @_('_while', '_for')
     def repeticion(self, p): pass
