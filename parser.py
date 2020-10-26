@@ -15,7 +15,7 @@ cuboSemantico = CuboSemantico(filePath).getCuboSemantico()
 
 class MyParser(Parser):
     start = 'program'
-    debugfile = 'parser.out'
+    # debugfile = 'parser.out'
     tokens = MyLexer.tokens
     precedence = (
         ('nonassoc', '<', '>'),  # Nonassociative operators
@@ -432,8 +432,8 @@ class MyParser(Parser):
 
     # CONDICION
     @_(
-        'IF "(" expresion ")" seen_gotof THEN bloque seen_end_if',
-        'IF "(" expresion ")" seen_gotof THEN bloque ELSE seen_goto bloque seen_end_if'
+        'IF "(" expresion ")" seen_gotof THEN bloque seen_if_end',
+        'IF "(" expresion ")" seen_gotof THEN bloque ELSE seen_goto bloque seen_if_end'
     )
     def condicion(self, p): pass
 
@@ -453,21 +453,40 @@ class MyParser(Parser):
         cuadruplos.createQuad('goto', None, None, None)
         cuadruplos.pilaSaltos.append(cuadruplos.counter - 1)
         falseJumpIndex = cuadruplos.pilaSaltos.pop()
-        cuadruplos.updateJumpTo(falseJumpIndex, cuadruplos.counter)
+        cuadruplos.fillQuadIndex(falseJumpIndex, cuadruplos.counter)
 
     @_('')
-    def seen_end_if(self, p):
+    def seen_if_end(self, p):
         endJumpIndex = cuadruplos.pilaSaltos.pop()
-        cuadruplos.updateJumpTo(endJumpIndex, cuadruplos.counter)
+        cuadruplos.fillQuadIndex(endJumpIndex, cuadruplos.counter)
     # REPETICION
     @_('_while', '_for')
     def repeticion(self, p): pass
 
-    @_('WHILE "(" expresion ")" DO bloque')
+    @_('WHILE seen_while_start "(" expresion ")" seen_gotof DO bloque seen_while_end')
     def _while(self, p): pass
 
-    @_('FOR id_dim "=" expresion TO expresion DO bloque')
+    @_('')
+    def seen_while_start(self, p):
+        cuadruplos.pilaSaltos.append(cuadruplos.counter)
+
+    @_('')
+    def seen_while_end(self, p):
+        endIndex = cuadruplos.pilaSaltos.pop()
+        returnIndex = cuadruplos.pilaSaltos.pop()
+        cuadruplos.createQuad('goto', None, None, returnIndex)
+        cuadruplos.fillQuadIndex(endIndex, cuadruplos.counter)
+
+    @_('FOR asignacion seen_for_start TO expresion DO bloque')
     def _for(self, p): pass
+
+    @_('')
+    def seen_for_start(self, p):
+        _, expType = cuadruplos.pilaOperandos.pop()
+        if expType != 'int':
+            raise Exception('Type mismatch')
+        else:
+            pila
 
     # MAIN
     @_('MAIN seen_main "(" ")" bloque')

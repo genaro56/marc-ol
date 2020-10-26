@@ -16,7 +16,7 @@ class Cuadruplos:
         self.setCounter(self.counter+1)
 
     # agrega el salto pendiente al cuadruplo
-    def updateJumpTo(self, previousJumpIndex, currentCounter):
+    def fillQuadIndex(self, previousJumpIndex, currentCounter):
         print('update', currentCounter)
         print('pila', self.pilaCuadruplos)
         op1, op2, _, _ = self.pilaCuadruplos[previousJumpIndex - 1]
