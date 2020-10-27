@@ -4,6 +4,7 @@ class Cuadruplos:
         self.pilaOperadores = []
         self.pilaSaltos = []
         self.pilaCuadruplos = []
+        self.pilaAsignacionFor = []
         self.counter = 0
 
     # actualiza el contador
@@ -17,9 +18,7 @@ class Cuadruplos:
 
     # agrega el salto pendiente al cuadruplo
     def fillQuadIndex(self, previousJumpIndex, currentCounter):
-        print('update', currentCounter)
-        print('pila', self.pilaCuadruplos)
-        op1, op2, _, _ = self.pilaCuadruplos[previousJumpIndex - 1]
-        self.pilaCuadruplos[previousJumpIndex - 1] = (
+        op1, op2, _, _ = self.pilaCuadruplos[previousJumpIndex]
+        self.pilaCuadruplos[previousJumpIndex] = (
             op1, op2, None, currentCounter
         )

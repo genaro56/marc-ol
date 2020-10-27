@@ -194,10 +194,15 @@ class MyParser(Parser):
 
     @_('')
     def seen_asignacion(self, p):
-        # TODO: para validar el tipo del id falta agregar al cubo el operador '='
+        ID, _, _ = p[-3]
         exp, exp_tipo = cuadruplos.pilaOperandos.pop()
         var, var_tipo = cuadruplos.pilaOperandos.pop()
-        cuadruplos.createQuad('=', exp, None, var)
+        asignacionType = cuboSemantico[(var_tipo, exp_tipo, '=')]
+        if asignacionType != 'error':
+            cuadruplos.createQuad('=', exp, None, var)
+        else:
+            raise Exception(
+                f"Type mismatch: {ID} of type {var_tipo} cannot match with {exp_tipo}")
         pass
 
     # ESCRITURA
@@ -372,8 +377,8 @@ class MyParser(Parser):
             idAddr = varObj.getAddr()
         else:
             raise Exception(f'Undefined variable {ID}')
-        cuadruplos.pilaOperandos.append((idAddr, varType))
-        return p[0]
+        cuadruplos.pilaOperandos.append((ID, varType))
+        return (p[0], idAddr, varType)
 
     @_('')
     def seen_int_cte(self, p):
@@ -411,24 +416,8 @@ class MyParser(Parser):
 
     @_('')
     def seen_read(self, p):
-        ID = p[-1]
-        funcId = dirFunc.funcStack[-1]
-        varTable = dirFunc.getFuncion(funcId).tablaVariables
-        varType = idAddr = None
-        print('global', varTable.getGlobalVarTable())
-        globalVarTable = dirFunc.getFuncion(dirFunc.programName).tablaVariables
-        # checa si la variable esta en la tabla local o global
-        if varTable.isVarInTable(ID):
-            varObj = varTable.getVar(ID)
-            varType = varObj.getType()
-            idAddr = varObj.getAddr()
-        elif globalVarTable.isVarInTable(ID):
-            varObj = varTable.getGlobalVarTable().getVar(ID)
-            varType = varObj.getType()
-            idAddr = varObj.getAddr()
-        else:
-            raise Exception(f'Undefined variable {ID}')
-        cuadruplos.createQuadquad('read', None, None, idAddr)
+        _, idAddr, _ = p[-1]
+        cuadruplos.createQuad('read', None, None, idAddr)
 
     # CONDICION
     @_(
@@ -477,16 +466,49 @@ class MyParser(Parser):
         cuadruplos.createQuad('goto', None, None, returnIndex)
         cuadruplos.fillQuadIndex(endIndex, cuadruplos.counter)
 
-    @_('FOR asignacion seen_for_start TO expresion DO bloque')
+    @_('FOR id_dim seen_for_start "=" expresion seen_for_assign TO expresion seen_for_exp DO bloque seen_for_end')
     def _for(self, p): pass
 
     @_('')
     def seen_for_start(self, p):
-        _, expType = cuadruplos.pilaOperandos.pop()
+        _, idAddr, expType = p[-1]
         if expType != 'int':
             raise Exception('Type mismatch')
+
+    @_('')
+    def seen_for_assign(self, p):
+        exp, expType = cuadruplos.pilaOperandos.pop()
+        id, idType = cuadruplos.pilaOperandos.pop()
+        tipoRes = cuboSemantico[(idType, expType, '=')]
+        if tipoRes != 'error':
+            cuadruplos.pilaAsignacionFor.append(id)
+            cuadruplos.createQuad('=', exp, None, id)
         else:
-            pila
+            raise Exception()
+
+    @_('')
+    def seen_for_exp(self, p):
+        exp, expType = cuadruplos.pilaOperandos.pop()
+        if expType == 'int':
+            exp2, exp2Type = cuadruplos.pilaOperandos.pop()
+            temporalFor = addrCounter.nextTemporalAddr('boolean')
+            # asigna el cuadruplo de la expresion
+            cuadruplos.createQuad('<', cuadruplos.pilaAsignacionFor[-1], exp2, temporalFor)
+            cuadruplos.pilaSaltos.append(cuadruplos.counter - 1)
+            # asigna el cuadruplo de el salto
+            cuadruplos.createQuad('gotof', temporalFor, None, None)
+            cuadruplos.pilaSaltos.append(cuadruplos.counter - 1)
+
+    @_('')
+    def seen_for_end(self, p):
+        vControl = cuadruplos.pilaAsignacionFor[-1]
+        # TODO: asignar el 1 a la tabla de constantes.
+        cuadruplos.createQuad('+', vControl, 1, vControl)
+        finAddr = cuadruplos.pilaSaltos.pop()
+        returnAddr = cuadruplos.pilaSaltos.pop()
+        cuadruplos.createQuad('goto', None, None, returnAddr)
+        cuadruplos.fillQuadIndex(finAddr, cuadruplos.counter)
+        
 
     # MAIN
     @_('MAIN seen_main "(" ")" bloque')
@@ -516,7 +538,7 @@ if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
 
-    testFilePath = os.path.abspath('test_files/TestProgram3.txt')
+    testFilePath = os.path.abspath('test_files/TestProgram.txt')
     inputFile = open(testFilePath, "r")
     inputText = inputFile.read()
     print(inputText)
