@@ -1,6 +1,6 @@
 program Ejemplo;
 var
-    int a, b, c, d, e, g, h, i;
+    int a, b, c, e, d, g, h, i;
 
 func
 int module uno(int a);
@@ -14,6 +14,7 @@ var int i, j;
 }
 main () 
 {
-    d = a + b * (d + c) / e > b + c * d / h - g;
-    read(s);
+    d = (a + b * (d + c) / e) + (b + c * d / h - g);
+    
+    write("hola");
 }
