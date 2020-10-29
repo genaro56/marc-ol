@@ -428,7 +428,7 @@ class MyParser(Parser):
 
     @_('')
     def seen_gotof(self, p):
-        result, resultType = cuadruplos.pilaOperandos[-1]
+        result, resultType = cuadruplos.pilaOperandos.pop()
         if resultType != 'boolean':
             raise Exception('Type mismatch.')
         else:
