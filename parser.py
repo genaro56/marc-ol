@@ -536,25 +536,29 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
+    tests = ['TestWhile.txt', 'TestWhile2.txt']
+    for file in tests:
+        testFilePath = os.path.abspath(f'test_files/{file}')
+        inputFile = open(testFilePath, "r")
+        inputText = inputFile.read()
+        print(inputText)
 
-    testFilePath = os.path.abspath('test_files/TestProgram.txt')
-    inputFile = open(testFilePath, "r")
-    inputText = inputFile.read()
-    print(inputText)
+        # LEXER: Lexical Analysis
+        print('\n\nLEXER Analysis:')
+        tokens = lexer.tokenize(inputText)
+        for tok in tokens:
+            print('type=%r, value=%r' % (tok.type, tok.value))
 
-    # LEXER: Lexical Analysis
-    print('\n\nLEXER Analysis:')
-    tokens = lexer.tokenize(inputText)
-    for tok in tokens:
-        print('type=%r, value=%r' % (tok.type, tok.value))
+        # PARSER: Synctactic Analysis
+        print('\n\nPARSER Analysis:')
+        result = parser.parse(lexer.tokenize(inputText))
+        print(result)
+        inputFile.close()
 
-    # PARSER: Synctactic Analysis
-    print('\n\nPARSER Analysis:')
-    result = parser.parse(lexer.tokenize(inputText))
-    print(result)
-    inputFile.close()
-
-    # Print de pilas de cuadruplos
-    print('Pila cuadruplos', cuadruplos.pilaCuadruplos)
-    print('Pila operandos', cuadruplos.pilaOperandos)
-    print('Pila operadores', cuadruplos.pilaOperadores)
+        # Print de pilas de cuadruplos
+        print('Pila cuadruplos', cuadruplos.pilaCuadruplos)
+        print('Pila operandos', cuadruplos.pilaOperandos)
+        print('Pila operadores', cuadruplos.pilaOperadores)
+        print()
+        print('---------TEST END---------')
+        print()
