@@ -428,8 +428,7 @@ class MyParser(Parser):
 
     @_('')
     def seen_gotof(self, p):
-        _, _, _, result = cuadruplos.pilaCuadruplos[-1]
-        _, resultType = cuadruplos.pilaOperandos[-1]
+        result, resultType = cuadruplos.pilaOperandos[-1]
         if resultType != 'boolean':
             raise Exception('Type mismatch.')
         else:
@@ -440,8 +439,8 @@ class MyParser(Parser):
     @_('')
     def seen_goto(self, p):
         cuadruplos.createQuad('goto', None, None, None)
-        cuadruplos.pilaSaltos.append(cuadruplos.counter - 1)
         falseJumpIndex = cuadruplos.pilaSaltos.pop()
+        cuadruplos.pilaSaltos.append(cuadruplos.counter - 1)
         cuadruplos.fillQuadIndex(falseJumpIndex, cuadruplos.counter)
 
     @_('')
