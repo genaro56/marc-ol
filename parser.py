@@ -1,6 +1,6 @@
 import os
 from utils.Semantica import CuboSemantico, AddrGenerator
-from utils.Tablas import DirFunciones, TablaDeVars, TablaCtes
+from utils.Tablas import DirFunciones, TablaDeVars, TablaCtes, FuncSize
 from utils.Cuadruplos import Cuadruplos
 from sly import Parser
 from lexer import MyLexer
@@ -158,6 +158,20 @@ class MyParser(Parser):
 
     @_('')
     def seen_func_end(self, p):
+        # obtiene el num de vars locales y temps de esta funcion
+        localVarCounts = addrCounter.getLocalAddrsCount()
+        tmpVarCounts = addrCounter.getTmpAddrsCount()
+        
+        # crea una instacia representativa del tamaño de la funcion
+        funcSize = FuncSize()
+        funcSize.addLocalVarCounts(localVarCounts)
+        funcSize.addTempVarCounts(tmpVarCounts)
+        
+        # guarda el tamaña de la func en el dir de funciones
+        funcId = dirFunc.funcStack[-1]
+        dirFunc.getFuncion(funcId).setFuncSize(funcSize)
+        
+        # resetea las direciones locales y temporales
         addrCounter.resetLocalCounter()
         addrCounter.resetTemporalCounter()
         return
