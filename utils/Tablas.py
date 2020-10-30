@@ -33,6 +33,7 @@ class Funcion:
     def __init__(self):
         self.name = ''
         self.type = ''
+        self.signature = []
         self.tablaVariables = TablaDeVars()
 
     def setType(self, typeValue):
@@ -40,6 +41,9 @@ class Funcion:
 
     def setName(self, name):
         self.name = name
+        
+    def addParamToSig(self, param):
+        self.signature.append(param)
 
 
 class Var():
