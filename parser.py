@@ -159,6 +159,7 @@ class MyParser(Parser):
     @_('')
     def seen_func_end(self, p):
         addrCounter.resetLocalCounter()
+        addrCounter.resetTemporalCounter()
         return
 
     @_('vars bloque', 'bloque')
