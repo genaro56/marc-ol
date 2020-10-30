@@ -1,6 +1,6 @@
 import os
 from utils.Semantica import CuboSemantico, AddrGenerator
-from utils.Tablas import DirFunciones, TablaDeVars
+from utils.Tablas import DirFunciones, TablaDeVars, TablaCtes
 from utils.Cuadruplos import Cuadruplos
 from sly import Parser
 from lexer import MyLexer
@@ -8,6 +8,7 @@ from lexer import MyLexer
 dirFunc = None
 addrCounter = AddrGenerator()
 cuadruplos = Cuadruplos()
+tablaCtes = TablaCtes()
 
 filePath = os.path.abspath('./utils/combinaciones.json')
 cuboSemantico = CuboSemantico(filePath).getCuboSemantico()
@@ -386,13 +387,25 @@ class MyParser(Parser):
     @_('')
     def seen_int_cte(self, p):
         cte = p[-1]
-        cuadruplos.pilaOperandos.append((cte, 'int'))
+        cteAddr = None
+        if tablaCtes.isCteInTable(cte):
+            cteAddr = tablaCtes.getCte(cte).getAddr()
+        else:
+            cteAddr = addrCounter.nextConstAddr('int')
+            tablaCtes.addCte(cte, cteAddr)
+        cuadruplos.pilaOperandos.append((cteAddr, 'int'))
         pass
 
     @_('')
     def seen_float_cte(self, p):
         cte = p[-1]
-        cuadruplos.pilaOperandos.append((cte, 'float'))
+        cteAddr = None
+        if tablaCtes.isCteInTable(cte):
+            cteAddr = tablaCtes.getCte(cte).getAddr()
+        else:
+            cteAddr = addrCounter.nextConstAddr('float')
+            tablaCtes.addCte(cte, cteAddr)
+        cuadruplos.pilaOperandos.append((cteAddr, 'float'))
         pass
 
     # Seria otra expresion regular NOMBRE_MODULO?
