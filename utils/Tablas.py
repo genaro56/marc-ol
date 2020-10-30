@@ -68,9 +68,10 @@ class Var():
 
     def setAddr(self, addr):
         self.addr = addr
-        
+
     def getAddr(self):
         return self.addr
+
 
 class TablaDeVars:
     def __init__(self):
@@ -106,3 +107,47 @@ class TablaDeVars:
 
     def getGlobalVarTable(self):
         return self.globalVarTable
+
+
+class TablaCtes:
+    '''
+    Tabla de constantes, crea un mapa de
+    valor de constante a objeto Cte
+    '''
+    
+    def __init__(self):
+        self.tablaCte = dict()
+
+    def isCteInTable(self, constant):
+        return constant in self.tablaCte
+
+    def addCte(self, valor, addr):
+        newCte = Cte()
+        newCte.setValor(valor)
+        newCte.setAddr(addr)
+        self.tablaCte[valor] = newCte
+
+    def getCte(self, constant):
+        return self.tablaCte[constant]
+
+
+class Cte:
+    '''
+    Representa una constante, mantiene el 
+    valor y la direccion de la constante
+    '''
+    def __init__(self):
+        self.valor = None
+        self.addr = None
+
+    def setValor(self, valor):
+        self.valor = valor
+        
+    def getValor(self):
+        return self.valor
+
+    def setAddr(self, addr):
+        self.addr = addr
+        
+    def getAddr(self):
+        return self.addr
