@@ -1,6 +1,6 @@
 import os
 from utils.Semantica import CuboSemantico, AddrGenerator
-from utils.Tablas import DirFunciones, TablaDeVars
+from utils.Tablas import DirFunciones, TablaDeVars, TablaCtes, FuncSize
 from utils.Cuadruplos import Cuadruplos
 from sly import Parser
 from lexer import MyLexer
@@ -8,6 +8,7 @@ from lexer import MyLexer
 dirFunc = None
 addrCounter = AddrGenerator()
 cuadruplos = Cuadruplos()
+tablaCtes = TablaCtes()
 
 filePath = os.path.abspath('./utils/combinaciones.json')
 cuboSemantico = CuboSemantico(filePath).getCuboSemantico()
@@ -57,6 +58,9 @@ class MyParser(Parser):
         dirFunc.funcStack.append(funcName)
         dirFunc.addFuncion(funcName, 'PROGRAM')
         dirFunc.programName = funcName
+        # agrega cuadruplo goto para iniciar ejecucion en main
+        cuadruplos.createQuad('goto', None, None, None)
+        cuadruplos.pilaSaltos.append(cuadruplos.counter - 1)
         pass
 
     @_('vars functions main',
@@ -154,7 +158,25 @@ class MyParser(Parser):
 
     @_('')
     def seen_func_end(self, p):
+        # obtiene el num de vars locales y temps de esta funcion
+        localVarCounts = addrCounter.getLocalAddrsCount()
+        tmpVarCounts = addrCounter.getTmpAddrsCount()
+        
+        # crea una instacia representativa del tamaño de la funcion
+        funcSize = FuncSize()
+        funcSize.addLocalVarCounts(localVarCounts)
+        funcSize.addTempVarCounts(tmpVarCounts)
+        
+        # guarda el tamaña de la func en el dir de funciones
+        funcId = dirFunc.funcStack[-1]
+        dirFunc.getFuncion(funcId).setFuncSize(funcSize)
+        
+        # resetea las direciones locales y temporales
         addrCounter.resetLocalCounter()
+        addrCounter.resetTemporalCounter()
+        
+        # genera cuadruplo endfunc
+        cuadruplos.createQuad('endfunc', None, None, None)
         return
 
     @_('vars bloque', 'bloque')
@@ -165,8 +187,16 @@ class MyParser(Parser):
         return p[0]
 
     # PARAMETERS
-    @_('tipo var "," params', 'tipo var')
+    @_('tipo seen_tipo_param var "," params', 'tipo seen_tipo_param var')
     def params(self, p): pass
+    
+    @_('')
+    def seen_tipo_param(self, p):
+        tipoParam = p[-1]
+        funcId = dirFunc.funcStack[-1]
+        # agrega el tipo del parametro al signature de la funcion
+        dirFunc.getFuncion(funcId).addParamToSig(tipoParam)
+        return
 
     # BLOQUE
     @_('"{" bloque1 "}"', '"{" empty "}"')
@@ -383,13 +413,25 @@ class MyParser(Parser):
     @_('')
     def seen_int_cte(self, p):
         cte = p[-1]
-        cuadruplos.pilaOperandos.append((cte, 'int'))
+        cteAddr = None
+        if tablaCtes.isCteInTable(cte):
+            cteAddr = tablaCtes.getCte(cte).getAddr()
+        else:
+            cteAddr = addrCounter.nextConstAddr('int')
+            tablaCtes.addCte(cte, cteAddr)
+        cuadruplos.pilaOperandos.append((cteAddr, 'int'))
         pass
 
     @_('')
     def seen_float_cte(self, p):
         cte = p[-1]
-        cuadruplos.pilaOperandos.append((cte, 'float'))
+        cteAddr = None
+        if tablaCtes.isCteInTable(cte):
+            cteAddr = tablaCtes.getCte(cte).getAddr()
+        else:
+            cteAddr = addrCounter.nextConstAddr('float')
+            tablaCtes.addCte(cte, cteAddr)
+        cuadruplos.pilaOperandos.append((cteAddr, 'float'))
         pass
 
     # Seria otra expresion regular NOMBRE_MODULO?
@@ -447,6 +489,7 @@ class MyParser(Parser):
     def seen_if_end(self, p):
         endJumpIndex = cuadruplos.pilaSaltos.pop()
         cuadruplos.fillQuadIndex(endJumpIndex, cuadruplos.counter)
+
     # REPETICION
     @_('_while', '_for')
     def repeticion(self, p): pass
@@ -520,6 +563,9 @@ class MyParser(Parser):
         dirFunc.funcStack.pop()
         programName = dirFunc.programName
         dirFunc.funcStack.append(programName)
+        # define goto a primera instruccion del main
+        firstQuadIndex = cuadruplos.pilaSaltos.pop()
+        cuadruplos.fillQuadIndex(firstQuadIndex, cuadruplos.counter)
         pass
 
     # ERROR
@@ -527,6 +573,7 @@ class MyParser(Parser):
         if p:
             print("Syntax error at token", p.type)
             print("no apropiado")
+            print(p)
             # Just discard the token and tell the parser it's okay.
             # self.errok()
         else:
@@ -536,7 +583,7 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
-    tests = ['TestWhile.txt', 'TestWhile2.txt']
+    tests = ['TestModulos.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
@@ -559,6 +606,7 @@ if __name__ == '__main__':
         print('Pila cuadruplos', cuadruplos.pilaCuadruplos)
         print('Pila operandos', cuadruplos.pilaOperandos)
         print('Pila operadores', cuadruplos.pilaOperadores)
+        print('Pila de saltos', cuadruplos.pilaSaltos)
         print()
         print('---------TEST END---------')
         print()

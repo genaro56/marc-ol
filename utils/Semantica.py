@@ -58,6 +58,9 @@ class AddrGenerator:
             }
         }
 
+        self.localCounts = {'int': 0, 'float': 0, 'char': 0}
+        self.temporalCounts = {'int': 0, 'float': 0, 'char': 0, 'boolean': 0}
+
         self.counter = copy.deepcopy(self.baseAddr)
 
     def nextGlobalAddr(self, typeVar):
@@ -65,10 +68,12 @@ class AddrGenerator:
         return nextAddr
 
     def nextLocalAddr(self, typeVar):
+        self.localCounts[typeVar] += 1
         nextAddr = self.__getNextAddr('localAddr', typeVar)
         return nextAddr
 
     def nextTemporalAddr(self, typeVar):
+        self.temporalCounts[typeVar] += 1
         nextAddr = self.__getNextAddr('temporalAddr', typeVar)
         return nextAddr
 
@@ -80,10 +85,34 @@ class AddrGenerator:
         nextAddr = self.counter[scope][typeVar]
         self.counter[scope][typeVar] = nextAddr + 1
         return nextAddr
+    
+    def getLocalAddrsCount(self):
+        return self.localCounts
+    
+    def getTmpAddrsCount(self):
+        return self.temporalCounts
 
     def resetLocalCounter(self):
-        self.counter['localAddr']['int'] = self.baseAddr['localAddr']['int']
-        self.counter['localAddr']['float'] = self.baseAddr['localAddr'][
-            'float']
-        self.counter['localAddr']['char'] = self.baseAddr['localAddr']['char']
+        self.__resetCounter('localAddr')
+        # reset counts de local vars a 0
+        self.localCounts = self.__getBaseCounts(self.localCounts)
         return
+
+    def resetTemporalCounter(self):
+        self.__resetCounter('temporalAddr', hasBool=True)
+        # reset counts de tmp vars a 0
+        self.temporalCounts = self.__getBaseCounts(self.temporalCounts)
+        return
+
+    def __resetCounter(self, addrType, hasBool=False):
+        self.counter[addrType]['int'] = self.baseAddr[addrType]['int']
+        self.counter[addrType]['float'] = self.baseAddr[addrType]['float']
+        self.counter[addrType]['char'] = self.baseAddr[addrType]['char']
+        if hasBool:
+            # reset las dir de var temporales booleanas
+            self.counter[addrType]['boolean'] = self.baseAddr[addrType][
+                'boolean']
+        return
+    
+    def __getBaseCounts(self, countsDict):
+        return dict.fromkeys(countsDict, 0)
