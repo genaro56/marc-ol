@@ -174,6 +174,9 @@ class MyParser(Parser):
         # resetea las direciones locales y temporales
         addrCounter.resetLocalCounter()
         addrCounter.resetTemporalCounter()
+        
+        # genera cuadruplo endfunc
+        cuadruplos.createQuad('endfunc', None, None, None)
         return
 
     @_('vars bloque', 'bloque')
