@@ -57,6 +57,9 @@ class MyParser(Parser):
         dirFunc.funcStack.append(funcName)
         dirFunc.addFuncion(funcName, 'PROGRAM')
         dirFunc.programName = funcName
+        # agrega cuadruplo goto para iniciar ejecucion en main
+        cuadruplos.createQuad('goto', None, None, None)
+        cuadruplos.pilaSaltos.append(cuadruplos.counter - 1)
         pass
 
     @_('vars functions main',
@@ -447,6 +450,7 @@ class MyParser(Parser):
     def seen_if_end(self, p):
         endJumpIndex = cuadruplos.pilaSaltos.pop()
         cuadruplos.fillQuadIndex(endJumpIndex, cuadruplos.counter)
+
     # REPETICION
     @_('_while', '_for')
     def repeticion(self, p): pass
@@ -520,6 +524,9 @@ class MyParser(Parser):
         dirFunc.funcStack.pop()
         programName = dirFunc.programName
         dirFunc.funcStack.append(programName)
+        # define goto a primera instruccion del main
+        firstQuadIndex = cuadruplos.pilaSaltos.pop()
+        cuadruplos.fillQuadIndex(firstQuadIndex, cuadruplos.counter)
         pass
 
     # ERROR
@@ -527,6 +534,7 @@ class MyParser(Parser):
         if p:
             print("Syntax error at token", p.type)
             print("no apropiado")
+            print(p)
             # Just discard the token and tell the parser it's okay.
             # self.errok()
         else:
@@ -536,7 +544,7 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
-    tests = ['TestWhile.txt', 'TestWhile2.txt']
+    tests = ['TestModulos.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
@@ -559,6 +567,7 @@ if __name__ == '__main__':
         print('Pila cuadruplos', cuadruplos.pilaCuadruplos)
         print('Pila operandos', cuadruplos.pilaOperandos)
         print('Pila operadores', cuadruplos.pilaOperadores)
+        print('Pila de saltos', cuadruplos.pilaSaltos)
         print()
         print('---------TEST END---------')
         print()
