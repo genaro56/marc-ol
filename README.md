@@ -47,3 +47,22 @@ Ariel Méndez | A01020690
 
 - Correcciones:
   - Cambiar la forma en que se obtiene la tabla global ya que en main no funciona pues no tiene su tabla global, utilizar una variable que no existe en ese scope es "incachable".
+
+### - Avance no. 4:
+
+- Se agrego el goto al MAIN
+
+- Se agrego tabla de constantes.
+  - En la tabla de constantes se almacena el valor y la direccion.
+  - El parser primero valida si la constante ya se encuentra en la tabla, en caso contrario agrega la constante a la tabla.
+
+- Se agrego una estructura que almacena el signature de la funcion.
+  - unicamente almacena los tipos e.g ['int', 'int', 'float']
+  
+- Se agregaron los contadores de variables locales y temporales para las funciones. 
+  - El proposito de estos contadores es servir como referencia del tamaño del workspace de la funcion.
+  - Estos datos se utilizaran para definir la operacion ERA size
+
+- Se agrego clase FuncSize que almacena los contadores y podra contener funciones para calcular el tamaño.
+
+- Se agrego cuadruplo 'endfunc' al terminar una funcion
