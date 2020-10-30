@@ -170,8 +170,16 @@ class MyParser(Parser):
         return p[0]
 
     # PARAMETERS
-    @_('tipo var "," params', 'tipo var')
+    @_('tipo seen_tipo_param var "," params', 'tipo seen_tipo_param var')
     def params(self, p): pass
+    
+    @_('')
+    def seen_tipo_param(self, p):
+        tipoParam = p[-1]
+        funcId = dirFunc.funcStack[-1]
+        # agrega el tipo del parametro al signature de la funcion
+        dirFunc.getFuncion(funcId).addParamToSig(tipoParam)
+        return
 
     # BLOQUE
     @_('"{" bloque1 "}"', '"{" empty "}"')
