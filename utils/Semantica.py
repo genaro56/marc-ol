@@ -58,6 +58,7 @@ class AddrGenerator:
             }
         }
 
+        self.localCounts = {'int': 0, 'float': 0, 'char': 0}
         self.temporalCounts = {'int': 0, 'float': 0, 'char': 0, 'boolean': 0}
 
         self.counter = copy.deepcopy(self.baseAddr)
@@ -67,6 +68,7 @@ class AddrGenerator:
         return nextAddr
 
     def nextLocalAddr(self, typeVar):
+        self.localCounts[typeVar] += 1
         nextAddr = self.__getNextAddr('localAddr', typeVar)
         return nextAddr
 
@@ -84,25 +86,33 @@ class AddrGenerator:
         self.counter[scope][typeVar] = nextAddr + 1
         return nextAddr
     
+    def getLocalAddrsCount(self):
+        return self.localCounts
+    
     def getTmpAddrsCount(self):
         return self.temporalCounts
 
     def resetLocalCounter(self):
         self.__resetCounter('localAddr')
+        # reset counts de local vars a 0
+        self.localCounts = self.__getBaseCounts(self.localCounts)
         return
 
     def resetTemporalCounter(self):
-        self.__resetCounter('temporalAddr', isTemporal=True)
+        self.__resetCounter('temporalAddr', hasBool=True)
+        # reset counts de tmp vars a 0
+        self.temporalCounts = self.__getBaseCounts(self.temporalCounts)
         return
 
-    def __resetCounter(self, addrType, isTemporal=False):
+    def __resetCounter(self, addrType, hasBool=False):
         self.counter[addrType]['int'] = self.baseAddr[addrType]['int']
         self.counter[addrType]['float'] = self.baseAddr[addrType]['float']
         self.counter[addrType]['char'] = self.baseAddr[addrType]['char']
-        if isTemporal:
+        if hasBool:
             # reset las dir de var temporales booleanas
             self.counter[addrType]['boolean'] = self.baseAddr[addrType][
                 'boolean']
-            # reset counts de tmp vars a 0
-            self.temporalCounts = self.temporalCounts.fromkeys(self.temporalCounts, 0)
         return
+    
+    def __getBaseCounts(self, countsDict):
+        return dict.fromkeys(countsDict, 0)
