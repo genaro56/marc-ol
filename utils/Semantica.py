@@ -82,8 +82,18 @@ class AddrGenerator:
         return nextAddr
 
     def resetLocalCounter(self):
-        self.counter['localAddr']['int'] = self.baseAddr['localAddr']['int']
-        self.counter['localAddr']['float'] = self.baseAddr['localAddr'][
-            'float']
-        self.counter['localAddr']['char'] = self.baseAddr['localAddr']['char']
+        self.__resetCounter('localAddr')
+        return
+
+    def resetTemporalCounter(self):
+        self.__resetCounter('temporalAddr', hasBool=True)
+        return
+
+    def __resetCounter(self, addrType, hasBool=False):
+        self.counter[addrType]['int'] = self.baseAddr[addrType]['int']
+        self.counter[addrType]['float'] = self.baseAddr[addrType]['float']
+        self.counter[addrType]['char'] = self.baseAddr[addrType]['char']
+        if hasBool:
+            self.counter[addrType]['boolean'] = self.baseAddr[addrType][
+                'boolean']
         return
