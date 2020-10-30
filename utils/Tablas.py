@@ -34,6 +34,7 @@ class Funcion:
         self.name = ''
         self.type = ''
         self.signature = []
+        self.funcSize = None
         self.tablaVariables = TablaDeVars()
 
     def setType(self, typeValue):
@@ -44,6 +45,22 @@ class Funcion:
         
     def addParamToSig(self, param):
         self.signature.append(param)
+        
+    def setFuncSize(self, funcSize):
+        self.funcSize = funcSize
+        
+class FuncSize:
+    
+    def __init__(self):
+        self.funcVarCounts = dict()
+        
+    def addLocalVarCounts(self, counts):
+        self.funcVarCounts['local'] = counts
+        return
+    
+    def addTempVarCounts(self, counts):
+        self.funcVarCounts['temporal'] = counts
+        return
 
 
 class Var():
