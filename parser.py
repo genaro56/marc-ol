@@ -251,16 +251,59 @@ class MyParser(Parser):
     def out(self, p): pass
 
     # EXPRESION
-    @_('logic_exp',
-       'logic_exp "|" expresion',
+    @_('logic_exp seen_rel_exp1',
+       'logic_exp seen_rel_exp1 "|" seen_or_op expresion',
        )
     def expresion(self, p): pass
 
-    @_('relation_exp',
-       'relation_exp "&" logic_exp',
-       'relation_exp "!" logic_exp'
+    @_('')
+    def seen_rel_exp1(self, p):
+        pilaOperadores = cuadruplos.pilaOperadores
+        pilaOperandos = cuadruplos.pilaOperandos
+        if len(pilaOperadores) > 0 and (pilaOperadores[-1] in set(['|'])):
+            rightOperand, rightType = pilaOperandos.pop()
+            leftOperand, leftType = pilaOperandos.pop()
+            operator = pilaOperadores.pop()
+            resultType = cuboSemantico[(leftType, rightType, operator)]
+            if (resultType != 'error'):
+                result = addrCounter.nextTemporalAddr(resultType)
+                cuadruplos.createQuad(
+                    operator, leftOperand, rightOperand, result)
+                pilaOperandos.append((result, resultType))
+            else:
+                raise Exception('Type mismatch')
+        pass
+
+    @_('')
+    def seen_or_op(self, p):
+        cuadruplos.pilaOperadores.append("|")
+
+    @_('relation_exp seen_rel_exp2',
+       'relation_exp seen_rel_exp2 "&" seen_and_op logic_exp',
        )
     def logic_exp(self, p): pass
+    
+    @_('')
+    def seen_rel_exp2(self, p):
+        pilaOperadores = cuadruplos.pilaOperadores
+        pilaOperandos = cuadruplos.pilaOperandos
+        if len(pilaOperadores) > 0 and (pilaOperadores[-1] in set(['&'])):
+            rightOperand, rightType = pilaOperandos.pop()
+            leftOperand, leftType = pilaOperandos.pop()
+            operator = pilaOperadores.pop()
+            resultType = cuboSemantico[(leftType, rightType, operator)]
+            if (resultType != 'error'):
+                result = addrCounter.nextTemporalAddr(resultType)
+                cuadruplos.createQuad(
+                    operator, leftOperand, rightOperand, result)
+                pilaOperandos.append((result, resultType))
+            else:
+                raise Exception('Type mismatch')
+        pass
+
+    @_('')
+    def seen_and_op(self, p):
+        cuadruplos.pilaOperadores.append("&")
 
     @_('exp seen_exp',
        'exp "<" seen_oper_menor exp seen_exp',
@@ -583,7 +626,7 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
-    tests = ['TestModulos.txt']
+    tests = ['TestOperRel.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
