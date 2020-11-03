@@ -8,6 +8,8 @@ var
 main () 
 {
     read(p);
+    write(p);
+    read(i);
 
     for i = 0 to 9 do
     {

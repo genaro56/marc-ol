@@ -462,7 +462,7 @@ class MyParser(Parser):
 
     @_('')
     def seen_read(self, p):
-        _, idAddr, _ = p[-1]
+        idAddr, _ = cuadruplos.pilaOperandos.pop()
         cuadruplos.createQuad('read', None, None, idAddr)
 
     # CONDICION
