@@ -430,15 +430,19 @@ class MyParser(Parser):
             cteAddr = tablaCtes.getCte(cte).getAddr()
         else:
             cteAddr = addrCounter.nextConstAddr('float')
-            tablaCtes.addCte(cte, cteAddr)
+            tablaCtes.addCcall_fun1te(cte, cteAddr)
         cuadruplos.pilaOperandos.append((cteAddr, 'float'))
         pass
 
     # Seria otra expresion regular NOMBRE_MODULO?
-    @_('ID "(" call_fun1 ")"')
+    @_('ID seen_fun_id "(" call_fun1 ")"')
     def call_fun(self, p): pass
-
-    @_('expresion "," call_fun1', 'expresion')
+    @_('')
+    def seen_fun_id(self, p):
+        funcID = p[-1]
+        if not dirFunc.isNameInDir(funcID):
+            raise Exception(f'Error: function {funcID} is not declared')
+    @_('expresion "," ', 'expresion')
     def call_fun1(self, p): pass
 
     # VOID FUNC
@@ -458,7 +462,7 @@ class MyParser(Parser):
 
     @_('')
     def seen_read(self, p):
-        _, idAddr, _ = p[-1]
+        idAddr, _ = cuadruplos.pilaOperandos.pop()
         cuadruplos.createQuad('read', None, None, idAddr)
 
     # CONDICION
@@ -523,19 +527,21 @@ class MyParser(Parser):
         id, idType = cuadruplos.pilaOperandos.pop()
         tipoRes = cuboSemantico[(idType, expType, '=')]
         if tipoRes != 'error':
-            cuadruplos.pilaAsignacionFor.append(id)
             cuadruplos.createQuad('=', exp, None, id)
+            return id
         else:
-            raise Exception()
+            raise Exception(f'Type mismatch: cannot initialize FOR with type {idType}')
 
     @_('')
     def seen_for_exp(self, p):
-        exp, expType = cuadruplos.pilaOperandos.pop()
+        exp, expType = cuadruplos.pilaOperandos[-1]
         if expType == 'int':
             exp2, exp2Type = cuadruplos.pilaOperandos.pop()
+            # genera la dirección temporal para asignar el nuevo valor
             temporalFor = addrCounter.nextTemporalAddr('boolean')
             # asigna el cuadruplo de la expresion
-            cuadruplos.createQuad('<', cuadruplos.pilaAsignacionFor[-1], exp2, temporalFor)
+            cuadruplos.createQuad(
+                '<', p[-3], exp2, temporalFor)
             cuadruplos.pilaSaltos.append(cuadruplos.counter - 1)
             # asigna el cuadruplo de el salto
             cuadruplos.createQuad('gotof', temporalFor, None, None)
@@ -543,14 +549,18 @@ class MyParser(Parser):
 
     @_('')
     def seen_for_end(self, p):
-        vControl = cuadruplos.pilaAsignacionFor[-1]
-        # TODO: asignar el 1 a la tabla de constantes.
-        cuadruplos.createQuad('+', vControl, 1, vControl)
+        vControl = p[-6]
+        cteAddr = None
+        if tablaCtes.isCteInTable(1):
+            cteAddr = tablaCtes.getCte(1).getAddr()
+        else:
+            cteAddr = addrCounter.nextConstAddr('int')
+            tablaCtes.addCte(1, cteAddr)
+        cuadruplos.createQuad('+', vControl, cteAddr, vControl)
         finAddr = cuadruplos.pilaSaltos.pop()
         returnAddr = cuadruplos.pilaSaltos.pop()
         cuadruplos.createQuad('goto', None, None, returnAddr)
         cuadruplos.fillQuadIndex(finAddr, cuadruplos.counter)
-        
 
     # MAIN
     @_('MAIN seen_main "(" ")" bloque')
@@ -583,7 +593,7 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
-    tests = ['TestModulos.txt']
+    tests = ['TestLoops.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
