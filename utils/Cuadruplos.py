@@ -4,7 +4,6 @@ class Cuadruplos:
         self.pilaOperadores = []
         self.pilaSaltos = []
         self.pilaCuadruplos = []
-        self.pilaAsignacionFor = []
         self.counter = 0
 
     # actualiza el contador
