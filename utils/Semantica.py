@@ -58,12 +58,14 @@ class AddrGenerator:
             }
         }
 
+        self.globalCounts = {'int': 0, 'float': 0, 'char': 0}
         self.localCounts = {'int': 0, 'float': 0, 'char': 0}
         self.temporalCounts = {'int': 0, 'float': 0, 'char': 0, 'boolean': 0}
 
         self.counter = copy.deepcopy(self.baseAddr)
 
     def nextGlobalAddr(self, typeVar):
+        self.globalCounts[typeVar] += 1
         nextAddr = self.__getNextAddr('globalAddr', typeVar)
         return nextAddr
 
@@ -85,12 +87,21 @@ class AddrGenerator:
         nextAddr = self.counter[scope][typeVar]
         self.counter[scope][typeVar] = nextAddr + 1
         return nextAddr
-    
+
+    def getGlobalCounts(self):
+        return self.globalCounts
+
     def getLocalAddrsCount(self):
         return self.localCounts
-    
+
     def getTmpAddrsCount(self):
         return self.temporalCounts
+    
+    def resetGlobalCounts(self):
+        self.__resetCounter('globalAddr')
+        # reset counts de global vars a 0
+        self.localCounts = self.__getBaseCounts(self.localCounts)
+        return
 
     def resetLocalCounter(self):
         self.__resetCounter('localAddr')
@@ -113,6 +124,6 @@ class AddrGenerator:
             self.counter[addrType]['boolean'] = self.baseAddr[addrType][
                 'boolean']
         return
-    
+
     def __getBaseCounts(self, countsDict):
         return dict.fromkeys(countsDict, 0)
