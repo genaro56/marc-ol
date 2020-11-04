@@ -479,19 +479,21 @@ class MyParser(Parser):
             cteAddr = tablaCtes.getCte(cte).getAddr()
         else:
             cteAddr = addrCounter.nextConstAddr('float')
-            tablaCtes.addCcall_fun1te(cte, cteAddr)
+            tablaCtes.addCte(cte, cteAddr)
         cuadruplos.pilaOperandos.append((cteAddr, 'float'))
         pass
 
     # Seria otra expresion regular NOMBRE_MODULO?
     @_('ID seen_fun_id "(" call_fun1 ")"')
     def call_fun(self, p): pass
+
     @_('')
     def seen_fun_id(self, p):
         funcID = p[-1]
         if not dirFunc.isNameInDir(funcID):
             raise Exception(f'Error: function {funcID} is not declared')
-    @_('expresion "," ', 'expresion')
+
+    @_('expresion "," call_fun1', 'expresion')
     def call_fun1(self, p): pass
 
     # VOID FUNC
