@@ -194,12 +194,16 @@ class TablaParams:
         self.tablaParams = dict()
         self.counterParams = 0
         self.eraSize = None
+        self.tempFuncId = None
 
     def setCounterParams(self, valor):
         self.counterParams = valor
 
     def generateEraSize(self, size):
         self.eraSize = size
+
+    def setTempFuncId(self, tempId):
+        self.tempFuncId = tempId
 
     def setAddr(self, addr):
         self.addr = addr

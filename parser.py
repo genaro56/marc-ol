@@ -84,8 +84,10 @@ class MyParser(Parser):
     def var_list(self, p):
         pass
 
-    @_('ID seen_var_name ', 'ID seen_var_name "[" CTE_INT "]"', 'ID seen_var_name "[" CTE_INT "]" "[" CTE_INT "]"')
-    def var(self, p): pass
+    @_('ID seen_var_name', 'ID seen_var_name "[" CTE_INT "]"', 'ID seen_var_name "[" CTE_INT "]" "[" CTE_INT "]"')
+    def var(self, p):
+        # returns tuple from seen_var_name
+        return p[1]
 
     @_('')
     def seen_var_name(self, p):
@@ -194,7 +196,7 @@ class MyParser(Parser):
         return p[0]
 
     # PARAMETERS
-    @_('tipo var seen_tipo_param"," params', 'tipo var seen_tipo_param')
+    @_('tipo var seen_tipo_param "," params', 'tipo var seen_tipo_param')
     def params(self, p): pass
 
     @_('')
@@ -480,34 +482,38 @@ class MyParser(Parser):
             cteAddr = tablaCtes.getCte(cte).getAddr()
         else:
             cteAddr = addrCounter.nextConstAddr('float')
-            tablaCtes.addCcall_fun1te(cte, cteAddr)
+            tablaCtes.addCte(cte, cteAddr)
         cuadruplos.pilaOperandos.append((cteAddr, 'float'))
         pass
 
     # Seria otra expresion regular NOMBRE_MODULO?
-    @_('ID seen_func_id "(" seen_func_era call_fun1 ")" seen_params_end seen_func_end')
+    @_('ID seen_funcall_id "(" seen_funcall_era call_fun1 ")" seen_params_end seen_funcall_end')
     def call_fun(self, p): pass
 
     @_('')
-    def seen_func_id(self, p):
+    def seen_funcall_id(self, p):
         funcID = p[-1]
         if not dirFunc.isNameInDir(funcID):
             raise Exception(f'Error: function {funcID} is not declared')
+        else:
+            tablaParams.setTempFuncId(funcID)
         pass
 
     @_('')
-    def seen_func_era(self, p):
-        funcId = p[-3]
+    def seen_funcall_era(self, p):
+        funcId = tablaParams.tempFuncId
         cuadruplos.createQuad('era', None, None, funcId)
-        pass
+        return funcId
 
-    @_('expresion "," seen_next_param ', 'expresion')
+    @_('expresion "," seen_next_param', 'expresion')
     def call_fun1(self, p):
-        funcId = p[-4]
+        # get func id from seen_funcall_era
+        funcId = tablaParams.tempFuncId
+        print('func id', funcId)
         exp, expType = cuadruplos.pilaOperandos.pop()
         counter = tablaParams.counterParams
+        print('signature', dirFunc.getFuncion(funcId).signature[counter])
         paramType, paramAddr = dirFunc.getFuncion(funcId).signature[counter]
-        # TODO: Verify ArgumentType against current Parameter (#k) in ParameterTable.
         cuadruplos.createQuad('param', exp, None, paramAddr)
         return dirFunc.getFuncion(funcId)
 
@@ -520,16 +526,17 @@ class MyParser(Parser):
         # obtiene el objeto de función a partir de call_fun1
         func = p[-2]
         signatureLength = len(func.signature)
-        if tablaParams.counterParams != signatureLength:
+        if tablaParams.counterParams != signatureLength - 1:
             raise Exception(
                 f'Function signature: {func.name} has incorrect no. of parameters')
         return func
 
     @_('')
-    def seen_func_end(self, p):
+    def seen_funcall_end(self, p):
         # obtiene el objeto de función a partir de call_fun1
         func = p[-1]
         cuadruplos.createQuad('gosub', func.name, None, func.startAddress)
+        tablaParams.setTempFuncId(None)
         pass
 
     # VOID FUNC
@@ -662,6 +669,8 @@ class MyParser(Parser):
         programName = dirFunc.programName
         dirFunc.funcStack.append(programName)
         # define goto a primera instruccion del main
+        print('pila saltos', cuadruplos.pilaSaltos)
+        print('main')
         firstQuadIndex = cuadruplos.pilaSaltos.pop()
         cuadruplos.fillQuadIndex(firstQuadIndex, cuadruplos.counter)
         pass
@@ -681,7 +690,7 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
-    tests = ['TestLoops.txt']
+    tests = ['TestModulos.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
@@ -701,7 +710,9 @@ if __name__ == '__main__':
         inputFile.close()
 
         # Print de pilas de cuadruplos
-        print('Pila cuadruplos', cuadruplos.pilaCuadruplos)
+        for i in range(len(cuadruplos.pilaCuadruplos)):
+            quad = cuadruplos.pilaCuadruplos.pop()
+            print(f"{i+1}.- {quad}")
         print('Pila operandos', cuadruplos.pilaOperandos)
         print('Pila operadores', cuadruplos.pilaOperadores)
         print('Pila de saltos', cuadruplos.pilaSaltos)
