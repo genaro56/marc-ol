@@ -711,7 +711,7 @@ if __name__ == '__main__':
 
         # Print de pilas de cuadruplos
         for i in range(len(cuadruplos.pilaCuadruplos)):
-            quad = cuadruplos.pilaCuadruplos.pop()
+            quad = cuadruplos.pilaCuadruplos[i]
             print(f"{i+1}.- {quad}")
         print('Pila operandos', cuadruplos.pilaOperandos)
         print('Pila operadores', cuadruplos.pilaOperadores)

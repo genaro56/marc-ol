@@ -1,14 +1,27 @@
 program patito;
 
 var
-    int a, b, c;
+    int a, b;
     float f;
 
 func
-void module uno(int a, int b, float f1);
+void module uno(int a);
 {
     a= a+b*a;
     write(a, b, a+b);
+}
+
+void module dos(int a, int b, float g);
+var int i;
+{
+    i=b;
+    while (i>0) do
+    {
+        a=a+b*i+b;
+        uno(i*2);
+        write(a);
+        i=i-1;
+    }
 }
 
 main()
@@ -17,6 +30,6 @@ main()
     b=a+1;
     write(a, b);
     f=3.14;
-    uno( a+b*2 , 1, f*3);
-    write(a , b , f*2+1);
+    dos( a+b*2, b, f*3);
+    write(a,b,f*2+1);
 }
