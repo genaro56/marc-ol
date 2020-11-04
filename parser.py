@@ -505,7 +505,7 @@ class MyParser(Parser):
         cuadruplos.createQuad('era', None, None, funcId)
         return funcId
 
-    @_('expresion "," seen_next_param', 'expresion')
+    @_('expresion "," seen_next_param call_fun1', 'expresion')
     def call_fun1(self, p):
         # get func id from seen_funcall_era
         funcId = tablaParams.tempFuncId
