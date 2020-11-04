@@ -35,6 +35,7 @@ class Funcion:
         self.type = ''
         self.signature = []
         self.funcSize = None
+        self.startCuadCounter = None
         self.tablaVariables = TablaDeVars()
 
     def setType(self, typeValue):
@@ -48,6 +49,12 @@ class Funcion:
         
     def setFuncSize(self, funcSize):
         self.funcSize = funcSize
+        
+    def setStartCuadCounter(self, counter):
+        self.startCuadCounter = counter
+        
+    def getStartCuadCounter(self):
+        return self.startCuadCounter
         
 class FuncSize:
     

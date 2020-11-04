@@ -958,5 +958,95 @@
   "operand2": "boolean",
   "operator": "=",
   "result": "error"
- }
+ },
+ {
+  "operand1": "boolean",
+  "operand2": "boolean",
+  "operator": "+",
+  "result": "error"
+},
+{
+  "operand1": "boolean",
+  "operand2": "boolean",
+  "operator": "-",
+  "result": "error"
+},
+{
+  "operand1": "boolean",
+  "operand2": "boolean",
+  "operator": "*",
+  "result": "error"
+},
+{
+  "operand1": "boolean",
+  "operand2": "boolean",
+  "operator": "/",
+  "result": "error"
+},
+{
+  "operand1": "boolean",
+  "operand2": "boolean",
+  "operator": "%",
+  "result": "error"
+},
+{
+  "operand1": "boolean",
+  "operand2": "boolean",
+  "operator": "**",
+  "result": "error"
+},
+{
+  "operand1": "boolean",
+  "operand2": "boolean",
+  "operator": "//",
+  "result": "error"
+},
+{
+  "operand1": "boolean",
+  "operand2": "boolean",
+  "operator": "==",
+  "result": "boolean"
+},
+{
+  "operand1": "boolean",
+  "operand2": "boolean",
+  "operator": "!=",
+  "result": "boolean"
+},
+{
+  "operand1": "boolean",
+  "operand2": "boolean",
+  "operator": ">",
+  "result": "boolean"
+},
+{
+  "operand1": "boolean",
+  "operand2": "boolean",
+  "operator": "<",
+  "result": "boolean"
+},
+{
+  "operand1": "boolean",
+  "operand2": "boolean",
+  "operator": ">=",
+  "result": "boolean"
+},
+{
+  "operand1": "boolean",
+  "operand2": "boolean",
+  "operator": "<=",
+  "result": "boolean"
+},
+{
+  "operand1": "boolean",
+  "operand2": "boolean",
+  "operator": "&",
+  "result": "boolean"
+},
+{
+  "operand1": "boolean",
+  "operand2": "boolean",
+  "operator": "|",
+  "result": "boolean"
+}
 ]
