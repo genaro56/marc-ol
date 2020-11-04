@@ -61,6 +61,9 @@ class FuncSize:
     def __init__(self):
         self.funcVarCounts = dict()
         
+    def addGlobalVarCounts(self, counts):
+        self.funcVarCounts['global'] = counts
+        
     def addLocalVarCounts(self, counts):
         self.funcVarCounts['local'] = counts
         return
