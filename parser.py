@@ -179,8 +179,14 @@ class MyParser(Parser):
         cuadruplos.createQuad('endfunc', None, None, None)
         return
 
-    @_('vars bloque', 'bloque')
+    @_('vars seen_start_func bloque', 'seen_start_func bloque')
     def func_body(self, p): pass
+    
+    @_('')
+    def seen_start_func(self, p):
+        funcId = dirFunc.funcStack[-1]
+        # agrega al dir de func el num de cuadruplo donde empieza la funcion
+        dirFunc.getFuncion(funcId).setStartCuadCounter(cuadruplos.counter)
 
     @_('tipo', 'VOID')
     def tipo_fun(self, p):
@@ -626,7 +632,7 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
-    tests = ['TestOperRel.txt']
+    tests = ['TestModulos.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
