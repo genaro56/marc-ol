@@ -624,9 +624,16 @@ class MyParser(Parser):
         dirFunc.funcStack.pop()
         programName = dirFunc.programName
         dirFunc.funcStack.append(programName)
+
         # define goto a primera instruccion del main
         firstQuadIndex = cuadruplos.pilaSaltos.pop()
         cuadruplos.fillQuadIndex(firstQuadIndex, cuadruplos.counter)
+        
+        # guarda workspace size de tabla global de vars
+        globalVarCounts = addrCounter.getGlobalCounts()
+        funcSize = FuncSize()
+        funcSize.addGlobalVarCounts(globalVarCounts)
+        dirFunc.getFuncion(programName).setFuncSize(funcSize)
         pass
 
     # ERROR
@@ -644,7 +651,7 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
-    tests = ['TestLoops.txt']
+    tests = ['TestModulos.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
