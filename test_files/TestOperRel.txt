@@ -1,0 +1,9 @@
+program Ejemplo;
+var
+    int a, b, c, d, e, f, g, h, i, j, k, l, x;
+
+main () 
+{
+    x = a + b * c - d / f * g > a + b * c & d + e < f * g;
+    x = ((a * b - c * d) > c + d * e / f) & (g * h - j > l - a) & b + c > d * f;
+}
