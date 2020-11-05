@@ -151,12 +151,18 @@ class MyParser(Parser):
                 dirFunc.programName).tablaVariables
             dirFunc.getFuncion(
                 funcName).tablaVariables.setGlobalVarTable(globalVarTable)
+            # revisa el tipo de función y verifica si debe agregar variable de retorno.
+            if funcType != 'void':
+                returnVarAddr = addrCounter.nextGlobalAddr(funcType)
+                dirFunc.getFuncion(
+                dirFunc.programName).tablaVariables.addVar(
+                    f"return_var_of:{funcName}", funcType, returnVarAddr)
             # saca el nombre de fucion anterior y agrega el nuevo a funcStack
             dirFunc.funcStack.pop()
             dirFunc.funcStack.append(funcName)
         else:
             raise Exception(
-                f'MultipleDeclaration: module {funcName} already defined')
+                f'MultipleDeclaration: module {funcName} already defined.')
         pass
 
     @_('')
@@ -458,7 +464,7 @@ class MyParser(Parser):
             varType = varObj.getType()
             idAddr = varObj.getAddr()
         else:
-            raise Exception(f'Undefined variable {ID}')
+            raise Exception(f'Error: undefined variable {ID}.')
         cuadruplos.pilaOperandos.append((ID, varType))
         return (p[0], idAddr, varType)
 
@@ -494,7 +500,7 @@ class MyParser(Parser):
     def seen_funcall_id(self, p):
         funcID = p[-1]
         if not dirFunc.isNameInDir(funcID):
-            raise Exception(f'Error: function {funcID} is not declared')
+            raise Exception(f'Error: function {funcID} is not declared.')
         else:
             tablaParams.setTempFuncId(funcID)
         pass
@@ -505,17 +511,23 @@ class MyParser(Parser):
         cuadruplos.createQuad('era', None, None, funcId)
         return funcId
 
-    @_('expresion "," seen_next_param call_fun1', 'expresion')
-    def call_fun1(self, p):
+    @_('expresion seen_param_exp "," seen_next_param call_fun1', 'expresion')
+    def call_fun1(self, p): pass
+
+    @_('')
+    def seen_param_exp(self, p):
         # get func id from seen_funcall_era
         funcId = tablaParams.tempFuncId
-        print('func id', funcId)
         exp, expType = cuadruplos.pilaOperandos.pop()
         counter = tablaParams.counterParams
-        print('signature', dirFunc.getFuncion(funcId).signature[counter])
         paramType, paramAddr = dirFunc.getFuncion(funcId).signature[counter]
-        cuadruplos.createQuad('param', exp, None, paramAddr)
-        return dirFunc.getFuncion(funcId)
+        if paramType == expType:
+            cuadruplos.createQuad('param', exp, None, paramAddr)
+        else:
+            raise Exception(
+                f"Parameter mismatch: {expType} should match with {paramType} in {funcId} call."
+            )
+        pass
 
     @_('')
     def seen_next_param(self, p):
@@ -523,8 +535,9 @@ class MyParser(Parser):
 
     @_('')
     def seen_params_end(self, p):
-        # obtiene el objeto de función a partir de call_fun1
-        func = p[-2]
+        # obtiene el objeto de función a partir de call_fun1.
+        funcId = tablaParams.tempFuncId
+        func = dirFunc.getFuncion(funcId)
         signatureLength = len(func.signature)
         if tablaParams.counterParams != signatureLength - 1:
             raise Exception(
@@ -535,7 +548,17 @@ class MyParser(Parser):
     def seen_funcall_end(self, p):
         # obtiene el objeto de función a partir de call_fun1
         func = p[-1]
+        # reinicia el contador de parámetros.
+        tablaParams.setCounterParams(0)
+        print('func.type',func.type)
         cuadruplos.createQuad('gosub', func.name, None, func.startAddress)
+        if func.type != 'void':
+            result = addrCounter.nextTemporalAddr(func.type)
+            returnValueAddr = dirFunc.getFuncion(
+                dirFunc.programName).tablaVariables.getVar(f"return_var_of:{func.name}")
+            print('returnValueAddr', returnValueAddr)
+            cuadruplos.createQuad('=', returnValueAddr, None, result)
+            cuadruplos.pilaOperandos.append((result, func.type))
         tablaParams.setTempFuncId(None)
         pass
 
