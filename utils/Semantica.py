@@ -63,6 +63,9 @@ class AddrGenerator:
         self.temporalCounts = {'int': 0, 'float': 0, 'char': 0, 'boolean': 0}
 
         self.counter = copy.deepcopy(self.baseAddr)
+        
+    def exportBaseAddrs(self):
+        return copy.deepcopy(self.baseAddr)
 
     def nextGlobalAddr(self, typeVar):
         self.globalCounts[typeVar] += 1
