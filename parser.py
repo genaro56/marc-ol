@@ -2,6 +2,7 @@ import os
 from utils.Semantica import CuboSemantico, AddrGenerator
 from utils.Tablas import DirFunciones, TablaDeVars, TablaCtes, FuncSize
 from utils.Cuadruplos import Cuadruplos
+from vm.VirtualMachine import VirtualMachine
 from sly import Parser
 from lexer import MyLexer
 
@@ -678,3 +679,9 @@ if __name__ == '__main__':
         print()
         print('---------TEST END---------')
         print()
+        
+        # EJECUCION
+        vm = VirtualMachine()
+        
+        baseAddrs = addrCounter.exportBaseAddrs()
+        vm.setAddrRange(baseAddrs)
