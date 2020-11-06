@@ -55,12 +55,14 @@ class Funcion:
     def setFuncSize(self, funcSize):
         self.funcSize = funcSize
 
-<<<<<<< HEAD
     def setStartCuadCounter(self, counter):
         self.startCuadCounter = counter
 
     def getStartCuadCounter(self):
         return self.startCuadCounter
+    
+    def setStartAddress(self, cuadAddr):
+        self.startAddress = cuadAddr
 
 
 class FuncSize:
@@ -89,20 +91,6 @@ class FuncSize:
 
     def addLocalVarCounts(self, counts):
         self.funcVarCounts['local'] = counts
-=======
-    def setStartAddress(self, quadAddress):
-        self.startAddress = quadAddress
-
-
-class FuncSize:
-
-    def __init__(self):
-        self.funcVarCounts = dict()
-
-    def addLocalVarCounts(self, counts):
-        self.funcVarCounts['local'] = counts
-        return
->>>>>>> dev
 
     def addTempVarCounts(self, counts):
         self.funcVarCounts['temporal'] = counts
@@ -189,10 +177,6 @@ class TablaCtes:
     Tabla de constantes, crea un mapa de
     valor de constante a objeto Cte
     '''
-<<<<<<< HEAD
-=======
-
->>>>>>> dev
     def __init__(self):
         self.cteToAddrMap = dict()
         self.addrToCteMap = dict()

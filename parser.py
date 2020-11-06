@@ -743,7 +743,7 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
-    tests = ['TestModulos3.txt']
+    tests = ['TestModulos2.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
@@ -773,15 +773,15 @@ if __name__ == '__main__':
         print('---------TEST END---------')
         print()
         
-        # EJECUCION
-        vm = VirtualMachine()
-        # vm recibe inputes necesarios para ejecucion
-        vm.setCuadruplos(cuadruplos.pilaCuadruplos)
-        vm.setTablaCtes(tablaCtes)
-        vm.setDirFunc(dirFunc)
-        # vm recibe rango de direcciones 
-        baseAddrs = addrCounter.exportBaseAddrs()
-        vm.setAddrRange(baseAddrs)
+        # # EJECUCION
+        # vm = VirtualMachine()
+        # # vm recibe inputes necesarios para ejecucion
+        # vm.setCuadruplos(cuadruplos.pilaCuadruplos)
+        # vm.setTablaCtes(tablaCtes)
+        # vm.setDirFunc(dirFunc)
+        # # vm recibe rango de direcciones 
+        # baseAddrs = addrCounter.exportBaseAddrs()
+        # vm.setAddrRange(baseAddrs)
         
-        print('---------START EXECUTION---------')
-        vm.run()
+        # print('---------START EXECUTION---------')
+        # vm.run()
