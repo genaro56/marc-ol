@@ -88,12 +88,21 @@ class FuncSize:
 
     def addGlobalVarCounts(self, counts):
         self.funcVarCounts['global'] = counts
+        
+    def getGlobalVarCounts(self):
+        return self.funcVarCounts['global']
 
     def addLocalVarCounts(self, counts):
         self.funcVarCounts['local'] = counts
+        
+    def getLocalVarCounts(self):
+        return self.funcVarCounts['local']
 
     def addTempVarCounts(self, counts):
         self.funcVarCounts['temporal'] = counts
+        
+    def getTempVarCounts(self):
+        return self.funcVarCounts['temporal']
 
     def getTotalVarCounts(self):
         globalCounts = self.funcVarCounts['global']
