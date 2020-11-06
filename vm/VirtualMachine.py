@@ -34,7 +34,7 @@ class VirtualMachine:
         else:
             return memoriaStack.getValue(addr)
 
-    def __getMemory(self, addr, memoriaGlobal, memoriaStack):
+    def __getMemoryToSaveVal(self, addr, memoriaGlobal, memoriaStack):
         # checa si addr esta en rango de globales
         if addr < self.addrRange['localAddr']['int']:
             return memoriaGlobal
@@ -49,6 +49,7 @@ class VirtualMachine:
         mainFuncSize = mainFunc.funcSize
         # se crea instancia con tamaño de funcion global
         memoriaGlobal = Memoria('global', mainFuncSize, self.addrRange)
+        # la variable memoriaStack mantendra la referencia de la memoria activa en SS
         memoriaStack = memoriaGlobal
 
         while True:
@@ -58,6 +59,13 @@ class VirtualMachine:
 
             if operacion == 'goto':
                 self.ip = resultAddr
+            elif operacion == '=':
+                operand1Val = self.__getValueFromMemory(
+                    arg1Addr, memoriaGlobal, memoriaStack, self.tablaCtes)
+                memoria = self.__getMemoryToSaveVal(resultAddr, memoriaGlobal,
+                                                    memoriaStack)
+                memoria.saveValue(resultAddr, operand1Val)
+                self.ip += 1
             elif operacion == '+':
                 # obtiene el valor de las addrs
                 operand1Val = self.__getValueFromMemory(
@@ -67,17 +75,33 @@ class VirtualMachine:
 
                 # ejecuta la operacion
                 result = operand1Val + operand2Val
-                
-                print('result', result)
 
                 # guarda el valor en memoria
-                memoria = self.__getMemory(resultAddr, memoriaGlobal, memoriaStack)
+                memoria = self.__getMemoryToSaveVal(resultAddr, memoriaGlobal,
+                                                    memoriaStack)
                 memoria.saveValue(resultAddr, result)
 
                 #incrementa el ip
                 self.ip += 1
-                break
+            elif operacion == '-':
+                # obtiene el valor de las addrs
+                operand1Val = self.__getValueFromMemory(
+                    arg1Addr, memoriaGlobal, memoriaStack, self.tablaCtes)
+                operand2Val = self.__getValueFromMemory(
+                    arg2Addr, memoriaGlobal, memoriaStack, self.tablaCtes)
+
+                # ejecuta la operacion
+                result = operand1Val - operand2Val
+
+                # guarda el valor en memoria
+                memoria = self.__getMemoryToSaveVal(resultAddr, memoriaGlobal,
+                                                    memoriaStack)
+                memoria.saveValue(resultAddr, result)
+
+                #incrementa el ip
+                self.ip += 1
             elif operacion == 'end':
+                print('Fin Ejecucion')
                 break
 
 
@@ -139,6 +163,7 @@ class Memoria:
 
     def saveValue(self, addr, value):
         scope, addrType, base = self.__getAddrTypeInfo(addr)
+        # print(scope, addrType, base, addr, value)
         memoryBlock = self.typeToBlockMap[scope][addrType]
         memoryBlock[addr - base] = value
 
