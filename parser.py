@@ -615,7 +615,7 @@ class MyParser(Parser):
         cuadruplos.fillQuadIndex(finAddr, cuadruplos.counter)
 
     # MAIN
-    @_('MAIN seen_main "(" ")" bloque')
+    @_('MAIN seen_main "(" ")" bloque seen_end_main')
     def main(self, p): pass
 
     @_('')
@@ -629,12 +629,32 @@ class MyParser(Parser):
         # define goto a primera instruccion del main
         firstQuadIndex = cuadruplos.pilaSaltos.pop()
         cuadruplos.fillQuadIndex(firstQuadIndex, cuadruplos.counter)
+        pass
+    
+    @_('')
+    def seen_end_main(self, p):
+        programName = dirFunc.funcStack.pop()
+        print('end name program', programName)
         
-        # guarda workspace size de tabla global de vars
+        # obtiene el numero de variables globales
         globalVarCounts = addrCounter.getGlobalCounts()
+        # obtiene numero de variables temporales en main
+        globalTmpVarCounts = addrCounter.getTmpAddrsCount()
+        
+        print('main global', globalTmpVarCounts)
+        print('temp global', globalVarCounts)
+        
+        # crea una instancia FuncSize y definie contadores de vars
         funcSize = FuncSize()
         funcSize.addGlobalVarCounts(globalVarCounts)
+        funcSize.addTempVarCounts(globalTmpVarCounts)
+        
+        # guarda workspace de funcion global
         dirFunc.getFuncion(programName).setFuncSize(funcSize)
+        
+        # resetea las direciones locales y temporales
+        addrCounter.resetTemporalCounter()
+        addrCounter.resetGlobalCounts()
         pass
 
     # ERROR
@@ -652,7 +672,7 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
-    tests = ['TestModulos.txt']
+    tests = ['TestEjecucion.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
@@ -682,6 +702,13 @@ if __name__ == '__main__':
         
         # EJECUCION
         vm = VirtualMachine()
-        
+        # vm recibe inputes necesarios para ejecucion
+        vm.setCuadruplos(cuadruplos.pilaCuadruplos)
+        vm.setTablaCtes(tablaCtes)
+        vm.setDirFunc(dirFunc)
+        # vm recibe rango de direcciones 
         baseAddrs = addrCounter.exportBaseAddrs()
         vm.setAddrRange(baseAddrs)
+        
+        print('---------START EXECUTION---------')
+        vm.run()
