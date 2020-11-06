@@ -703,15 +703,11 @@ class MyParser(Parser):
     @_('')
     def seen_end_main(self, p):
         programName = dirFunc.funcStack.pop()
-        print('end name program', programName)
         
         # obtiene el numero de variables globales
         globalVarCounts = addrCounter.getGlobalCounts()
         # obtiene numero de variables temporales en main
         globalTmpVarCounts = addrCounter.getTmpAddrsCount()
-        
-        print('main global', globalTmpVarCounts)
-        print('temp global', globalVarCounts)
         
         # crea una instancia FuncSize y definie contadores de vars
         funcSize = FuncSize()
@@ -744,7 +740,7 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
-    tests = ['TestModulos2.txt']
+    tests = ['TestEjecucion.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
@@ -774,15 +770,15 @@ if __name__ == '__main__':
         print('---------TEST END---------')
         print()
         
-        # # EJECUCION
-        # vm = VirtualMachine()
-        # # vm recibe inputes necesarios para ejecucion
-        # vm.setCuadruplos(cuadruplos.pilaCuadruplos)
-        # vm.setTablaCtes(tablaCtes)
-        # vm.setDirFunc(dirFunc)
-        # # vm recibe rango de direcciones 
-        # baseAddrs = addrCounter.exportBaseAddrs()
-        # vm.setAddrRange(baseAddrs)
+        # EJECUCION
+        vm = VirtualMachine()
+        # vm recibe inputes necesarios para ejecucion
+        vm.setCuadruplos(cuadruplos.pilaCuadruplos)
+        vm.setTablaCtes(tablaCtes)
+        vm.setDirFunc(dirFunc)
+        # vm recibe rango de direcciones 
+        baseAddrs = addrCounter.exportBaseAddrs()
+        vm.setAddrRange(baseAddrs)
         
-        # print('---------START EXECUTION---------')
-        # vm.run()
+        print('---------START EXECUTION---------')
+        vm.run()

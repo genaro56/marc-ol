@@ -22,80 +22,138 @@ class VirtualMachine:
     def setAddrRange(self, addrRange):
         self.addrRange = addrRange
 
+    def __getValueFromMemory(self, addr, memoriaGlobal, memoriaStack,
+                             cteTable):
+        # checa si addr esta en rango de constantes
+        if addr >= self.addrRange['constAddr']['int']:
+            return self.tablaCtes.getCteFromAddr(addr).getValor()
+        # checa si addr esta en rango de globales
+        elif addr < self.addrRange['localAddr']['int']:
+            return memoriaGlobal.getValue(addr)
+        # addr tiene que estar en rango de locales o temporales
+        else:
+            return memoriaStack.getValue(addr)
+
+    def __getMemory(self, addr, memoriaGlobal, memoriaStack):
+        # checa si addr esta en rango de globales
+        if addr < self.addrRange['localAddr']['int']:
+            return memoriaGlobal
+        # addr tiene que estar en rango de locales o temporales
+        else:
+            return memoriaStack
+
     def run(self):
 
         progName = self.dirFunc.programName
         mainFunc = self.dirFunc.getFuncion(progName)
         mainFuncSize = mainFunc.funcSize
         # se crea instancia con tamaño de funcion global
-        memoriaGlobal = Memoria(mainFuncSize, self.addrRange, self.tablaCtes)
+        memoriaGlobal = Memoria('global', mainFuncSize, self.addrRange)
+        memoriaStack = memoriaGlobal
 
         while True:
+
             operacion, arg1Addr, arg2Addr, resultAddr = self.cuadruplos[
                 self.ip]
+
             if operacion == 'goto':
                 self.ip = resultAddr
             elif operacion == '+':
-                operand1Val = memoriaGlobal.getValue(arg1Addr)
-                operand2Val = memoriaGlobal.getValue(arg2Addr)
+                # obtiene el valor de las addrs
+                operand1Val = self.__getValueFromMemory(
+                    arg1Addr, memoriaGlobal, memoriaStack, self.tablaCtes)
+                operand2Val = self.__getValueFromMemory(
+                    arg2Addr, memoriaGlobal, memoriaStack, self.tablaCtes)
+
+                # ejecuta la operacion
                 result = operand1Val + operand2Val
-                memoriaGlobal.saveValue(resultAddr, result)
+                
+                print('result', result)
+
+                # guarda el valor en memoria
+                memoria = self.__getMemory(resultAddr, memoriaGlobal, memoriaStack)
+                memoria.saveValue(resultAddr, result)
+
+                #incrementa el ip
+                self.ip += 1
+                break
+            elif operacion == 'end':
                 break
 
 
 class Memoria:
-    def __init__(self, funcSize, addrRange, cteTable):
+    def __init__(self, memType, funcSize, addrRange):
 
+        self.memType = memType
         self.addrRange = addrRange
-        self.cteTable = cteTable
-        self.baseCteAddr = self.__getBaseCteAddr(addrRange)
+        self.typeToBlockMap = self.__buildMemoryBlocks(funcSize)
+        print('Memory block generated', self.typeToBlockMap)
 
-        totalVarCounts = funcSize.getTotalVarCounts()
+    def __buildMemoryBlocks(self, funcSize):
+        memoryBlock = dict()
+        if self.memType == 'global':
+            memoryBlock['globalAddr'] = self.__getScopeBlock(
+                funcSize, 'global')
+        elif self.memType == 'local':
+            memoryBlock['localAddr'] = self.__getScopeBlock(funcSize, 'local')
+
+        memoryBlock['temporalAddr'] = self.__getScopeBlock(
+            funcSize, 'temporal')
+        return memoryBlock
+
+    def __getScopeBlock(self, funcSize, scope):
+
+        varCounts = None
+        if scope == 'global':
+            varCounts = funcSize.getGlobalVarCounts()
+        elif scope == 'local':
+            varCounts = funcSize.getLocalVarCounts()
+        elif scope == 'temporal':
+            varCounts = funcSize.getTempVarCounts()
+
         # define el numero de variables de cada tipo
-        intCount = totalVarCounts['int'] if 'int' in totalVarCounts else 0
-        floatCount = totalVarCounts['float'] if 'float' in totalVarCounts else 0
-        charCount = totalVarCounts['char'] if 'char' in totalVarCounts else 0
-        booleanCount = totalVarCounts[
-            'boolean'] if 'boolean' in totalVarCounts else 0
+        intCount = varCounts['int'] if 'int' in varCounts else 0
+        floatCount = varCounts['float'] if 'float' in varCounts else 0
+        charCount = varCounts['char'] if 'char' in varCounts else 0
+        booleanCount = varCounts['boolean'] if 'boolean' in varCounts else 0
 
-        self.bloqueInts = [None] * intCount
-        self.bloqueFloats = [None] * floatCount
-        self.bloqueChar = [None] * charCount
-        self.bloqueBooleans = [None] * booleanCount
+        # se crean bloques de memoria del tamaño definido por el era de la funcion
+        bloqueInts = [None] * intCount
+        bloqueFloats = [None] * floatCount
+        bloqueChar = [None] * charCount
+        bloqueBooleans = [None] * booleanCount
 
-        self.typeToBlockMap = {
-            'int': self.bloqueInts,
-            'float': self.bloqueFloats,
-            'char': self.bloqueChar,
-            'boolean': self.bloqueBooleans
+        typeToBlockMap = {
+            'int': bloqueInts,
+            'float': bloqueFloats,
+            'char': bloqueChar,
+            'boolean': bloqueBooleans
         }
 
-    def __getBaseCteAddr(self, addrRange):
-        return addrRange['constAddr']['int']
+        return typeToBlockMap
 
     def getValue(self, addr):
-        # si la addr es una constante, obten el valor de tabla cte
-        if addr >= self.baseCteAddr:
-            return self.cteTable.getCteFromAddr(addr).getValor()
-        addrType, base = self.__getAddrTypeInfo(addr)
-        memoryBlock = self.typeToBlockMap[addrType]
+        scope, addrType, base = self.__getAddrTypeInfo(addr)
+        memoryBlock = self.typeToBlockMap[scope][addrType]
         return memoryBlock[addr - base]
 
     def saveValue(self, addr, value):
-        addrType, base = self.__getAddrTypeInfo(addr)
-        memoryBlock = self.typeToBlockMap[addrType]
+        scope, addrType, base = self.__getAddrTypeInfo(addr)
+        memoryBlock = self.typeToBlockMap[scope][addrType]
         memoryBlock[addr - base] = value
 
     # regresar tipo y addr base
     def __getAddrTypeInfo(self, addr):
+        lastScope = ''
         lastType = ''
         lastBase = None
         found = False
         result = ()
         for scope, addrBlock in self.addrRange.items():
+            lastScope = scope
             for addrType, base in addrBlock.items():
                 if addr < base:
-                    result = (lastType, lastBase)
+                    result = (lastScope, lastType, lastBase)
                     found = True
                     break
                 else:
@@ -105,5 +163,5 @@ class Memoria:
                 break
 
         if not found:
-            print('Addr not foud')
+            raise Exception(f"Address {addr} not found")
         return result
