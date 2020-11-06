@@ -154,8 +154,7 @@ class MyParser(Parser):
             # revisa el tipo de función y verifica si debe agregar variable de retorno.
             if funcType != 'void':
                 returnVarAddr = addrCounter.nextGlobalAddr(funcType)
-                dirFunc.getFuncion(
-                dirFunc.programName).tablaVariables.addVar(
+                globalVarTable.addVar(
                     f"return_var_of:{funcName}", funcType, returnVarAddr)
             # saca el nombre de fucion anterior y agrega el nuevo a funcStack
             dirFunc.funcStack.pop()
@@ -492,8 +491,7 @@ class MyParser(Parser):
         cuadruplos.pilaOperandos.append((cteAddr, 'float'))
         pass
 
-    # Seria otra expresion regular NOMBRE_MODULO?
-    @_('ID seen_funcall_id "(" seen_funcall_era call_fun1 ")" seen_params_end seen_funcall_end')
+    @_('ID seen_funcall_id "(" seen_left_paren seen_funcall_era call_fun1 ")" seen_right_paren seen_params_end seen_funcall_end')
     def call_fun(self, p): pass
 
     @_('')
@@ -511,7 +509,7 @@ class MyParser(Parser):
         cuadruplos.createQuad('era', None, None, funcId)
         return funcId
 
-    @_('expresion seen_param_exp "," seen_next_param call_fun1', 'expresion')
+    @_('expresion seen_param_exp "," seen_next_param call_fun1', 'expresion seen_param_exp')
     def call_fun1(self, p): pass
 
     @_('')
@@ -550,25 +548,29 @@ class MyParser(Parser):
         func = p[-1]
         # reinicia el contador de parámetros.
         tablaParams.setCounterParams(0)
-        print('func.type',func.type)
         cuadruplos.createQuad('gosub', func.name, None, func.startAddress)
         if func.type != 'void':
             result = addrCounter.nextTemporalAddr(func.type)
             returnValueAddr = dirFunc.getFuncion(
-                dirFunc.programName).tablaVariables.getVar(f"return_var_of:{func.name}")
-            print('returnValueAddr', returnValueAddr)
+                dirFunc.programName).tablaVariables.getVar(f"return_var_of:{func.name}").getAddr()
             cuadruplos.createQuad('=', returnValueAddr, None, result)
             cuadruplos.pilaOperandos.append((result, func.type))
         tablaParams.setTempFuncId(None)
         pass
 
+    # RETURN
+    @_('RETURN "(" expresion seen_return_exp ")" ";"')
+    def _return(self, p): pass
+
+    @_('')
+    def seen_return_exp(self, p):
+        exp, expType = cuadruplos.pilaOperandos.pop()
+        cuadruplos.createQuad('return', None, None, exp)
+        pass
+
     # VOID FUNC
     @_('call_fun ";"')
     def void_fun(self, p): pass
-
-    # RETURN
-    @_('RETURN "(" expresion ")" ";"')
-    def _return(self, p): pass
 
     # LECTURA
     @_('READ "(" lectura1 ")" ";"')
@@ -713,7 +715,7 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
-    tests = ['TestModulos.txt']
+    tests = ['TestModulos3.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
