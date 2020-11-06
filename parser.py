@@ -499,11 +499,6 @@ class MyParser(Parser):
     def seen_funcall_id(self, p):
         funcID = p[-1]
         if not dirFunc.isNameInDir(funcID):
-<<<<<<< HEAD
-            raise Exception(f'Error: function {funcID} is not declared')
-
-    @_('expresion "," call_fun1', 'expresion')
-=======
             raise Exception(f'Error: function {funcID} is not declared.')
         else:
             tablaParams.setTempFuncId(funcID)
@@ -516,7 +511,6 @@ class MyParser(Parser):
         return funcId
 
     @_('expresion seen_param_exp "," seen_next_param call_fun1', 'expresion seen_param_exp')
->>>>>>> dev
     def call_fun1(self, p): pass
 
     @_('')
@@ -749,11 +743,7 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
-<<<<<<< HEAD
-    tests = ['TestEjecucion.txt']
-=======
     tests = ['TestModulos3.txt']
->>>>>>> dev
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
