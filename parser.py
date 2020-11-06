@@ -1,6 +1,6 @@
 import os
 from utils.Semantica import CuboSemantico, AddrGenerator
-from utils.Tablas import DirFunciones, TablaDeVars, TablaCtes, FuncSize
+from utils.Tablas import DirFunciones, TablaDeVars, TablaCtes, FuncSize, TablaParams
 from utils.Cuadruplos import Cuadruplos
 from vm.VirtualMachine import VirtualMachine
 from sly import Parser
@@ -10,6 +10,7 @@ dirFunc = None
 addrCounter = AddrGenerator()
 cuadruplos = Cuadruplos()
 tablaCtes = TablaCtes()
+tablaParams = TablaParams()
 
 filePath = os.path.abspath('./utils/combinaciones.json')
 cuboSemantico = CuboSemantico(filePath).getCuboSemantico()
@@ -84,8 +85,10 @@ class MyParser(Parser):
     def var_list(self, p):
         pass
 
-    @_('ID seen_var_name ', 'ID seen_var_name "[" CTE_INT "]"', 'ID seen_var_name "[" CTE_INT "]" "[" CTE_INT "]"')
-    def var(self, p): pass
+    @_('ID seen_var_name', 'ID seen_var_name "[" CTE_INT "]"', 'ID seen_var_name "[" CTE_INT "]" "[" CTE_INT "]"')
+    def var(self, p):
+        # returns tuple from seen_var_name
+        return p[1]
 
     @_('')
     def seen_var_name(self, p):
@@ -106,7 +109,7 @@ class MyParser(Parser):
                     varName, varType, nextAdrr)
             else:
                 raise Exception('Variable arleady declared in Table')
-        pass
+        return (varType, varName, nextAdrr)
 
     # TIPO
     @_('INT', 'FLOAT', 'CHAR')
@@ -149,12 +152,17 @@ class MyParser(Parser):
                 dirFunc.programName).tablaVariables
             dirFunc.getFuncion(
                 funcName).tablaVariables.setGlobalVarTable(globalVarTable)
+            # revisa el tipo de función y verifica si debe agregar variable de retorno.
+            if funcType != 'void':
+                returnVarAddr = addrCounter.nextGlobalAddr(funcType)
+                globalVarTable.addVar(
+                    f"return_var_of:{funcName}", funcType, returnVarAddr)
             # saca el nombre de fucion anterior y agrega el nuevo a funcStack
             dirFunc.funcStack.pop()
             dirFunc.funcStack.append(funcName)
         else:
             raise Exception(
-                f'MultipleDeclaration: module {funcName} already defined')
+                f'MultipleDeclaration: module {funcName} already defined.')
         pass
 
     @_('')
@@ -162,47 +170,47 @@ class MyParser(Parser):
         # obtiene el num de vars locales y temps de esta funcion
         localVarCounts = addrCounter.getLocalAddrsCount()
         tmpVarCounts = addrCounter.getTmpAddrsCount()
-        
+
         # crea una instacia representativa del tamaño de la funcion
         funcSize = FuncSize()
         funcSize.addLocalVarCounts(localVarCounts)
         funcSize.addTempVarCounts(tmpVarCounts)
-        
+
         # guarda el tamaña de la func en el dir de funciones
         funcId = dirFunc.funcStack[-1]
         dirFunc.getFuncion(funcId).setFuncSize(funcSize)
-        
+
         # resetea las direciones locales y temporales
         addrCounter.resetLocalCounter()
         addrCounter.resetTemporalCounter()
-        
+
         # genera cuadruplo endfunc
         cuadruplos.createQuad('endfunc', None, None, None)
         return
 
     @_('vars seen_start_func bloque', 'seen_start_func bloque')
     def func_body(self, p): pass
-    
+
     @_('')
     def seen_start_func(self, p):
         funcId = dirFunc.funcStack[-1]
         # agrega al dir de func el num de cuadruplo donde empieza la funcion
-        dirFunc.getFuncion(funcId).setStartCuadCounter(cuadruplos.counter)
+        dirFunc.getFuncion(funcId).setStartAddress(cuadruplos.counter)
 
     @_('tipo', 'VOID')
     def tipo_fun(self, p):
         return p[0]
 
     # PARAMETERS
-    @_('tipo seen_tipo_param var "," params', 'tipo seen_tipo_param var')
+    @_('tipo var seen_tipo_param "," params', 'tipo var seen_tipo_param')
     def params(self, p): pass
-    
+
     @_('')
     def seen_tipo_param(self, p):
-        tipoParam = p[-1]
+        tipoParam, _, addr = p[-1]
         funcId = dirFunc.funcStack[-1]
         # agrega el tipo del parametro al signature de la funcion
-        dirFunc.getFuncion(funcId).addParamToSig(tipoParam)
+        dirFunc.getFuncion(funcId).addParamToSig((tipoParam, addr))
         return
 
     # BLOQUE
@@ -289,7 +297,7 @@ class MyParser(Parser):
        'relation_exp seen_rel_exp2 "&" seen_and_op logic_exp',
        )
     def logic_exp(self, p): pass
-    
+
     @_('')
     def seen_rel_exp2(self, p):
         pilaOperadores = cuadruplos.pilaOperadores
@@ -456,7 +464,7 @@ class MyParser(Parser):
             varType = varObj.getType()
             idAddr = varObj.getAddr()
         else:
-            raise Exception(f'Undefined variable {ID}')
+            raise Exception(f'Error: undefined variable {ID}.')
         cuadruplos.pilaOperandos.append((ID, varType))
         return (p[0], idAddr, varType)
 
@@ -484,26 +492,92 @@ class MyParser(Parser):
         cuadruplos.pilaOperandos.append((cteAddr, 'float'))
         pass
 
-    # Seria otra expresion regular NOMBRE_MODULO?
-    @_('ID seen_fun_id "(" call_fun1 ")"')
+    @_('ID seen_funcall_id "(" seen_left_paren seen_funcall_era call_fun1 ")" seen_right_paren seen_params_end seen_funcall_end')
     def call_fun(self, p): pass
 
     @_('')
-    def seen_fun_id(self, p):
+    def seen_funcall_id(self, p):
         funcID = p[-1]
         if not dirFunc.isNameInDir(funcID):
+<<<<<<< HEAD
             raise Exception(f'Error: function {funcID} is not declared')
 
     @_('expresion "," call_fun1', 'expresion')
+=======
+            raise Exception(f'Error: function {funcID} is not declared.')
+        else:
+            tablaParams.setTempFuncId(funcID)
+        pass
+
+    @_('')
+    def seen_funcall_era(self, p):
+        funcId = tablaParams.tempFuncId
+        cuadruplos.createQuad('era', None, None, funcId)
+        return funcId
+
+    @_('expresion seen_param_exp "," seen_next_param call_fun1', 'expresion seen_param_exp')
+>>>>>>> dev
     def call_fun1(self, p): pass
+
+    @_('')
+    def seen_param_exp(self, p):
+        # get func id from seen_funcall_era
+        funcId = tablaParams.tempFuncId
+        exp, expType = cuadruplos.pilaOperandos.pop()
+        counter = tablaParams.counterParams
+        paramType, paramAddr = dirFunc.getFuncion(funcId).signature[counter]
+        if paramType == expType:
+            cuadruplos.createQuad('param', exp, None, paramAddr)
+        else:
+            raise Exception(
+                f"Parameter mismatch: {expType} should match with {paramType} in {funcId} call."
+            )
+        pass
+
+    @_('')
+    def seen_next_param(self, p):
+        tablaParams.setCounterParams(tablaParams.counterParams + 1)
+
+    @_('')
+    def seen_params_end(self, p):
+        # obtiene el objeto de función a partir de call_fun1.
+        funcId = tablaParams.tempFuncId
+        func = dirFunc.getFuncion(funcId)
+        signatureLength = len(func.signature)
+        if tablaParams.counterParams != signatureLength - 1:
+            raise Exception(
+                f'Function signature: {func.name} has incorrect no. of parameters')
+        return func
+
+    @_('')
+    def seen_funcall_end(self, p):
+        # obtiene el objeto de función a partir de call_fun1
+        func = p[-1]
+        # reinicia el contador de parámetros.
+        tablaParams.setCounterParams(0)
+        cuadruplos.createQuad('gosub', func.name, None, func.startAddress)
+        if func.type != 'void':
+            result = addrCounter.nextTemporalAddr(func.type)
+            returnValueAddr = dirFunc.getFuncion(
+                dirFunc.programName).tablaVariables.getVar(f"return_var_of:{func.name}").getAddr()
+            cuadruplos.createQuad('=', returnValueAddr, None, result)
+            cuadruplos.pilaOperandos.append((result, func.type))
+        tablaParams.setTempFuncId(None)
+        pass
+
+    # RETURN
+    @_('RETURN "(" expresion seen_return_exp ")" ";"')
+    def _return(self, p): pass
+
+    @_('')
+    def seen_return_exp(self, p):
+        exp, expType = cuadruplos.pilaOperandos.pop()
+        cuadruplos.createQuad('return', None, None, exp)
+        pass
 
     # VOID FUNC
     @_('call_fun ";"')
     def void_fun(self, p): pass
-
-    # RETURN
-    @_('RETURN "(" expresion ")" ";"')
-    def _return(self, p): pass
 
     # LECTURA
     @_('READ "(" lectura1 ")" ";"')
@@ -582,7 +656,8 @@ class MyParser(Parser):
             cuadruplos.createQuad('=', exp, None, id)
             return id
         else:
-            raise Exception(f'Type mismatch: cannot initialize FOR with type {idType}')
+            raise Exception(
+                f'Type mismatch: cannot initialize FOR with type {idType}')
 
     @_('')
     def seen_for_exp(self, p):
@@ -627,6 +702,8 @@ class MyParser(Parser):
         dirFunc.funcStack.append(programName)
 
         # define goto a primera instruccion del main
+        print('pila saltos', cuadruplos.pilaSaltos)
+        print('main')
         firstQuadIndex = cuadruplos.pilaSaltos.pop()
         cuadruplos.fillQuadIndex(firstQuadIndex, cuadruplos.counter)
         pass
@@ -672,7 +749,11 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
+<<<<<<< HEAD
     tests = ['TestEjecucion.txt']
+=======
+    tests = ['TestModulos3.txt']
+>>>>>>> dev
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
@@ -692,7 +773,9 @@ if __name__ == '__main__':
         inputFile.close()
 
         # Print de pilas de cuadruplos
-        print('Pila cuadruplos', cuadruplos.pilaCuadruplos)
+        for i in range(len(cuadruplos.pilaCuadruplos)):
+            quad = cuadruplos.pilaCuadruplos[i]
+            print(f"{i+1}.- {quad}")
         print('Pila operandos', cuadruplos.pilaOperandos)
         print('Pila operadores', cuadruplos.pilaOperadores)
         print('Pila de saltos', cuadruplos.pilaSaltos)
