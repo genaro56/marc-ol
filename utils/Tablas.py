@@ -171,21 +171,26 @@ class TablaCtes:
     Tabla de constantes, crea un mapa de
     valor de constante a objeto Cte
     '''
-    
     def __init__(self):
-        self.tablaCte = dict()
+        self.cteToAddrMap = dict()
+        self.addrToCteMap = dict()
 
     def isCteInTable(self, constant):
-        return constant in self.tablaCte
+        return constant in self.cteToAddrMap
 
     def addCte(self, valor, addr):
         newCte = Cte()
         newCte.setValor(valor)
         newCte.setAddr(addr)
-        self.tablaCte[valor] = newCte
+
+        self.cteToAddrMap[valor] = newCte
+        self.addrToCteMap[addr] = newCte
 
     def getCte(self, constant):
-        return self.tablaCte[constant]
+        return self.cteToAddrMap[constant]
+
+    def getCteFromAddr(self, addr):
+        return self.addrToCteMap[addr]
 
 
 class Cte:
@@ -199,12 +204,12 @@ class Cte:
 
     def setValor(self, valor):
         self.valor = valor
-        
+
     def getValor(self):
         return self.valor
 
     def setAddr(self, addr):
         self.addr = addr
-        
+
     def getAddr(self):
         return self.addr
