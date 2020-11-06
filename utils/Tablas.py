@@ -1,3 +1,6 @@
+from collections import Counter
+
+
 class DirFunciones:
     '''
     Directorio de funciones - matiene
@@ -43,34 +46,57 @@ class Funcion:
 
     def setName(self, name):
         self.name = name
-        
+
     def addParamToSig(self, param):
         self.signature.append(param)
-        
+
     def setFuncSize(self, funcSize):
         self.funcSize = funcSize
-        
+
     def setStartCuadCounter(self, counter):
         self.startCuadCounter = counter
-        
+
     def getStartCuadCounter(self):
         return self.startCuadCounter
-        
+
+
 class FuncSize:
-    
     def __init__(self):
-        self.funcVarCounts = dict()
-        
+        self.funcVarCounts = {
+            'global': {
+                'int': 0,
+                'float': 0,
+                'char': 0
+            },
+            'local': {
+                'int': 0,
+                'float': 0,
+                'char': 0
+            },
+            'temporal': {
+                'int': 0,
+                'float': 0,
+                'char': 0,
+                'boolean': 0
+            }
+        }
+
     def addGlobalVarCounts(self, counts):
         self.funcVarCounts['global'] = counts
-        
+
     def addLocalVarCounts(self, counts):
         self.funcVarCounts['local'] = counts
-        return
-    
+
     def addTempVarCounts(self, counts):
         self.funcVarCounts['temporal'] = counts
-        return
+
+    def getTotalVarCounts(self):
+        globalCounts = self.funcVarCounts['global']
+        localCounts = self.funcVarCounts['local']
+        temporalCounts = self.funcVarCounts['temporal']
+        return dict(
+            Counter(globalCounts) + Counter(localCounts) +
+            Counter(temporalCounts))
 
 
 class Var():
