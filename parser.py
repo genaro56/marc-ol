@@ -465,7 +465,7 @@ class MyParser(Parser):
             idAddr = varObj.getAddr()
         else:
             raise Exception(f'Error: undefined variable {ID}.')
-        cuadruplos.pilaOperandos.append((ID, varType))
+        cuadruplos.pilaOperandos.append((idAddr, varType))
         return (p[0], idAddr, varType)
 
     @_('')
@@ -696,8 +696,6 @@ class MyParser(Parser):
         dirFunc.funcStack.append(programName)
 
         # define goto a primera instruccion del main
-        print('pila saltos', cuadruplos.pilaSaltos)
-        print('main')
         firstQuadIndex = cuadruplos.pilaSaltos.pop()
         cuadruplos.fillQuadIndex(firstQuadIndex, cuadruplos.counter)
         pass
@@ -726,6 +724,9 @@ class MyParser(Parser):
         # resetea las direciones locales y temporales
         addrCounter.resetTemporalCounter()
         addrCounter.resetGlobalCounts()
+        
+        # genera cuadruplo end
+        cuadruplos.createQuad('end', None, None, None)
         pass
 
     # ERROR
