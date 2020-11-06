@@ -4,6 +4,7 @@ class DirFunciones:
     * dict con key (funcName), value(Funcion)
     * referencia a tabla de variables global
     '''
+
     def __init__(self):
         self.programName = None
         self.tablaGlobal = TablaDeVars()
@@ -30,41 +31,40 @@ class Funcion:
     mantiene las propiedades de cada funcion y una referencia
     a su tabla de variables
     '''
+
     def __init__(self):
         self.name = ''
         self.type = ''
         self.signature = []
         self.funcSize = None
-        self.startCuadCounter = None
         self.tablaVariables = TablaDeVars()
+        self.startAddress = None
 
     def setType(self, typeValue):
         self.type = typeValue
 
     def setName(self, name):
         self.name = name
-        
+
     def addParamToSig(self, param):
         self.signature.append(param)
-        
+
     def setFuncSize(self, funcSize):
         self.funcSize = funcSize
-        
-    def setStartCuadCounter(self, counter):
-        self.startCuadCounter = counter
-        
-    def getStartCuadCounter(self):
-        return self.startCuadCounter
-        
+
+    def setStartAddress(self, quadAddress):
+        self.startAddress = quadAddress
+
+
 class FuncSize:
-    
+
     def __init__(self):
         self.funcVarCounts = dict()
-        
+
     def addLocalVarCounts(self, counts):
         self.funcVarCounts['local'] = counts
         return
-    
+
     def addTempVarCounts(self, counts):
         self.funcVarCounts['temporal'] = counts
         return
@@ -76,6 +76,7 @@ class Var():
     mantiene las propiedades de cada funcion y una referncia
     a su tabla de variables
     '''
+
     def __init__(self):
         self.name = ''
         self.type = ''
@@ -142,7 +143,7 @@ class TablaCtes:
     Tabla de constantes, crea un mapa de
     valor de constante a objeto Cte
     '''
-    
+
     def __init__(self):
         self.tablaCte = dict()
 
@@ -164,18 +165,48 @@ class Cte:
     Representa una constante, mantiene el 
     valor y la direccion de la constante
     '''
+
     def __init__(self):
         self.valor = None
         self.addr = None
 
     def setValor(self, valor):
         self.valor = valor
-        
+
     def getValor(self):
         return self.valor
 
     def setAddr(self, addr):
         self.addr = addr
-        
+
+    def getAddr(self):
+        return self.addr
+
+
+class TablaParams:
+    '''
+    Tabla de parámetros - crea un mapa de parámetros para
+    cada llamada de función, instanciando las direcciones
+    de memoria de cada param para ejecutarlo en cuadruplos.
+    '''
+
+    def __init__(self):
+        self.tablaParams = dict()
+        self.counterParams = 0
+        self.eraSize = None
+        self.tempFuncId = None
+
+    def setCounterParams(self, valor):
+        self.counterParams = valor
+
+    def generateEraSize(self, size):
+        self.eraSize = size
+
+    def setTempFuncId(self, tempId):
+        self.tempFuncId = tempId
+
+    def setAddr(self, addr):
+        self.addr = addr
+
     def getAddr(self):
         return self.addr

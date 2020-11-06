@@ -11,7 +11,7 @@ void module uno(int a);
     write(a, b, a+b);
 }
 
-void module dos(int a, int b, float g);
+int module dos(int a, int b, float g);
 var int i;
 {
     i=b;

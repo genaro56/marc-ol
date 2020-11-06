@@ -9,7 +9,7 @@ class Cuadruplos:
     # actualiza el contador
     def setCounter(self, newCounter):
         self.counter = newCounter
-
+    
     # crea un nuevo cuadruplo y actualiza el contador
     def createQuad(self, op1, op2, op3, res):
         self.pilaCuadruplos.append((op1, op2, op3, res))
