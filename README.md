@@ -66,3 +66,17 @@ Ariel Méndez | A01020690
 - Se agrego clase FuncSize que almacena los contadores y podra contener funciones para calcular el tamaño.
 
 - Se agrego cuadruplo 'endfunc' al terminar una funcion
+
+### - Avance no. 5:
+
+- Se agregó la acción de 'END' para el programa.
+
+- Se agregaron contadores de variables globales y funcionalidad para exportar el los rangos de direcciones.
+
+- Se agregó una clase VirtualMachine para realizar el proceso de ejecución.
+
+- Se implemento clase Memoria para realizar los procesos de gestion de direcciones.
+
+- Se agregaron operaciones aritmeticas en funcion de ejecución (+, -, *, /).
+
+- Se agregaron las operaciones para hacer 'PRINT' y 'READ' en ejecución. 
