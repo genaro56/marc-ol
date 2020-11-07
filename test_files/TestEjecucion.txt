@@ -1,0 +1,10 @@
+program patito;
+
+var
+    int a, b;
+
+main()
+{
+    a=2+5;
+    b = a - 5;
+}

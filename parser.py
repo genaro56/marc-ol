@@ -2,6 +2,7 @@ import os
 from utils.Semantica import CuboSemantico, AddrGenerator
 from utils.Tablas import DirFunciones, TablaDeVars, TablaCtes, FuncSize, TablaParams
 from utils.Cuadruplos import Cuadruplos
+from vm.VirtualMachine import VirtualMachine
 from sly import Parser
 from lexer import MyLexer
 
@@ -464,7 +465,7 @@ class MyParser(Parser):
             idAddr = varObj.getAddr()
         else:
             raise Exception(f'Error: undefined variable {ID}.')
-        cuadruplos.pilaOperandos.append((ID, varType))
+        cuadruplos.pilaOperandos.append((idAddr, varType))
         return (p[0], idAddr, varType)
 
     @_('')
@@ -683,7 +684,7 @@ class MyParser(Parser):
         cuadruplos.fillQuadIndex(finAddr, cuadruplos.counter)
 
     # MAIN
-    @_('MAIN seen_main "(" ")" bloque')
+    @_('MAIN seen_main "(" ")" bloque seen_end_main')
     def main(self, p): pass
 
     @_('')
@@ -693,11 +694,35 @@ class MyParser(Parser):
         dirFunc.funcStack.pop()
         programName = dirFunc.programName
         dirFunc.funcStack.append(programName)
+
         # define goto a primera instruccion del main
-        print('pila saltos', cuadruplos.pilaSaltos)
-        print('main')
         firstQuadIndex = cuadruplos.pilaSaltos.pop()
         cuadruplos.fillQuadIndex(firstQuadIndex, cuadruplos.counter)
+        pass
+    
+    @_('')
+    def seen_end_main(self, p):
+        programName = dirFunc.funcStack.pop()
+        
+        # obtiene el numero de variables globales
+        globalVarCounts = addrCounter.getGlobalCounts()
+        # obtiene numero de variables temporales en main
+        globalTmpVarCounts = addrCounter.getTmpAddrsCount()
+        
+        # crea una instancia FuncSize y definie contadores de vars
+        funcSize = FuncSize()
+        funcSize.addGlobalVarCounts(globalVarCounts)
+        funcSize.addTempVarCounts(globalTmpVarCounts)
+        
+        # guarda workspace de funcion global
+        dirFunc.getFuncion(programName).setFuncSize(funcSize)
+        
+        # resetea las direciones locales y temporales
+        addrCounter.resetTemporalCounter()
+        addrCounter.resetGlobalCounts()
+        
+        # genera cuadruplo end
+        cuadruplos.createQuad('end', None, None, None)
         pass
 
     # ERROR
@@ -715,7 +740,7 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
-    tests = ['TestModulos3.txt']
+    tests = ['TestEjecucion.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
@@ -744,3 +769,16 @@ if __name__ == '__main__':
         print()
         print('---------TEST END---------')
         print()
+        
+        # EJECUCION
+        vm = VirtualMachine()
+        # vm recibe inputes necesarios para ejecucion
+        vm.setCuadruplos(cuadruplos.pilaCuadruplos)
+        vm.setTablaCtes(tablaCtes)
+        vm.setDirFunc(dirFunc)
+        # vm recibe rango de direcciones 
+        baseAddrs = addrCounter.exportBaseAddrs()
+        vm.setAddrRange(baseAddrs)
+        
+        print('---------START EXECUTION---------')
+        vm.run()

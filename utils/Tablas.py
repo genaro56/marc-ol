@@ -1,3 +1,6 @@
+from collections import Counter
+
+
 class DirFunciones:
     '''
     Directorio de funciones - matiene
@@ -52,22 +55,62 @@ class Funcion:
     def setFuncSize(self, funcSize):
         self.funcSize = funcSize
 
-    def setStartAddress(self, quadAddress):
-        self.startAddress = quadAddress
+    def setStartCuadCounter(self, counter):
+        self.startCuadCounter = counter
+
+    def getStartCuadCounter(self):
+        return self.startCuadCounter
+    
+    def setStartAddress(self, cuadAddr):
+        self.startAddress = cuadAddr
 
 
 class FuncSize:
-
     def __init__(self):
-        self.funcVarCounts = dict()
+        self.funcVarCounts = {
+            'global': {
+                'int': 0,
+                'float': 0,
+                'char': 0
+            },
+            'local': {
+                'int': 0,
+                'float': 0,
+                'char': 0
+            },
+            'temporal': {
+                'int': 0,
+                'float': 0,
+                'char': 0,
+                'boolean': 0
+            }
+        }
+
+    def addGlobalVarCounts(self, counts):
+        self.funcVarCounts['global'] = counts
+        
+    def getGlobalVarCounts(self):
+        return self.funcVarCounts['global']
 
     def addLocalVarCounts(self, counts):
         self.funcVarCounts['local'] = counts
-        return
+        
+    def getLocalVarCounts(self):
+        return self.funcVarCounts['local']
 
     def addTempVarCounts(self, counts):
         self.funcVarCounts['temporal'] = counts
-        return
+        
+    def getTempVarCounts(self):
+        return self.funcVarCounts['temporal']
+
+    def getTotalVarCounts(self):
+        globalCounts = self.funcVarCounts['global']
+        localCounts = self.funcVarCounts['local']
+        temporalCounts = self.funcVarCounts['temporal']
+        return dict(
+            Counter(globalCounts) + Counter(localCounts) +
+            Counter(temporalCounts))
 
 
 class Var():
@@ -143,21 +186,26 @@ class TablaCtes:
     Tabla de constantes, crea un mapa de
     valor de constante a objeto Cte
     '''
-
     def __init__(self):
-        self.tablaCte = dict()
+        self.cteToAddrMap = dict()
+        self.addrToCteMap = dict()
 
     def isCteInTable(self, constant):
-        return constant in self.tablaCte
+        return constant in self.cteToAddrMap
 
     def addCte(self, valor, addr):
         newCte = Cte()
         newCte.setValor(valor)
         newCte.setAddr(addr)
-        self.tablaCte[valor] = newCte
+
+        self.cteToAddrMap[valor] = newCte
+        self.addrToCteMap[addr] = newCte
 
     def getCte(self, constant):
-        return self.tablaCte[constant]
+        return self.cteToAddrMap[constant]
+
+    def getCteFromAddr(self, addr):
+        return self.addrToCteMap[addr]
 
 
 class Cte:
