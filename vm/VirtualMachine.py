@@ -2,6 +2,7 @@ class VirtualMachine:
     """
     Maquina virtual realiza proceso de ejecucion
     """
+
     def __init__(self):
         # instruction pointer
         self.ip = 0
@@ -42,6 +43,28 @@ class VirtualMachine:
         else:
             return memoriaStack
 
+    def __generateArithmeticOp(
+        self,
+        arg1Addr,
+        arg2Addr,
+        memoriaStack,
+        memoriaGlobal,
+        resultAddr,
+        operator,
+    ):
+        # obtiene el valor de las addrs
+        operand1Val = self.__getValueFromMemory(
+            arg1Addr, memoriaGlobal, memoriaStack, self.tablaCtes)
+        operand2Val = self.__getValueFromMemory(
+            arg2Addr, memoriaGlobal, memoriaStack, self.tablaCtes
+        )
+        # ejecuta la operacion
+        result = eval(f"{operand1Val} {operator} {operand2Val}")
+        # guarda el valor en memoria
+        memoria = self.__getMemoryToSaveVal(resultAddr, memoriaGlobal,
+                                            memoriaStack)
+        memoria.saveValue(resultAddr, result)
+
     def run(self):
 
         progName = self.dirFunc.programName
@@ -67,38 +90,36 @@ class VirtualMachine:
                 memoria.saveValue(resultAddr, operand1Val)
                 self.ip += 1
             elif operacion == '+':
-                # obtiene el valor de las addrs
-                operand1Val = self.__getValueFromMemory(
-                    arg1Addr, memoriaGlobal, memoriaStack, self.tablaCtes)
-                operand2Val = self.__getValueFromMemory(
-                    arg2Addr, memoriaGlobal, memoriaStack, self.tablaCtes)
-
-                # ejecuta la operacion
-                result = operand1Val + operand2Val
-
-                # guarda el valor en memoria
-                memoria = self.__getMemoryToSaveVal(resultAddr, memoriaGlobal,
-                                                    memoriaStack)
-                memoria.saveValue(resultAddr, result)
-
-                #incrementa el ip
+                self.__generateArithmeticOp(
+                    arg1Addr, arg2Addr, memoriaStack, memoriaGlobal, resultAddr, '+'
+                )
+                # incrementa el ip
                 self.ip += 1
             elif operacion == '-':
                 # obtiene el valor de las addrs
-                operand1Val = self.__getValueFromMemory(
-                    arg1Addr, memoriaGlobal, memoriaStack, self.tablaCtes)
-                operand2Val = self.__getValueFromMemory(
-                    arg2Addr, memoriaGlobal, memoriaStack, self.tablaCtes)
+                self.__generateArithmeticOp(
+                    arg1Addr, arg2Addr, memoriaStack, memoriaGlobal, resultAddr, '-'
+                )
+                # incrementa el ip
+                self.ip += 1
+            elif operacion == '*':
+                self.__generateArithmeticOp(
+                    arg1Addr, arg2Addr, memoriaStack, memoriaGlobal, resultAddr, '*'
+                )
+                # incrementa el ip
+                self.ip += 1
+            elif operacion == '/':
+                self.__generateArithmeticOp(
+                    arg1Addr, arg2Addr, memoriaStack, memoriaGlobal, resultAddr, '/'
+                )
+                # incrementa el ip
+                self.ip += 1
+            elif operacion == 'print':
+                resultVal = self.__getValueFromMemory(
+                    resultAddr, memoriaGlobal, memoriaStack, self.tablaCtes
+                )
+                print('PRINTING... ', resultVal)
 
-                # ejecuta la operacion
-                result = operand1Val - operand2Val
-
-                # guarda el valor en memoria
-                memoria = self.__getMemoryToSaveVal(resultAddr, memoriaGlobal,
-                                                    memoriaStack)
-                memoria.saveValue(resultAddr, result)
-
-                #incrementa el ip
                 self.ip += 1
             elif operacion == 'end':
                 print('Fin Ejecucion')
