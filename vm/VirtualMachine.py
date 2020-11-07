@@ -79,7 +79,6 @@ class VirtualMachine:
 
             operacion, arg1Addr, arg2Addr, resultAddr = self.cuadruplos[
                 self.ip]
-
             if operacion == 'goto':
                 self.ip = resultAddr
             elif operacion == '=':
@@ -121,6 +120,15 @@ class VirtualMachine:
                 print('PRINTING... ', resultVal)
 
                 self.ip += 1
+            elif operacion == 'read':
+                # resultVal = self.__getValueFromMemory(
+                #     resultAddr, memoriaGlobal, memoriaStack, self.tablaCtes
+                # )
+                print('READING... ')
+                readValue = input()
+                memoria.saveValue(resultAddr, readValue)
+                self.ip += 1
+
             elif operacion == 'end':
                 print('Fin Ejecucion')
                 break

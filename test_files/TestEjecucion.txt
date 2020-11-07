@@ -1,11 +1,13 @@
 program patito;
 
 var
-    int a, b;
+    int a, b, c;
 
 main()
 {
     a=2+5;
     b = (a + 25) / 4;
     write(b * 4);
+    read(c);
+    write(c);
 }
