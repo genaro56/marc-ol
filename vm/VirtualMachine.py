@@ -1,8 +1,10 @@
+from types import SimpleNamespace
+
+
 class VirtualMachine:
     """
     Maquina virtual realiza proceso de ejecucion
     """
-
     def __init__(self):
         # instruction pointer
         self.ip = 0
@@ -53,13 +55,14 @@ class VirtualMachine:
         operator,
     ):
         # obtiene el valor de las addrs
-        operand1Val = self.__getValueFromMemory(
-            arg1Addr, memoriaGlobal, memoriaStack, self.tablaCtes)
-        operand2Val = self.__getValueFromMemory(
-            arg2Addr, memoriaGlobal, memoriaStack, self.tablaCtes
-        )
+        operand1Val = self.__getValueFromMemory(arg1Addr, memoriaGlobal,
+                                                memoriaStack, self.tablaCtes)
+        operand2Val = self.__getValueFromMemory(arg2Addr, memoriaGlobal,
+                                                memoriaStack, self.tablaCtes)
+
         # ejecuta la operacion
         result = eval(f"{operand1Val} {operator} {operand2Val}")
+
         # guarda el valor en memoria
         memoria = self.__getMemoryToSaveVal(resultAddr, memoriaGlobal,
                                             memoriaStack)
@@ -70,8 +73,12 @@ class VirtualMachine:
         progName = self.dirFunc.programName
         mainFunc = self.dirFunc.getFuncion(progName)
         mainFuncSize = mainFunc.funcSize
+
+        stackEjecucion = []
+
         # se crea instancia con tamaño de funcion global
         memoriaGlobal = Memoria('global', mainFuncSize, self.addrRange)
+
         # la variable memoriaStack mantendra la referencia de la memoria activa en SS
         memoriaStack = memoriaGlobal
 
@@ -81,6 +88,43 @@ class VirtualMachine:
                 self.ip]
             if operacion == 'goto':
                 self.ip = resultAddr
+            elif operacion == 'era':
+                # se guarda el apuntador de memoria en el stack de ejecucion
+                memInfo = SimpleNamespace(memory=memoriaStack)
+                stackEjecucion.append(memInfo)
+
+                # obtiene la funcion del dirFunc
+                funcId = resultAddr
+                func = self.dirFunc.getFuncion(funcId)
+
+                # obtiene el tamaño de la funcion
+                funcSize = func.funcSize
+
+                # crea instancia de memoria local
+                memoriaLocal = Memoria('local', funcSize, self.addrRange)
+                memoriaStack = memoriaLocal
+
+                self.ip += 1
+            elif operacion == 'param':
+                operand1Val = self.__getValueFromMemory(
+                    arg1Addr, memoriaGlobal, memoriaStack, self.tablaCtes)
+                memoria = self.__getMemoryToSaveVal(resultAddr, memoriaGlobal,
+                                                    memoriaStack)
+                memoria.saveValue(resultAddr, operand1Val)
+                self.ip += 1
+            elif operacion == 'gosub':
+                # guardar ip junto con el ultimo activation record (memoria)
+                stackEjecucion[-1].ip = self.ip + 1
+
+                # cambiar ip a dir inicial de funcion
+                self.ip = resultAddr
+            elif operacion == 'endfunc':
+                # cambiar el apuntador de memoria (prior to call)
+                memInfo = stackEjecucion.pop()
+                memoriaStack = memInfo.memory
+
+                # cambiar ip (prior to the call)
+                self.ip = memInfo.ip
             elif operacion == '=':
                 operand1Val = self.__getValueFromMemory(
                     arg1Addr, memoriaGlobal, memoriaStack, self.tablaCtes)
@@ -89,34 +133,31 @@ class VirtualMachine:
                 memoria.saveValue(resultAddr, operand1Val)
                 self.ip += 1
             elif operacion == '+':
-                self.__generateArithmeticOp(
-                    arg1Addr, arg2Addr, memoriaStack, memoriaGlobal, resultAddr, '+'
-                )
+                self.__generateArithmeticOp(arg1Addr, arg2Addr, memoriaStack,
+                                            memoriaGlobal, resultAddr, '+')
                 # incrementa el ip
                 self.ip += 1
             elif operacion == '-':
                 # obtiene el valor de las addrs
-                self.__generateArithmeticOp(
-                    arg1Addr, arg2Addr, memoriaStack, memoriaGlobal, resultAddr, '-'
-                )
+                self.__generateArithmeticOp(arg1Addr, arg2Addr, memoriaStack,
+                                            memoriaGlobal, resultAddr, '-')
                 # incrementa el ip
                 self.ip += 1
             elif operacion == '*':
-                self.__generateArithmeticOp(
-                    arg1Addr, arg2Addr, memoriaStack, memoriaGlobal, resultAddr, '*'
-                )
+                self.__generateArithmeticOp(arg1Addr, arg2Addr, memoriaStack,
+                                            memoriaGlobal, resultAddr, '*')
                 # incrementa el ip
                 self.ip += 1
             elif operacion == '/':
-                self.__generateArithmeticOp(
-                    arg1Addr, arg2Addr, memoriaStack, memoriaGlobal, resultAddr, '/'
-                )
+                self.__generateArithmeticOp(arg1Addr, arg2Addr, memoriaStack,
+                                            memoriaGlobal, resultAddr, '/')
                 # incrementa el ip
                 self.ip += 1
             elif operacion == 'print':
-                resultVal = self.__getValueFromMemory(
-                    resultAddr, memoriaGlobal, memoriaStack, self.tablaCtes
-                )
+                resultVal = self.__getValueFromMemory(resultAddr,
+                                                      memoriaGlobal,
+                                                      memoriaStack,
+                                                      self.tablaCtes)
                 print('PRINTING... ', resultVal)
 
                 self.ip += 1
@@ -128,7 +169,6 @@ class VirtualMachine:
                 readValue = input()
                 memoria.saveValue(resultAddr, readValue)
                 self.ip += 1
-
             elif operacion == 'end':
                 print('Fin Ejecucion')
                 break
