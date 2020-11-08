@@ -740,7 +740,7 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
-    tests = ['TestEjecucion.txt']
+    tests = ['./tests_ejecucion/test_modulos/TestEjecucionModulos.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")

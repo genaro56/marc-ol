@@ -1,0 +1,28 @@
+program Ejemplo;
+var
+    int a, b, c, d, e, f, g, h, j, k;
+
+main () 
+{
+    a = b + c * (d - e / f) * h;
+    b = e - f;
+    while (a * b - c > d * e / (g + h)) do
+    {
+        h = j * k + b;
+        if (b < h) then
+        {
+            b = h + j;
+            while (b > a + c) do
+            {
+                write(a + b * c, d - e);
+                b = b - j;
+            }
+        }
+        else
+        {
+            a = a + b;
+            write(b-d);
+        }
+    }
+    f = a + b;
+}

@@ -1,0 +1,17 @@
+program patito;
+
+var
+    int a, b, c;
+
+func
+void module uno(int a);
+{
+    b = b * c;
+    write(b*2);
+}
+
+main()
+{
+    a=2+5;
+    uno(a);
+}
