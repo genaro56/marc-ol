@@ -89,12 +89,10 @@ class VirtualMachine:
             if operacion == 'goto':
                 self.ip = resultAddr
             elif operacion == 'era':
-                # se guarda el apuntador de memoria en el stack de ejecucion
-                memInfo = SimpleNamespace(memory=memoriaStack)
-                stackEjecucion.append(memInfo)
+                # nombre de la funcion
+                funcId = resultAddr
 
                 # obtiene la funcion del dirFunc
-                funcId = resultAddr
                 func = self.dirFunc.getFuncion(funcId)
 
                 # obtiene el tamaño de la funcion
@@ -102,26 +100,54 @@ class VirtualMachine:
 
                 # crea instancia de memoria local
                 memoriaLocal = Memoria('local', funcSize, self.addrRange)
-                memoriaStack = memoriaLocal
 
+                # se guarda el apuntador de memoria en el stack de ejecucion
+                memInfo = SimpleNamespace(lastMemory=memoriaStack,
+                                          funcId=funcId,
+                                          newMemory=memoriaLocal)
+                stackEjecucion.append(memInfo)
                 self.ip += 1
             elif operacion == 'param':
+                # obtiene el valor de arg1Addr
                 operand1Val = self.__getValueFromMemory(
                     arg1Addr, memoriaGlobal, memoriaStack, self.tablaCtes)
-                memoria = self.__getMemoryToSaveVal(resultAddr, memoriaGlobal,
-                                                    memoriaStack)
+
+                # define memoria con instancia de memoria de la funcion
+                memoria = stackEjecucion[-1].newMemory
+
                 memoria.saveValue(resultAddr, operand1Val)
                 self.ip += 1
             elif operacion == 'gosub':
+                # cambia el apuntador de memoria a la nueva memoria local
+                memoriaStack = stackEjecucion[-1].newMemory
+
                 # guardar ip junto con el ultimo activation record (memoria)
                 stackEjecucion[-1].ip = self.ip + 1
 
                 # cambiar ip a dir inicial de funcion
                 self.ip = resultAddr
+            elif operacion == 'return':
+                # obtiene el valor de retorno
+                resultVal = self.__getValueFromMemory(resultAddr,
+                                                      memoriaGlobal,
+                                                      memoriaStack,
+                                                      self.tablaCtes)
+
+                # construye nombre de global var de la funcion
+                funcId = stackEjecucion[-1].funcId
+                funcVarName = f"return_var_of:{funcId}"
+
+                # obtiene la addr de global var de la funcion
+                globalFuncVarAddr = self.dirFunc.getFuncion(
+                    progName).tablaVariables.getVar(funcVarName).getAddr()
+
+                # guarda el resultado en global var de la funcion
+                memoriaGlobal.saveValue(globalFuncVarAddr, resultVal)
+                self.ip += 1
             elif operacion == 'endfunc':
                 # cambiar el apuntador de memoria (prior to call)
                 memInfo = stackEjecucion.pop()
-                memoriaStack = memInfo.memory
+                memoriaStack = memInfo.lastMemory
 
                 # cambiar ip (prior to the call)
                 self.ip = memInfo.ip
@@ -180,7 +206,7 @@ class Memoria:
         self.memType = memType
         self.addrRange = addrRange
         self.typeToBlockMap = self.__buildMemoryBlocks(funcSize)
-        print('Memory block generated', self.typeToBlockMap)
+        # print('Memory block generated', self.typeToBlockMap)
 
     def __buildMemoryBlocks(self, funcSize):
         memoryBlock = dict()
@@ -232,7 +258,7 @@ class Memoria:
 
     def saveValue(self, addr, value):
         scope, addrType, base = self.__getAddrTypeInfo(addr)
-        # print(scope, addrType, base, addr, value)
+        # print(scope, addrType, addr, base, value)
         memoryBlock = self.typeToBlockMap[scope][addrType]
         memoryBlock[addr - base] = value
 
