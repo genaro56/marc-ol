@@ -1,5 +1,0 @@
-program bueno ; 
-
-var hola , adios [ 10 ] ;
-
-main() { }
