@@ -202,7 +202,7 @@ class MyParser(Parser):
         return p[0]
 
     # PARAMETERS
-    @_('tipo var seen_tipo_param "," params', 'tipo var seen_tipo_param')
+    @_('tipo var seen_tipo_param "," params', 'tipo var seen_tipo_param', 'empty')
     def params(self, p): pass
 
     @_('')
@@ -510,7 +510,7 @@ class MyParser(Parser):
         cuadruplos.createQuad('era', None, None, funcId)
         return funcId
 
-    @_('expresion seen_param_exp "," seen_next_param call_fun1', 'expresion seen_param_exp')
+    @_('expresion seen_param_exp "," seen_next_param call_fun1', 'expresion seen_param_exp', 'empty')
     def call_fun1(self, p): pass
 
     @_('')
@@ -538,7 +538,7 @@ class MyParser(Parser):
         funcId = tablaParams.tempFuncId
         func = dirFunc.getFuncion(funcId)
         signatureLength = len(func.signature)
-        if tablaParams.counterParams != signatureLength - 1:
+        if not (signatureLength == tablaParams.counterParams == 0) and tablaParams.counterParams != signatureLength - 1:
             raise Exception(
                 f'Function signature: {func.name} has incorrect no. of parameters')
         return func
@@ -740,7 +740,7 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
-    tests = ['./tests_ejecucion/test_modulos/TestEjecucionModulos.txt']
+    tests = ['./test_modulos/TestEjecucionVariasFunciones.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
