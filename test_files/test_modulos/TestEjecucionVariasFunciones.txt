@@ -1,0 +1,38 @@
+program patito;
+
+var
+    int a, b;
+    float result;
+
+func
+float module dos(int a, int c);
+var 
+    int j;
+    float k;
+{
+    j = 1;
+    k = 2.5;
+    write((a + c) * (k - j));
+    return((a + c) * (k - j));
+}
+
+float module uno(int a, int c);
+var float b;
+{
+    b = dos(a, c) + 1;
+    return(b);
+}
+
+void module start();
+{
+    write(1);
+}
+
+main()
+{
+    start();
+    a = 8;
+    b = 2;
+    result = uno(a, b);
+    write(result);
+}
