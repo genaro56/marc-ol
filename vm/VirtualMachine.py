@@ -45,7 +45,7 @@ class VirtualMachine:
         else:
             return memoriaStack
 
-    def __generateArithmeticOp(
+    def __executeBinaryOperation(
         self,
         arg1Addr,
         arg2Addr,
@@ -151,6 +151,33 @@ class VirtualMachine:
 
                 # cambiar ip (prior to the call)
                 self.ip = memInfo.ip
+            elif operacion == "goto":
+
+                # cambiar ip para hacer el salto
+                self.ip = resultAddr
+            elif operacion == "gotof":
+                # obtiene el valor de las addrs
+                operand1Val = self.__getValueFromMemory(
+                    arg1Addr, memoriaGlobal, memoriaStack, self.tablaCtes)
+
+                # si la condicion es falsa saltar bloque
+                if not operand1Val:
+                    self.ip = resultAddr
+                else:
+                    # incrementa el ip
+                    self.ip += 1
+            elif operacion == "<":
+                self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
+                                              memoriaGlobal, resultAddr, '<')
+
+                # incrementa el ip
+                self.ip += 1
+            elif operacion == ">":
+                self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
+                                              memoriaGlobal, resultAddr, '>')
+
+                # incrementa el ip
+                self.ip += 1
             elif operacion == '=':
                 operand1Val = self.__getValueFromMemory(
                     arg1Addr, memoriaGlobal, memoriaStack, self.tablaCtes)
@@ -159,24 +186,24 @@ class VirtualMachine:
                 memoria.saveValue(resultAddr, operand1Val)
                 self.ip += 1
             elif operacion == '+':
-                self.__generateArithmeticOp(arg1Addr, arg2Addr, memoriaStack,
-                                            memoriaGlobal, resultAddr, '+')
+                self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
+                                              memoriaGlobal, resultAddr, '+')
                 # incrementa el ip
                 self.ip += 1
             elif operacion == '-':
                 # obtiene el valor de las addrs
-                self.__generateArithmeticOp(arg1Addr, arg2Addr, memoriaStack,
-                                            memoriaGlobal, resultAddr, '-')
+                self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
+                                              memoriaGlobal, resultAddr, '-')
                 # incrementa el ip
                 self.ip += 1
             elif operacion == '*':
-                self.__generateArithmeticOp(arg1Addr, arg2Addr, memoriaStack,
-                                            memoriaGlobal, resultAddr, '*')
+                self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
+                                              memoriaGlobal, resultAddr, '*')
                 # incrementa el ip
                 self.ip += 1
             elif operacion == '/':
-                self.__generateArithmeticOp(arg1Addr, arg2Addr, memoriaStack,
-                                            memoriaGlobal, resultAddr, '/')
+                self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
+                                              memoriaGlobal, resultAddr, '/')
                 # incrementa el ip
                 self.ip += 1
             elif operacion == 'print':
@@ -264,19 +291,19 @@ class Memoria:
 
     # regresar tipo y addr base
     def __getAddrTypeInfo(self, addr):
-        lastScope = ''
+        lastScope = 'globalAddr'
         lastType = ''
         lastBase = None
         found = False
         result = ()
         for scope, addrBlock in self.addrRange.items():
-            lastScope = scope
             for addrType, base in addrBlock.items():
                 if addr < base:
                     result = (lastScope, lastType, lastBase)
                     found = True
                     break
                 else:
+                    lastScope = scope
                     lastType = addrType
                     lastBase = base
             if found:
