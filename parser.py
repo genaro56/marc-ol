@@ -260,11 +260,26 @@ class MyParser(Parser):
 
     @_('')
     def seen_write(self, p):
-        exp, expTipo = cuadruplos.pilaOperandos.pop()
-        cuadruplos.createQuad('print', None, None, exp)
+        outVal = p[-1]
+        cteAddr = None
+
+        # checa si outVal es CTE_STRING
+        if outVal and isinstance(outVal, str):
+            if tablaCtes.isCteInTable(outVal):
+                cteAddr = tablaCtes.getCte(outVal).getAddr()
+            else:
+                cteAddr = addrCounter.nextConstAddr('char')
+                tablaCtes.addCte(outVal, cteAddr)
+        else:
+            exp, expTipo = cuadruplos.pilaOperandos.pop()
+            cteAddr = exp
+
+        cuadruplos.createQuad('print', None, None, cteAddr)
 
     @_('CTE_STRING', 'expresion')
-    def out(self, p): pass
+    def out(self, p):
+        # regresa o la cte string o None
+        return p[0]
 
     # EXPRESION
     @_('logic_exp seen_rel_exp1',
@@ -746,7 +761,7 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
-    tests = ['./test_op_nolineales/TestIf2.txt']
+    tests = ['./test_programs/TestHelloWorld.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
