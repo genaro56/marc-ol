@@ -184,8 +184,9 @@ class MyParser(Parser):
         addrCounter.resetLocalCounter()
         addrCounter.resetTemporalCounter()
 
-        # genera cuadruplo endfunc
-        cuadruplos.createQuad('endfunc', None, None, None)
+        # genera cuadruplo endfunc si funcion es tipo void
+        if dirFunc.getFuncion(funcId).getType() == 'void':
+            cuadruplos.createQuad('endfunc', None, None, None)
         return
 
     @_('vars seen_start_func bloque', 'seen_start_func bloque')
@@ -566,7 +567,12 @@ class MyParser(Parser):
     @_('')
     def seen_return_exp(self, p):
         exp, expType = cuadruplos.pilaOperandos.pop()
+        
+        # genera operacion de retorno
         cuadruplos.createQuad('return', None, None, exp)
+        
+        # genera operacion endfunc para funciones de tipo distinto a void
+        cuadruplos.createQuad('endfunc', None, None, None)
         pass
 
     # VOID FUNC
@@ -740,7 +746,7 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
-    tests = ['./test_modulos/TestEjecucionVariasFunciones.txt']
+    tests = ['./test_op_nolineales/TestIf2.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
