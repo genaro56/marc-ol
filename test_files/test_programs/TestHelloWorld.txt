@@ -1,0 +1,6 @@
+program patito;
+
+main()
+{
+    write("Hello World");
+}
