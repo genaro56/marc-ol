@@ -151,6 +151,10 @@ class VirtualMachine:
 
                 # cambiar ip (prior to the call)
                 self.ip = memInfo.ip
+            elif operacion == "goto":
+
+                # cambiar ip para hacer el salto
+                self.ip = resultAddr
             elif operacion == "gotof":
                 # obtiene el valor de las addrs
                 operand1Val = self.__getValueFromMemory(
@@ -164,8 +168,14 @@ class VirtualMachine:
                     self.ip += 1
             elif operacion == "<":
                 self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
-                                            memoriaGlobal, resultAddr, '<')
-                
+                                              memoriaGlobal, resultAddr, '<')
+
+                # incrementa el ip
+                self.ip += 1
+            elif operacion == ">":
+                self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
+                                              memoriaGlobal, resultAddr, '>')
+
                 # incrementa el ip
                 self.ip += 1
             elif operacion == '=':
@@ -177,23 +187,23 @@ class VirtualMachine:
                 self.ip += 1
             elif operacion == '+':
                 self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
-                                            memoriaGlobal, resultAddr, '+')
+                                              memoriaGlobal, resultAddr, '+')
                 # incrementa el ip
                 self.ip += 1
             elif operacion == '-':
                 # obtiene el valor de las addrs
                 self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
-                                            memoriaGlobal, resultAddr, '-')
+                                              memoriaGlobal, resultAddr, '-')
                 # incrementa el ip
                 self.ip += 1
             elif operacion == '*':
                 self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
-                                            memoriaGlobal, resultAddr, '*')
+                                              memoriaGlobal, resultAddr, '*')
                 # incrementa el ip
                 self.ip += 1
             elif operacion == '/':
                 self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
-                                            memoriaGlobal, resultAddr, '/')
+                                              memoriaGlobal, resultAddr, '/')
                 # incrementa el ip
                 self.ip += 1
             elif operacion == 'print':
@@ -293,11 +303,11 @@ class Memoria:
                     found = True
                     break
                 else:
+                    lastScope = scope
                     lastType = addrType
                     lastBase = base
             if found:
                 break
-            lastScope = scope
 
         if not found:
             raise Exception(f"Address {addr} not found")
