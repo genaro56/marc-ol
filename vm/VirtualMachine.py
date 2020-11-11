@@ -166,9 +166,15 @@ class VirtualMachine:
                 else:
                     # incrementa el ip
                     self.ip += 1
+            elif operacion == '|':
+                self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
+                                              memoriaGlobal, resultAddr, 'or')
+
+                # incrementa el ip
+                self.ip += 1
             elif operacion == '&':
                 self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
-                                              memoriaGlobal, resultAddr, '&')
+                                              memoriaGlobal, resultAddr, 'and')
 
                 # incrementa el ip
                 self.ip += 1
