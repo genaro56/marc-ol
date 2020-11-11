@@ -1,0 +1,13 @@
+program Ejemplo;
+var
+    int i;
+
+main () 
+{
+    for i = 0 to 9 do
+    {
+        write(i);
+    }
+
+    write(1);
+}
