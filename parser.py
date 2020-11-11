@@ -85,7 +85,7 @@ class MyParser(Parser):
     def var_list(self, p):
         pass
 
-    @_('ID seen_var_name', 'ID seen_var_name "[" CTE_INT "]"', 'ID seen_var_name "[" CTE_INT "]" "[" CTE_INT "]"')
+    @_('ID seen_var_name', 'ID seen_var_name "[" CTE_INT "]" seen_arr_dim', 'ID seen_var_name "[" CTE_INT "]" seen_arr_dim "[" CTE_INT "]" seen_arr_dim')
     def var(self, p):
         # returns tuple from seen_var_name
         return p[1]
