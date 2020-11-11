@@ -125,6 +125,7 @@ class Var():
         self.type = ''
         self.scope = ''
         self.addr = None
+        self.isArray = False
 
     def getType(self):
         return self.type
@@ -140,6 +141,9 @@ class Var():
 
     def setAddr(self, addr):
         self.addr = addr
+
+    def setIsArray(self, isArr):
+        self.isArray = isArr
 
     def getAddr(self):
         return self.addr

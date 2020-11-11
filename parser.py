@@ -85,7 +85,7 @@ class MyParser(Parser):
     def var_list(self, p):
         pass
 
-    @_('ID seen_var_name', 'ID seen_var_name "[" CTE_INT "]" seen_arr_dim', 'ID seen_var_name "[" CTE_INT "]" seen_arr_dim "[" CTE_INT "]" seen_arr_dim')
+    @_('ID seen_var_name', 'ID seen_var_name "[" seen_arr_dim CTE_INT "]" ', 'ID seen_var_name "[" seen_arr_dim CTE_INT "]"  "[" CTE_INT "]"')
     def var(self, p):
         # returns tuple from seen_var_name
         return p[1]
@@ -109,7 +109,15 @@ class MyParser(Parser):
                     varName, varType, nextAdrr)
             else:
                 raise Exception('Variable arleady declared in Table')
-        return (varType, varName, nextAdrr)
+        return (varType, varName, nextAdrr, funcId)
+    
+    @_('')
+    def seen_arr_dim(self, p):
+        _, varName, addr, funcId = p[-2]
+        var = tablaVariables.getVar()
+        var.setIsArray(True)
+        newNode = Tabla
+        
 
     # TIPO
     @_('INT', 'FLOAT', 'CHAR')
@@ -207,7 +215,7 @@ class MyParser(Parser):
 
     @_('')
     def seen_tipo_param(self, p):
-        tipoParam, _, addr = p[-1]
+        tipoParam, _, addr, _ = p[-1]
         funcId = dirFunc.funcStack[-1]
         # agrega el tipo del parametro al signature de la funcion
         dirFunc.getFuncion(funcId).addParamToSig((tipoParam, addr))
@@ -447,7 +455,7 @@ class MyParser(Parser):
        )
     def var_cte(self, p): pass
 
-    @_('ID', 'ID "[" expresion "]"', 'ID "[" expresion "," expresion "]"')
+    @_('ID', 'ID "[" expresion "]"', 'ID "[" expresion "]" "[" expresion "]"')
     def id_dim(self, p):
         ID = p[0]
         funcId = dirFunc.funcStack[-1]
@@ -699,28 +707,28 @@ class MyParser(Parser):
         firstQuadIndex = cuadruplos.pilaSaltos.pop()
         cuadruplos.fillQuadIndex(firstQuadIndex, cuadruplos.counter)
         pass
-    
+
     @_('')
     def seen_end_main(self, p):
         programName = dirFunc.funcStack.pop()
-        
+
         # obtiene el numero de variables globales
         globalVarCounts = addrCounter.getGlobalCounts()
         # obtiene numero de variables temporales en main
         globalTmpVarCounts = addrCounter.getTmpAddrsCount()
-        
+
         # crea una instancia FuncSize y definie contadores de vars
         funcSize = FuncSize()
         funcSize.addGlobalVarCounts(globalVarCounts)
         funcSize.addTempVarCounts(globalTmpVarCounts)
-        
+
         # guarda workspace de funcion global
         dirFunc.getFuncion(programName).setFuncSize(funcSize)
-        
+
         # resetea las direciones locales y temporales
         addrCounter.resetTemporalCounter()
         addrCounter.resetGlobalCounts()
-        
+
         # genera cuadruplo end
         cuadruplos.createQuad('end', None, None, None)
         pass
@@ -740,7 +748,7 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
-    tests = ['./test_modulos/TestEjecucionVariasFunciones.txt']
+    tests = ['./test_modulos/TestEjecucionRecursividad.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
@@ -769,16 +777,16 @@ if __name__ == '__main__':
         print()
         print('---------TEST END---------')
         print()
-        
+
         # EJECUCION
         vm = VirtualMachine()
         # vm recibe inputes necesarios para ejecucion
         vm.setCuadruplos(cuadruplos.pilaCuadruplos)
         vm.setTablaCtes(tablaCtes)
         vm.setDirFunc(dirFunc)
-        # vm recibe rango de direcciones 
+        # vm recibe rango de direcciones
         baseAddrs = addrCounter.exportBaseAddrs()
         vm.setAddrRange(baseAddrs)
-        
+
         print('---------START EXECUTION---------')
         vm.run()
