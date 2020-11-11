@@ -45,7 +45,7 @@ class VirtualMachine:
         else:
             return memoriaStack
 
-    def __generateArithmeticOp(
+    def __executeBinaryOperation(
         self,
         arg1Addr,
         arg2Addr,
@@ -163,7 +163,7 @@ class VirtualMachine:
                     # incrementa el ip
                     self.ip += 1
             elif operacion == "<":
-                self.__generateArithmeticOp(arg1Addr, arg2Addr, memoriaStack,
+                self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
                                             memoriaGlobal, resultAddr, '<')
                 
                 # incrementa el ip
@@ -176,23 +176,23 @@ class VirtualMachine:
                 memoria.saveValue(resultAddr, operand1Val)
                 self.ip += 1
             elif operacion == '+':
-                self.__generateArithmeticOp(arg1Addr, arg2Addr, memoriaStack,
+                self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
                                             memoriaGlobal, resultAddr, '+')
                 # incrementa el ip
                 self.ip += 1
             elif operacion == '-':
                 # obtiene el valor de las addrs
-                self.__generateArithmeticOp(arg1Addr, arg2Addr, memoriaStack,
+                self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
                                             memoriaGlobal, resultAddr, '-')
                 # incrementa el ip
                 self.ip += 1
             elif operacion == '*':
-                self.__generateArithmeticOp(arg1Addr, arg2Addr, memoriaStack,
+                self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
                                             memoriaGlobal, resultAddr, '*')
                 # incrementa el ip
                 self.ip += 1
             elif operacion == '/':
-                self.__generateArithmeticOp(arg1Addr, arg2Addr, memoriaStack,
+                self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
                                             memoriaGlobal, resultAddr, '/')
                 # incrementa el ip
                 self.ip += 1
