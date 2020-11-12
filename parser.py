@@ -176,7 +176,8 @@ class MyParser(Parser):
             node.setM(mDim)
             Range = mDim
             
-        scope = dirFunc.funcStack[-1]
+        funcId = dirFunc.funcStack[-1]
+        scope = dirFunc.dirFunciones[funcId].type
         # checa si la variable pertenece al scope global o local
         if scope == "PROGRAM":
             addrCounter.incrementGlobalAddr(Size, var.type)
