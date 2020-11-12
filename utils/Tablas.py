@@ -60,7 +60,7 @@ class Funcion:
 
     def getStartCuadCounter(self):
         return self.startCuadCounter
-    
+
     def setStartAddress(self, cuadAddr):
         self.startAddress = cuadAddr
 
@@ -88,19 +88,19 @@ class FuncSize:
 
     def addGlobalVarCounts(self, counts):
         self.funcVarCounts['global'] = counts
-        
+
     def getGlobalVarCounts(self):
         return self.funcVarCounts['global']
 
     def addLocalVarCounts(self, counts):
         self.funcVarCounts['local'] = counts
-        
+
     def getLocalVarCounts(self):
         return self.funcVarCounts['local']
 
     def addTempVarCounts(self, counts):
         self.funcVarCounts['temporal'] = counts
-        
+
     def getTempVarCounts(self):
         return self.funcVarCounts['temporal']
 
@@ -126,6 +126,7 @@ class Var():
         self.scope = ''
         self.addr = None
         self.isArray = False
+        self.arrayData = None
 
     def getType(self):
         return self.type
@@ -144,6 +145,10 @@ class Var():
 
     def setIsArray(self, isArr):
         self.isArray = isArr
+    
+    def initArray(self):
+        self.arrayData = Array()
+        return self.arrayData.dimListHead
 
     def getAddr(self):
         return self.addr
@@ -190,6 +195,7 @@ class TablaCtes:
     Tabla de constantes, crea un mapa de
     valor de constante a objeto Cte
     '''
+
     def __init__(self):
         self.cteToAddrMap = dict()
         self.addrToCteMap = dict()
@@ -262,3 +268,43 @@ class TablaParams:
 
     def getAddr(self):
         return self.addr
+
+
+class Node():
+    '''
+    Clase principal para generar el nodo de un arreglo
+    y guardar información sobre sus dimensiones.
+    '''
+    def __init__(self):
+        
+        self.nextNode = None
+        # límites del arreglo
+        self.limInf = None
+        self.limSup = None
+        self.addr = None
+        self.range = 1
+        self.dimension = 1
+
+    def setLimiteInf(self, inf):
+        self.limInf = inf
+
+    def setLimiteSup(self, sup):
+        self.limSup = sup
+
+    def setDimension(self, dim):
+        self.dimension = dim
+
+    def setRange(self, r):
+        self.range = r
+
+    def calculateRange(self):
+        _range = (self.limSup - self.limInf + 1) * self.range
+        self.setRange(_range)
+
+class Array:
+    def __init__(self):
+        self.dimListHead = Node()
+
+    def addNode(self):
+        node = Node()
+        self.nodeListHead.nextNode = node
