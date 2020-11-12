@@ -85,7 +85,7 @@ class MyParser(Parser):
     def var_list(self, p):
         pass
 
-    @_('ID seen_var_name', 'ID seen_var_name "[" seen_arr_dim CTE_INT "]" ', 'ID seen_var_name "[" seen_arr_dim CTE_INT "]"  "[" CTE_INT "]"')
+    @_('ID seen_var_name', 'ID seen_var_name seen_array_start "[" CTE_INT seen_arr_dim "]" array_dims seen_arr_dim_end')
     def var(self, p):
         # returns tuple from seen_var_name
         return p[1]
@@ -110,14 +110,79 @@ class MyParser(Parser):
             else:
                 raise Exception('Variable arleady declared in Table')
         return (varType, varName, nextAdrr, funcId)
-    
+
+    @_('', 'seen_next_dim "[" CTE_INT seen_arr_dim2 "]" array_dims')
+    def array_dims(self, p):
+        pass
+
+    @_('')
+    def seen_array_start(self, p):
+        _, varName, addr, funcId = p[-1]
+        var = dirFunc.getFuncion(funcId).tablaVariables.getVar(varName)
+        var.setIsArray(True)
+        var.initArray()
+        var.arrayData
+        return var
+
     @_('')
     def seen_arr_dim(self, p):
-        _, varName, addr, funcId = p[-2]
-        var = tablaVariables.getVar()
-        var.setIsArray(True)
-        newNode = Tabla
-        
+        _, varName, _, funcId = p[-4]
+        intDimension = p[-1]
+        print('DIM', intDimension)
+        print('NAME', varName)
+        var = dirFunc.getFuncion(funcId).tablaVariables.getVar(varName)
+        # crea un nuevo nodo con los limites
+        nodeHead = var.arrayData.createNode(intDimension)
+        # calcula el rango del nodo actual
+        calculatedRange = nodeHead.calculateRange()
+        # actualiza el rango para el sig.
+        var.arrayData.setCurrentRange(calculatedRange)
+        dirFunc.setTempArrVar(var)
+
+    @_('')
+    def seen_arr_dim2(self, p):
+        var = dirFunc.getTempArrVar()
+        intDimension = p[-1]
+        print('DIM', intDimension)
+        print('NAME', var.name)
+        # crea un nuevo nodo con los limites
+        nodeHead = var.arrayData.createNode(intDimension)
+        # calcula el rango del nodo actual
+        calculatedRange = nodeHead.calculateRange()
+        # actualiza el rango para el sig.
+        var.arrayData.setCurrentRange(calculatedRange)
+        return var
+
+    @_('')
+    def seen_next_dim(self, p):
+        var = dirFunc.getTempArrVar()
+        var.arrayData.setCurrentDim(var.arrayData.currentDim + 1)
+        pass
+
+    @_('')
+    def seen_arr_dim_end(self, p):
+        var = dirFunc.getTempArrVar()
+        nodesList = var.arrayData.nodesList
+
+        dim = 1
+        Range = var.arrayData.currentRange
+        Size = Range
+        offSet = 0
+
+        for node in nodesList:
+            mDim = Range / node.limSup
+            node.setM(mDim)
+            Range = mDim
+            dim = dim + 1
+            
+        scope = dirFunc.funcStack[-1]
+        # checa si la variable pertenece al scope global o local
+        if scope == "PROGRAM":
+            addrCounter.incrementGlobalAddr(Size, var.type)
+        else:
+            addrCounter.incrementLocalAddr(Size, var.type)
+
+        print('NODES', nodesList)
 
     # TIPO
     @_('INT', 'FLOAT', 'CHAR')
@@ -748,7 +813,7 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
-    tests = ['./test_modulos/TestEjecucionRecursividad.txt']
+    tests = ['./test_modulos/TestArreglos1.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")

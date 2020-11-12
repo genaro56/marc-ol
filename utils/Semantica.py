@@ -61,11 +61,14 @@ class AddrGenerator:
         self.globalCounts = {'int': 0, 'float': 0, 'char': 0}
         self.localCounts = {'int': 0, 'float': 0, 'char': 0}
         self.temporalCounts = {'int': 0, 'float': 0, 'char': 0, 'boolean': 0}
-
+        self.arrAddrCounter = 0
         self.counter = copy.deepcopy(self.baseAddr)
         
     def exportBaseAddrs(self):
         return copy.deepcopy(self.baseAddr)
+    
+    def GlobalAddr(self, count, typeVar):
+        self.globalCounts[typeVar] += count
 
     def nextGlobalAddr(self, typeVar):
         self.globalCounts[typeVar] += 1
@@ -81,6 +84,15 @@ class AddrGenerator:
         self.temporalCounts[typeVar] += 1
         nextAddr = self.__getNextAddr('temporalAddr', typeVar)
         return nextAddr
+
+    def incrementTemporalAddr(self, count, typeVar):
+        self.temporalCounts[typeVar] += count
+        
+    def incrementLocalAddr(self, count, typeVar):
+        self.localCounts[typeVar] += count
+
+    def incrementGlobalAddr(self, count, typeVar):
+        self.globalCounts[typeVar] += count
 
     def nextConstAddr(self, typeVar):
         nextAddr = self.__getNextAddr('constAddr', typeVar)
@@ -130,3 +142,6 @@ class AddrGenerator:
 
     def __getBaseCounts(self, countsDict):
         return dict.fromkeys(countsDict, 0)
+
+    def setArrAddrCounter(self, counter):
+        self.arrAddrCounter = counter

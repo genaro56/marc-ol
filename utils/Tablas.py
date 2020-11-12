@@ -13,6 +13,7 @@ class DirFunciones:
         self.tablaGlobal = TablaDeVars()
         self.dirFunciones = dict()
         self.funcStack = []
+        self.tempArrVar = None
 
     def addFuncion(self, name, typeValue):
 
@@ -23,6 +24,12 @@ class DirFunciones:
 
     def getFuncion(self, name):
         return self.dirFunciones[name]
+
+    def setTempArrVar(self, var):
+        self.tempArrVar = var
+
+    def getTempArrVar(self):
+        return self.tempArrVar
 
     def isNameInDir(self, name):
         return name in self.dirFunciones
@@ -125,8 +132,8 @@ class Var():
         self.type = ''
         self.scope = ''
         self.addr = None
-        self.isArray = False
         self.arrayData = None
+        self.isArray = False
 
     def getType(self):
         return self.type
@@ -145,10 +152,9 @@ class Var():
 
     def setIsArray(self, isArr):
         self.isArray = isArr
-    
+
     def initArray(self):
         self.arrayData = Array()
-        return self.arrayData.dimListHead
 
     def getAddr(self):
         return self.addr
@@ -275,15 +281,18 @@ class Node():
     Clase principal para generar el nodo de un arreglo
     y guardar información sobre sus dimensiones.
     '''
+
     def __init__(self):
-        
-        self.nextNode = None
         # límites del arreglo
         self.limInf = None
         self.limSup = None
         self.addr = None
         self.range = 1
         self.dimension = 1
+        self.m = None
+
+    def setM(self, m):
+        self.m = m
 
     def setLimiteInf(self, inf):
         self.limInf = inf
@@ -298,13 +307,29 @@ class Node():
         self.range = r
 
     def calculateRange(self):
-        _range = (self.limSup - self.limInf + 1) * self.range
+        _range = (self.limSup * self.range)
         self.setRange(_range)
+        return _range
+
 
 class Array:
     def __init__(self):
-        self.dimListHead = Node()
+        self.nodesList = []
+        self.currentRange = 1
+        self.currentDim = 1
 
-    def addNode(self):
+    def setCurrentDim(self, dim):
+        self.currentDim = dim
+
+    def setCurrentRange(self, _range):
+        self.currentRange = _range
+
+    def createNode(self, intDimension):
         node = Node()
-        self.nodeListHead.nextNode = node
+        node.setLimiteInf(0)
+        node.setLimiteSup(intDimension)
+        self.nodesList.append(node)
+        return node
+
+    def addNode(self, node):
+        self.nodeListHead.append(node)
