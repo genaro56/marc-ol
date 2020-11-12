@@ -306,8 +306,8 @@ class Node():
     def setRange(self, r):
         self.range = r
 
-    def calculateRange(self):
-        _range = (self.limSup * self.range)
+    def calculateRange(self, currentRange):
+        _range = (self.limSup * currentRange)
         self.setRange(_range)
         return _range
 
