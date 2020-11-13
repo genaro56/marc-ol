@@ -245,6 +245,8 @@ class Memoria:
 
         memoryBlock['temporalAddr'] = self.__getScopeBlock(
             funcSize, 'temporal')
+        memoryBlock['pointerAddr'] = self.__getScopeBlock(
+            funcSize, 'pointer')
         return memoryBlock
 
     def __getScopeBlock(self, funcSize, scope):
@@ -256,6 +258,8 @@ class Memoria:
             varCounts = funcSize.getLocalVarCounts()
         elif scope == 'temporal':
             varCounts = funcSize.getTempVarCounts()
+        elif scope == 'pointer':
+            varCounts = funcSize.getPointerVarCounts()
 
         # define el numero de variables de cada tipo
         intCount = varCounts['int'] if 'int' in varCounts else 0
@@ -281,7 +285,13 @@ class Memoria:
     def getValue(self, addr):
         scope, addrType, base = self.__getAddrTypeInfo(addr)
         memoryBlock = self.typeToBlockMap[scope][addrType]
-        return memoryBlock[addr - base]
+        valueFromMem = memoryBlock[addr - base]
+
+        if scope == 'pointerAddr':
+            val = self.getValue(valueFromMem)
+            return val
+        
+        return valueFromMem
 
     def saveValue(self, addr, value):
         scope, addrType, base = self.__getAddrTypeInfo(addr)

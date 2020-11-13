@@ -90,6 +90,12 @@ class FuncSize:
                 'float': 0,
                 'char': 0,
                 'boolean': 0
+            },
+            'pointer': {
+                'int': 0,
+                'float': 0,
+                'char': 0,
+                'boolean': 0
             }
         }
 
@@ -110,6 +116,12 @@ class FuncSize:
 
     def getTempVarCounts(self):
         return self.funcVarCounts['temporal']
+    
+    def addPointerVarCounts(self, counts):
+        self.funcVarCounts['pointer'] = counts
+        
+    def getPointerVarCounts(self):
+        return self.funcVarCounts['pointer'] 
 
     def getTotalVarCounts(self):
         globalCounts = self.funcVarCounts['global']
@@ -294,11 +306,20 @@ class Node():
     def setM(self, m):
         self.m = m
 
+    def getM(self):
+        return self.m
+
     def setLimiteInf(self, inf):
         self.limInf = inf
+        
+    def getLimiteInf(self):
+        return self.limInf
 
     def setLimiteSup(self, sup):
         self.limSup = sup
+        
+    def getLimiteSup(self):
+        return self.limSup
 
     def setDimension(self, dim):
         self.dimension = dim
@@ -320,6 +341,9 @@ class Array:
 
     def setCurrentDim(self, dim):
         self.currentDim = dim
+        
+    def getCurrentDim(self):
+        return self.currentDim
 
     def setCurrentRange(self, _range):
         self.currentRange = _range

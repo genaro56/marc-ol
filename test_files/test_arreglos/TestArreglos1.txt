@@ -3,9 +3,9 @@ program patito;
 var
     int a, b;
     float result;
-    int arreglo[1][2][3];
+    int arreglo[2][3];
 
 main()
 {
-    
+    arreglo[0][0] = 1;
 }
