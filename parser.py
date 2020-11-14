@@ -1,6 +1,6 @@
 import os
 from utils.Semantica import CuboSemantico, AddrGenerator
-from utils.Tablas import DirFunciones, TablaDeVars, TablaCtes, FuncSize, TablaParams
+from utils.Tablas import DirFunciones, TablaDeVars, TablaCtes, FuncSize, TablaParams, Pointer
 from utils.Cuadruplos import Cuadruplos
 from vm.VirtualMachine import VirtualMachine
 from sly import Parser
@@ -553,9 +553,13 @@ class MyParser(Parser):
             idAddr = varObj.getAddr()
         else:
             raise Exception(f'Error: undefined variable {ID}.')
+        
+        print('ID', ID, cuadruplos.pilaOperandos, p[0], len(p), len(p) == 1)
+        
         # checa que la variable no sea un arreglo
-        if len(p) > 1 and p[1] != '[':
+        if len(p) == 1:
             cuadruplos.pilaOperandos.append((idAddr, varType))
+        
         return (p[0], idAddr, varType)
 
     # 2
@@ -633,8 +637,12 @@ class MyParser(Parser):
         cteAddr = self.getCteAddr(var.getAddr())
         print('cteAddr', cteAddr)
         cuadruplos.createQuad('+', aux1, cteAddr, pointerAddr)
+        
+        newPointer = Pointer()
+        newPointer.setPointerAddr(pointerAddr)
+        
         # introduce a la pila de operandos el addr
-        cuadruplos.pilaOperandos.append((pointerAddr, var.type))
+        cuadruplos.pilaOperandos.append((newPointer, var.type))
         # elimina el fake bottom.
         cuadruplos.pilaOperadores.pop()
 
@@ -878,11 +886,15 @@ class MyParser(Parser):
         globalVarCounts = addrCounter.getGlobalCounts()
         # obtiene numero de variables temporales en main
         globalTmpVarCounts = addrCounter.getTmpAddrsCount()
+        # obtiene el contador global de pointers
+        globalPointerVarCounts = addrCounter.getPointerAddrCount()
 
         # crea una instancia FuncSize y definie contadores de vars
         funcSize = FuncSize()
         funcSize.addGlobalVarCounts(globalVarCounts)
         funcSize.addTempVarCounts(globalTmpVarCounts)
+        # actualiza el contador global de pointers
+        funcSize.addPointerVarCounts(globalPointerVarCounts)
 
         # guarda workspace de funcion global
         dirFunc.getFuncion(programName).setFuncSize(funcSize)
@@ -890,6 +902,7 @@ class MyParser(Parser):
         # resetea las direciones locales y temporales
         addrCounter.resetTemporalCounter()
         addrCounter.resetGlobalCounts()
+        addrCounter.resetPointerCounter()
 
         # genera cuadruplo end
         cuadruplos.createQuad('end', None, None, None)

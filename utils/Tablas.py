@@ -357,3 +357,13 @@ class Array:
 
     def addNode(self, node):
         self.nodeListHead.append(node)
+
+class Pointer:
+    def __init__(self):
+        self.pointerAddr = None
+    
+    def getPointerAddr(self):
+        return self.pointerAddr
+    
+    def setPointerAddr(self, addr):
+        self.pointerAddr = addr

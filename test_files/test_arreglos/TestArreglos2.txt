@@ -1,11 +1,17 @@
 program patito;
 
 var
-    int a, b;
-    int arreglo[2][3];
+    int a, b, i, j;
+    int arreglo[2][2];
 
 main()
 {
-    arreglo[0][0] = 1;
-    write(arreglo[0][0]);
+    write(a);
+
+    for i = 0 < 2 do {
+        for j = 0 < 2 do {
+            arreglo[i][j];
+        }
+    }
+    
 }
