@@ -1,5 +1,4 @@
 from types import SimpleNamespace
-from utils.Tablas import Pointer
 
 
 class VirtualMachine:
@@ -28,17 +27,8 @@ class VirtualMachine:
 
     def __getValueFromMemory(self, addr, memoriaGlobal, memoriaStack,
                              cteTable):
-        
-        # checa si la addr es un puntero
-        if isinstance(addr, Pointer):
-            pointerAddr = addr.getPointerAddr()
-            # utiliza el método recursivo para obtener la memoria del apuntador
-            if pointerAddr < self.addrRange['localAddr']['int']:
-                return memoriaGlobal.getValueFromPointer(pointerAddr)
-            else:
-                return memoriaStack.getValueFromPointer(pointerAddr)
         # checa si addr esta en rango de constantes
-        elif addr >= self.addrRange['constAddr']['int']:
+        if addr >= self.addrRange['constAddr']['int']:
             return self.tablaCtes.getCteFromAddr(addr).getValor()
         # checa si addr esta en rango de globales
         elif addr < self.addrRange['localAddr']['int']:
@@ -46,19 +36,10 @@ class VirtualMachine:
         # addr tiene que estar en rango de locales o temporales
         else:
             return memoriaStack.getValue(addr)
-        
-    def __saveValueToMemory(self, resultAddr, value, memory):
-        if isinstance(resultAddr, Pointer):
-            # obtiene la dirección del apuntador en la instancia.
-            pointerAddr = resultAddr.getPointerAddr()
-            # guarda la dirección utilizando método recursivo para pointers.
-            memory.saveValueToPointerAddr(pointerAddr, value)
-        else:
-            memory.saveValue(resultAddr, value)
 
     def __getMemoryToSaveVal(self, addr, memoriaGlobal, memoriaStack):
         # checa si addr esta en rango de globales
-        if not isinstance(addr, Pointer) and addr < self.addrRange['localAddr']['int']:
+        if addr < self.addrRange['localAddr']['int']:
             return memoriaGlobal
         # addr tiene que estar en rango de locales o temporales
         else:
@@ -79,14 +60,12 @@ class VirtualMachine:
         operand2Val = self.__getValueFromMemory(arg2Addr, memoriaGlobal,
                                                 memoriaStack, self.tablaCtes)
 
-        # print(arg1Addr, arg2Addr)
-        # print(f"{operand1Val} {operator} {operand2Val}")
         # ejecuta la operacion
         result = eval(f"{operand1Val} {operator} {operand2Val}")
+
         # guarda el valor en memoria
         memoria = self.__getMemoryToSaveVal(resultAddr, memoriaGlobal,
                                             memoriaStack)
-        # print('RESULT ADDR', resultAddr)
         memoria.saveValue(resultAddr, result)
 
     def run(self):
@@ -187,8 +166,6 @@ class VirtualMachine:
                 else:
                     # incrementa el ip
                     self.ip += 1
-            elif operacion == "verify":
-                self.ip += 1
             elif operacion == '|':
                 self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
                                               memoriaGlobal, resultAddr, 'or')
@@ -220,13 +197,11 @@ class VirtualMachine:
                 # incrementa el ip
                 self.ip += 1
             elif operacion == '=':
-                # print('en igualacion', arg1Addr, operand1Val)
                 operand1Val = self.__getValueFromMemory(
                     arg1Addr, memoriaGlobal, memoriaStack, self.tablaCtes)
                 memoria = self.__getMemoryToSaveVal(resultAddr, memoriaGlobal,
                                                     memoriaStack)
-                self.__saveValueToMemory(resultAddr, operand1Val, memoria)
-                # memoria.saveValue(resultAddr, operand1Val)
+                memoria.saveValue(resultAddr, operand1Val)
                 self.ip += 1
             elif operacion == '+':
                 self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
@@ -276,7 +251,7 @@ class Memoria:
         self.memType = memType
         self.addrRange = addrRange
         self.typeToBlockMap = self.__buildMemoryBlocks(funcSize)
-        print('Memory block generated', self.typeToBlockMap)
+        # print('Memory block generated', self.typeToBlockMap)
 
     def __buildMemoryBlocks(self, funcSize):
         memoryBlock = dict()
@@ -288,8 +263,6 @@ class Memoria:
 
         memoryBlock['temporalAddr'] = self.__getScopeBlock(
             funcSize, 'temporal')
-        memoryBlock['pointerAddr'] = self.__getScopeBlock(
-            funcSize, 'pointer')
         return memoryBlock
 
     def __getScopeBlock(self, funcSize, scope):
@@ -301,8 +274,6 @@ class Memoria:
             varCounts = funcSize.getLocalVarCounts()
         elif scope == 'temporal':
             varCounts = funcSize.getTempVarCounts()
-        elif scope == 'pointer':
-            varCounts = funcSize.getPointerVarCounts()
 
         # define el numero de variables de cada tipo
         intCount = varCounts['int'] if 'int' in varCounts else 0
@@ -329,32 +300,12 @@ class Memoria:
         scope, addrType, base = self.__getAddrTypeInfo(addr)
         memoryBlock = self.typeToBlockMap[scope][addrType]
         return memoryBlock[addr - base]
-    
-    def getValueFromPointer(self, addr):
-        
-        # ir a addrPointer (que es puntero) y sacar el valor de ahi (valueFromMem)
-        scope, addrType, base = self.__getAddrTypeInfo(addr)
-        memoryBlock = self.typeToBlockMap[scope][addrType]
-        valueFromMem = memoryBlock[addr - base]
-        
-        # ir a valueFromMem y regresar el valor que este ahi
-        valueFromMem = memoryBlock[addr - base]
-        return self.getValue(valueFromMem)
 
     def saveValue(self, addr, value):
         scope, addrType, base = self.__getAddrTypeInfo(addr)
-        # print('in save value', scope, addrType, addr, base, value)
+        # print(scope, addrType, addr, base, value)
         memoryBlock = self.typeToBlockMap[scope][addrType]
         memoryBlock[addr - base] = value
-    
-    def saveValueToPointerAddr(self, addr, value):
-        # ir a addrPointer (que es puntero) y sacar el valor de ahi (valueFromMem)
-        scope, addrType, base = self.__getAddrTypeInfo(addr)
-        memoryBlock = self.typeToBlockMap[scope][addrType]
-        
-        # guarda en la (dereference) addr el value
-        valueFromMem = memoryBlock[addr - base]
-        self.saveValue(valueFromMem, value)
 
     # regresar tipo y addr base
     def __getAddrTypeInfo(self, addr):
