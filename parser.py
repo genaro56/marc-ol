@@ -179,12 +179,13 @@ class MyParser(Parser):
         nodesList = var.arrayData.nodesList
 
         Range = var.arrayData.currentRange
+        # print('range', Range)
         Size = Range
         offSet = 0
 
         for node in nodesList:
             mDim = Range / node.limSup
-            print('M', mDim)
+            # print('M', mDim)
             node.setM(mDim)
             Range = mDim
 
@@ -538,7 +539,7 @@ class MyParser(Parser):
     @_(
         'ID',
         'ID "[" seen_array_access seen_left_paren expresion seen_access_exp "]" seen_right_bracket',
-        'ID "[" seen_array_access seen_left_paren expresion seen_access_exp "]" seen_right_bracket seen_access_next_dim "[" seen_left_paren expresion seen_access_exp "]" seen_right_bracket'
+        'ID "[" seen_array_access seen_left_paren expresion seen_access_exp "]" "[" seen_access_next_dim expresion seen_access_exp "]" seen_right_bracket'
     )
     def id_dim(self, p):
         ID = p[0]
@@ -557,15 +558,22 @@ class MyParser(Parser):
             idAddr = varObj.getAddr()
         else:
             raise Exception(f'Error: undefined variable {ID}.')
-        cuadruplos.pilaOperandos.append((idAddr, varType))
-        # asigna la variable temporal para acceder al arreglo
-        dirFunc.setTempArrVar(varObj)
+        
+        # checa que la variable no sea un arreglo
+        if len(p) > 1 and p[1] != '[':
+            cuadruplos.pilaOperandos.append((idAddr, varType))
         return (p[0], idAddr, varType)
 
     # 2
     @_('')
     def seen_array_access(self, p):
-        var = dirFunc.getTempArrVar()
+        # obtiene la variable del arreglo actual y la guarda en tempArrVar
+        varName = p[-2]
+        funcId = dirFunc.funcStack[-1]
+        var = dirFunc.getFuncion(funcId).tablaVariables.getVar(varName)
+        dirFunc.setTempArrVar(var)
+
+        # define la primera dimesion
         var.arrayData.setCurrentDim(1)
     # 3
     @_('')
@@ -576,9 +584,9 @@ class MyParser(Parser):
 
         # obtener el nodo de la dimension actual
         currDim = var.arrayData.getCurrentDim()
-        print('NODES', var.arrayData.nodesList)
-        print()
-        print('currDim', currDim)
+        # print('NODES', var.arrayData.nodesList)
+        # print('currDim', currDim)
+        # print()
         node = var.arrayData.nodesList[currDim - 1]
         # obtener el limiteinf
         lowerLim = node.getLimiteInf()
@@ -609,7 +617,7 @@ class MyParser(Parser):
             # genera cuadruplo de indexacion de dimensiones
             cuadruplos.createQuad('+', aux1, aux2, tK)
             cuadruplos.pilaOperandos.append((tK, var.type))
-
+            
         pass
     # 4
     @_('')
