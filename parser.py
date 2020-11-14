@@ -167,12 +167,6 @@ class MyParser(Parser):
         var.arrayData.setCurrentRange(calculatedRange)
         return var
 
-    # @_('')
-    # def seen_next_dim(self, p):
-    #     var = dirFunc.getTempArrVar()
-    #     var.arrayData.setCurrentDim(var.arrayData.currentDim + 1)
-    #     pass
-
     @_('')
     def seen_arr_dim_end(self, p):
         var = dirFunc.getTempArrVar()

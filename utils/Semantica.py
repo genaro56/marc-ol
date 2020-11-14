@@ -103,18 +103,20 @@ class AddrGenerator:
         self.counter[scope][typeVar] = nextAddr + 1
         return nextAddr
     
+    def __incrementCounter(self, scope, typeVar, count):
+        self.counter[scope][typeVar] += count
+    
     def incrementGlobalAddr(self, count, typeVar):
-        print()
-        print('count', count)
-        print('typeVar', typeVar)
-        print()
         self.globalCounts[typeVar] += count
+        self.__incrementCounter('globalAddr', typeVar, count)
     
     def incrementLocalAddr(self, count, typeVar):
         self.localCounts[typeVar] += count
+        self.__incrementCounter('localAddr', typeVar, count)
     
     def incrementTemporalAddr(self, count, typeVar):
         self.temporalCounts[typeVar] += count
+        self.__incrementCounter('temporalAddr', typeVar, count)
 
     def getGlobalCounts(self):
         return self.globalCounts

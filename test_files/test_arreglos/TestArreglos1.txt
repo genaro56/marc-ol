@@ -2,8 +2,8 @@ program patito;
 
 var
     int a, b;
-    float result;
     int arreglo[2][3];
+    int arr2[3];
 
 main()
 {
