@@ -51,17 +51,24 @@ class AddrGenerator:
                 'char': 9000,
                 'boolean': 10000
             },
-            'constAddr': {
+            'pointerAddr': {
                 'int': 11000,
                 'float': 12000,
-                'char': 13000
+                'char': 13000,
+                'boolean': 14000
+            },
+            'constAddr': {
+                'int': 15000,
+                'float': 16000,
+                'char': 17000
             }
         }
 
         self.globalCounts = {'int': 0, 'float': 0, 'char': 0}
         self.localCounts = {'int': 0, 'float': 0, 'char': 0}
         self.temporalCounts = {'int': 0, 'float': 0, 'char': 0, 'boolean': 0}
-
+        self.pointerCounts = {'int': 0, 'float': 0, 'char': 0, 'boolean': 0}
+        self.arrAddrCounter = 0
         self.counter = copy.deepcopy(self.baseAddr)
         
     def exportBaseAddrs(self):
@@ -81,6 +88,11 @@ class AddrGenerator:
         self.temporalCounts[typeVar] += 1
         nextAddr = self.__getNextAddr('temporalAddr', typeVar)
         return nextAddr
+        
+    def nextPointerAddr(self, typeVar):
+        self.pointerCounts[typeVar] += 1
+        nextAddr = self.__getNextAddr('pointerAddr', typeVar)
+        return nextAddr
 
     def nextConstAddr(self, typeVar):
         nextAddr = self.__getNextAddr('constAddr', typeVar)
@@ -90,6 +102,21 @@ class AddrGenerator:
         nextAddr = self.counter[scope][typeVar]
         self.counter[scope][typeVar] = nextAddr + 1
         return nextAddr
+    
+    def __incrementCounter(self, scope, typeVar, count):
+        self.counter[scope][typeVar] += count
+    
+    def incrementGlobalAddr(self, count, typeVar):
+        self.globalCounts[typeVar] += count
+        self.__incrementCounter('globalAddr', typeVar, count)
+    
+    def incrementLocalAddr(self, count, typeVar):
+        self.localCounts[typeVar] += count
+        self.__incrementCounter('localAddr', typeVar, count)
+    
+    def incrementTemporalAddr(self, count, typeVar):
+        self.temporalCounts[typeVar] += count
+        self.__incrementCounter('temporalAddr', typeVar, count)
 
     def getGlobalCounts(self):
         return self.globalCounts
@@ -100,10 +127,13 @@ class AddrGenerator:
     def getTmpAddrsCount(self):
         return self.temporalCounts
     
+    def getPointerAddrCount(self):
+        return self.pointerCounts
+    
     def resetGlobalCounts(self):
         self.__resetCounter('globalAddr')
         # reset counts de global vars a 0
-        self.localCounts = self.__getBaseCounts(self.localCounts)
+        self.globalCounts = self.__getBaseCounts(self.globalCounts)
         return
 
     def resetLocalCounter(self):
@@ -116,6 +146,12 @@ class AddrGenerator:
         self.__resetCounter('temporalAddr', hasBool=True)
         # reset counts de tmp vars a 0
         self.temporalCounts = self.__getBaseCounts(self.temporalCounts)
+        return
+
+    def resetPointerCounter(self):
+        self.__resetCounter('pointerAddr', hasBool=True)
+        # reset counts de tmp vars a 0
+        self.pointerCounts = self.__getBaseCounts(self.pointerCounts)
         return
 
     def __resetCounter(self, addrType, hasBool=False):

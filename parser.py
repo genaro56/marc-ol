@@ -1,6 +1,6 @@
 import os
 from utils.Semantica import CuboSemantico, AddrGenerator
-from utils.Tablas import DirFunciones, TablaDeVars, TablaCtes, FuncSize, TablaParams
+from utils.Tablas import DirFunciones, TablaDeVars, TablaCtes, FuncSize, TablaParams, Pointer
 from utils.Cuadruplos import Cuadruplos
 from vm.VirtualMachine import VirtualMachine
 from sly import Parser
@@ -25,6 +25,20 @@ class MyParser(Parser):
         ('left', '+', '-'),
         ('left', '*', '/'),
     )
+    # Helper functions
+
+    def getCteAddr(self, constant):
+        """
+        docstring
+        """
+        if tablaCtes.isCteInTable(constant):
+            cteAddr = tablaCtes.getCte(constant).getAddr()
+        else:
+            cteAddr = addrCounter.nextConstAddr('int')
+            tablaCtes.addCte(constant, cteAddr)
+
+        return cteAddr
+
     # Grammar rules and action
 
     def __init__(self):
@@ -85,7 +99,7 @@ class MyParser(Parser):
     def var_list(self, p):
         pass
 
-    @_('ID seen_var_name', 'ID seen_var_name "[" CTE_INT "]"', 'ID seen_var_name "[" CTE_INT "]" "[" CTE_INT "]"')
+    @_('ID seen_var_name', 'ID seen_var_name seen_array_start "[" CTE_INT seen_arr_dim "]" array_dims seen_arr_dim_end')
     def var(self, p):
         # returns tuple from seen_var_name
         return p[1]
@@ -108,8 +122,74 @@ class MyParser(Parser):
                 dirFunc.dirFunciones[funcId].tablaVariables.addVar(
                     varName, varType, nextAdrr)
             else:
-                raise Exception('Variable arleady declared in Table')
+                raise Exception('ER-1: Variable arleady declared in Table')
         return (varType, varName, nextAdrr)
+
+    @_('empty', '"[" CTE_INT seen_arr_dim2 "]" array_dims')
+    def array_dims(self, p):
+        pass
+
+    @_('')
+    def seen_array_start(self, p):
+        _, varName, addr = p[-1]
+
+        # obtiene la variable y asigna al temporal
+        funcId = dirFunc.funcStack[-1]
+        var = dirFunc.getFuncion(funcId).tablaVariables.getVar(varName)
+        dirFunc.setTempArrVar(var)
+
+        var = dirFunc.getTempArrVar()
+        var.setIsArray(True)
+        var.initArray()
+        return var
+
+    @_('')
+    def seen_arr_dim(self, p):
+        _, varName, _ = p[-4]
+        intDimension = p[-1]
+        var = dirFunc.getTempArrVar()
+        # crea un nuevo nodo con los limites
+        nodeHead = var.arrayData.createNode(intDimension)
+        # calcula el rango del nodo actual
+        calculatedRange = nodeHead.calculateRange(var.arrayData.currentRange)
+        # actualiza el rango para el sig.
+        var.arrayData.setCurrentRange(calculatedRange)
+
+    @_('')
+    def seen_arr_dim2(self, p):
+        var = dirFunc.getTempArrVar()
+        intDimension = p[-1]
+        # crea un nuevo nodo con los limites
+        nodeHead = var.arrayData.createNode(intDimension)
+        # calcula el rango del nodo actual
+        calculatedRange = nodeHead.calculateRange(var.arrayData.currentRange)
+        # actualiza el rango para el sig.
+        var.arrayData.setCurrentRange(calculatedRange)
+        return var
+
+    @_('')
+    def seen_arr_dim_end(self, p):
+        var = dirFunc.getTempArrVar()
+        nodesList = var.arrayData.nodesList
+
+        Range = var.arrayData.currentRange
+        # print('range', Range)
+        Size = Range
+        offSet = 0
+
+        for node in nodesList:
+            mDim = Range / node.limSup
+            # print('M', mDim)
+            node.setM(mDim)
+            Range = mDim
+
+        funcId = dirFunc.funcStack[-1]
+        scope = dirFunc.dirFunciones[funcId].type
+        # checa si la variable pertenece al scope global o local
+        if scope == "PROGRAM":
+            addrCounter.incrementGlobalAddr(Size, var.type)
+        else:
+            addrCounter.incrementLocalAddr(Size, var.type)
 
     # TIPO
     @_('INT', 'FLOAT', 'CHAR')
@@ -162,7 +242,7 @@ class MyParser(Parser):
             dirFunc.funcStack.append(funcName)
         else:
             raise Exception(
-                f'MultipleDeclaration: module {funcName} already defined.')
+                f'ER-2: MultipleDeclaration: module {funcName} already defined.')
         pass
 
     @_('')
@@ -170,11 +250,13 @@ class MyParser(Parser):
         # obtiene el num de vars locales y temps de esta funcion
         localVarCounts = addrCounter.getLocalAddrsCount()
         tmpVarCounts = addrCounter.getTmpAddrsCount()
+        pointerVarCounts = addrCounter.getPointerAddrCount()
 
         # crea una instacia representativa del tamaño de la funcion
         funcSize = FuncSize()
         funcSize.addLocalVarCounts(localVarCounts)
         funcSize.addTempVarCounts(tmpVarCounts)
+        funcSize.addPointerVarCounts(pointerVarCounts)
 
         # guarda el tamaña de la func en el dir de funciones
         funcId = dirFunc.funcStack[-1]
@@ -183,6 +265,7 @@ class MyParser(Parser):
         # resetea las direciones locales y temporales
         addrCounter.resetLocalCounter()
         addrCounter.resetTemporalCounter()
+        addrCounter.resetPointerCounter()
 
         # genera cuadruplo endfunc si funcion es tipo void
         if dirFunc.getFuncion(funcId).getType() == 'void':
@@ -208,7 +291,7 @@ class MyParser(Parser):
 
     @_('')
     def seen_tipo_param(self, p):
-        tipoParam, _, addr = p[-1]
+        tipoParam, _, addr, _ = p[-1]
         funcId = dirFunc.funcStack[-1]
         # agrega el tipo del parametro al signature de la funcion
         dirFunc.getFuncion(funcId).addParamToSig((tipoParam, addr))
@@ -241,6 +324,7 @@ class MyParser(Parser):
     @_('')
     def seen_asignacion(self, p):
         ID, _, _ = p[-3]
+        print(cuadruplos.pilaOperandos)
         exp, exp_tipo = cuadruplos.pilaOperandos.pop()
         var, var_tipo = cuadruplos.pilaOperandos.pop()
         asignacionType = cuboSemantico[(var_tipo, exp_tipo, '=')]
@@ -248,7 +332,7 @@ class MyParser(Parser):
             cuadruplos.createQuad('=', exp, None, var)
         else:
             raise Exception(
-                f"Type mismatch: {ID} of type {var_tipo} cannot match with {exp_tipo}")
+                f"ER-3: Type mismatch: {ID} of type {var_tipo} cannot match with {exp_tipo}")
         pass
 
     # ESCRITURA
@@ -302,7 +386,7 @@ class MyParser(Parser):
                     operator, leftOperand, rightOperand, result)
                 pilaOperandos.append((result, resultType))
             else:
-                raise Exception('Type mismatch')
+                raise Exception('ER-3: Type mismatch')
         pass
 
     @_('')
@@ -329,7 +413,7 @@ class MyParser(Parser):
                     operator, leftOperand, rightOperand, result)
                 pilaOperandos.append((result, resultType))
             else:
-                raise Exception('Type mismatch')
+                raise Exception('ER-3: Type mismatch')
         pass
 
     @_('')
@@ -359,7 +443,7 @@ class MyParser(Parser):
                     operator, leftOperand, rightOperand, result)
                 pilaOperandos.append((result, resultType))
             else:
-                raise Exception('Type mismatch')
+                raise Exception('ER-3: Type mismatch')
         pass
 
     @_('')
@@ -396,7 +480,7 @@ class MyParser(Parser):
                     operator, leftOperand, rightOperand, result)
                 pilaOperandos.append((result, resultType))
             else:
-                raise Exception('Type mismatch')
+                raise Exception('ER-3: Type mismatch')
         pass
 
     @_('')
@@ -428,7 +512,7 @@ class MyParser(Parser):
                     operator, leftOperand, rightOperand, result)
                 pilaOperandos.append((result, resultType))
             else:
-                raise Exception('Type mismatch')
+                raise Exception('ER-3: Type mismatch')
         pass
 
     @_('')
@@ -463,7 +547,11 @@ class MyParser(Parser):
        )
     def var_cte(self, p): pass
 
-    @_('ID', 'ID "[" expresion "]"', 'ID "[" expresion "," expresion "]"')
+    @_(
+        'ID',
+        'ID "[" seen_array_access seen_left_paren expresion seen_access_exp "]" seen_right_bracket',
+        'ID "[" seen_array_access seen_left_paren expresion seen_access_exp "]" "[" seen_access_next_dim expresion seen_access_exp "]" seen_right_bracket'
+    )
     def id_dim(self, p):
         ID = p[0]
         funcId = dirFunc.funcStack[-1]
@@ -481,8 +569,98 @@ class MyParser(Parser):
             idAddr = varObj.getAddr()
         else:
             raise Exception(f'Error: undefined variable {ID}.')
-        cuadruplos.pilaOperandos.append((idAddr, varType))
+        
+        print('ID', ID, cuadruplos.pilaOperandos, p[0], len(p), len(p) == 1)
+        
+        # checa que la variable no sea un arreglo
+        if len(p) == 1:
+            cuadruplos.pilaOperandos.append((idAddr, varType))
+        
         return (p[0], idAddr, varType)
+
+    # 2
+    @_('')
+    def seen_array_access(self, p):
+        # obtiene la variable del arreglo actual y la guarda en tempArrVar
+        varName = p[-2]
+        funcId = dirFunc.funcStack[-1]
+        var = dirFunc.getFuncion(funcId).tablaVariables.getVar(varName)
+        dirFunc.setTempArrVar(var)
+
+        # define la primera dimesion
+        var.arrayData.setCurrentDim(1)
+    # 3
+    @_('')
+    def seen_access_exp(self, p):
+
+        var = dirFunc.getTempArrVar()
+        topOperand, _ = cuadruplos.pilaOperandos[-1]
+
+        # obtener el nodo de la dimension actual
+        currDim = var.arrayData.getCurrentDim()
+        # print('NODES', var.arrayData.nodesList)
+        # print('currDim', currDim)
+        # print()
+        node = var.arrayData.nodesList[currDim - 1]
+        # obtener el limiteinf
+        lowerLim = node.getLimiteInf()
+        # otener el limite sup
+        upperLim = node.getLimiteSup()
+
+        # obtiene la addr de la tabla de ctes
+        lowerLimAddr = self.getCteAddr(lowerLim)
+        upperLimAddr = self.getCteAddr(upperLim)
+
+        cuadruplos.createQuad("verify", topOperand, lowerLimAddr, upperLimAddr)
+        if currDim < len(var.arrayData.nodesList):
+            # obtiene la direccion del auxiliar
+            aux, _ = cuadruplos.pilaOperandos.pop()
+            # # obtiene la direccion del apuntador
+            tJ = addrCounter.nextTemporalAddr(var.type)
+            m = int(node.getM())
+            print('M', m)
+            constantAddrM = self.getCteAddr(m)
+            # genera cuadruplo de indexacion de dimensiones
+            cuadruplos.createQuad('*', aux, constantAddrM, tJ)
+            cuadruplos.pilaOperandos.append((tJ, var.type))
+        if currDim > 1:
+            # obtiene la direccion del auxiliar
+            aux1, _ = cuadruplos.pilaOperandos.pop()
+            aux2, _ = cuadruplos.pilaOperandos.pop()
+            # # obtiene la direccion del apuntador
+            tK = addrCounter.nextTemporalAddr(var.type)
+            # genera cuadruplo de indexacion de dimensiones
+            cuadruplos.createQuad('+', aux1, aux2, tK)
+            cuadruplos.pilaOperandos.append((tK, var.type))
+            
+        pass
+    # 4
+    @_('')
+    def seen_access_next_dim(self, p):
+        var = dirFunc.getTempArrVar()
+        currentDim = var.arrayData.getCurrentDim()
+        var.arrayData.setCurrentDim(currentDim + 1)
+
+    # 5
+    @_('')
+    def seen_right_bracket(self, p):
+        # obtiene la variable temporal asignada al arreglo
+        var = dirFunc.getTempArrVar()
+        aux1, _ = cuadruplos.pilaOperandos.pop()
+        pointerAddr = addrCounter.nextPointerAddr(var.type)
+
+        # calcula el valor constante de la dirección para usarse directamente (addr -> cte).
+        cteAddr = self.getCteAddr(var.getAddr())
+        print('cteAddr', cteAddr)
+        cuadruplos.createQuad('+', aux1, cteAddr, pointerAddr)
+        
+        newPointer = Pointer()
+        newPointer.setPointerAddr(pointerAddr)
+        
+        # introduce a la pila de operandos el addr
+        cuadruplos.pilaOperandos.append((newPointer, var.type))
+        # elimina el fake bottom.
+        cuadruplos.pilaOperadores.pop()
 
     @_('')
     def seen_int_cte(self, p):
@@ -725,28 +903,33 @@ class MyParser(Parser):
         firstQuadIndex = cuadruplos.pilaSaltos.pop()
         cuadruplos.fillQuadIndex(firstQuadIndex, cuadruplos.counter)
         pass
-    
+
     @_('')
     def seen_end_main(self, p):
         programName = dirFunc.funcStack.pop()
-        
+
         # obtiene el numero de variables globales
         globalVarCounts = addrCounter.getGlobalCounts()
         # obtiene numero de variables temporales en main
         globalTmpVarCounts = addrCounter.getTmpAddrsCount()
-        
+        # obtiene el contador global de pointers
+        globalPointerVarCounts = addrCounter.getPointerAddrCount()
+
         # crea una instancia FuncSize y definie contadores de vars
         funcSize = FuncSize()
         funcSize.addGlobalVarCounts(globalVarCounts)
         funcSize.addTempVarCounts(globalTmpVarCounts)
-        
+        # actualiza el contador global de pointers
+        funcSize.addPointerVarCounts(globalPointerVarCounts)
+
         # guarda workspace de funcion global
         dirFunc.getFuncion(programName).setFuncSize(funcSize)
-        
+
         # resetea las direciones locales y temporales
         addrCounter.resetTemporalCounter()
         addrCounter.resetGlobalCounts()
-        
+        addrCounter.resetPointerCounter()
+
         # genera cuadruplo end
         cuadruplos.createQuad('end', None, None, None)
         pass
@@ -766,7 +949,7 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
-    tests = ['./test_op_nolineales/TestIf2.txt']
+    tests = ['./test_arreglos/TestArreglos2.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
@@ -795,16 +978,16 @@ if __name__ == '__main__':
         print()
         print('---------TEST END---------')
         print()
-        
+
         # EJECUCION
         vm = VirtualMachine()
         # vm recibe inputes necesarios para ejecucion
         vm.setCuadruplos(cuadruplos.pilaCuadruplos)
         vm.setTablaCtes(tablaCtes)
         vm.setDirFunc(dirFunc)
-        # vm recibe rango de direcciones 
+        # vm recibe rango de direcciones
         baseAddrs = addrCounter.exportBaseAddrs()
         vm.setAddrRange(baseAddrs)
-        
-        # print('---------START EXECUTION---------')
+
+        print('---------START EXECUTION---------')
         vm.run()
