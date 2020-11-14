@@ -184,8 +184,9 @@ class MyParser(Parser):
         addrCounter.resetLocalCounter()
         addrCounter.resetTemporalCounter()
 
-        # genera cuadruplo endfunc
-        cuadruplos.createQuad('endfunc', None, None, None)
+        # genera cuadruplo endfunc si funcion es tipo void
+        if dirFunc.getFuncion(funcId).getType() == 'void':
+            cuadruplos.createQuad('endfunc', None, None, None)
         return
 
     @_('vars seen_start_func bloque', 'seen_start_func bloque')
@@ -259,11 +260,26 @@ class MyParser(Parser):
 
     @_('')
     def seen_write(self, p):
-        exp, expTipo = cuadruplos.pilaOperandos.pop()
-        cuadruplos.createQuad('print', None, None, exp)
+        outVal = p[-1]
+        cteAddr = None
+
+        # checa si outVal es CTE_STRING
+        if outVal and isinstance(outVal, str):
+            if tablaCtes.isCteInTable(outVal):
+                cteAddr = tablaCtes.getCte(outVal).getAddr()
+            else:
+                cteAddr = addrCounter.nextConstAddr('char')
+                tablaCtes.addCte(outVal, cteAddr)
+        else:
+            exp, expTipo = cuadruplos.pilaOperandos.pop()
+            cteAddr = exp
+
+        cuadruplos.createQuad('print', None, None, cteAddr)
 
     @_('CTE_STRING', 'expresion')
-    def out(self, p): pass
+    def out(self, p):
+        # regresa o la cte string o None
+        return p[0]
 
     # EXPRESION
     @_('logic_exp seen_rel_exp1',
@@ -565,8 +581,18 @@ class MyParser(Parser):
 
     @_('')
     def seen_return_exp(self, p):
+        funcId = dirFunc.funcStack[-1]
+        func = dirFunc.getFuncion(funcId)
+        if func.type == 'void':
+            raise Exception(f'Function TypeMismatch: {funcId} cannot have a return statement.')
+        
         exp, expType = cuadruplos.pilaOperandos.pop()
+        
+        # genera operacion de retorno
         cuadruplos.createQuad('return', None, None, exp)
+        
+        # genera operacion endfunc para funciones de tipo distinto a void
+        cuadruplos.createQuad('endfunc', None, None, None)
         pass
 
     # VOID FUNC
@@ -740,7 +766,7 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
-    tests = ['./test_modulos/TestEjecucionVariasFunciones.txt']
+    tests = ['./test_op_nolineales/TestIf2.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
@@ -780,5 +806,5 @@ if __name__ == '__main__':
         baseAddrs = addrCounter.exportBaseAddrs()
         vm.setAddrRange(baseAddrs)
         
-        print('---------START EXECUTION---------')
+        # print('---------START EXECUTION---------')
         vm.run()

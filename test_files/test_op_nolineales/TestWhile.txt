@@ -4,27 +4,13 @@ var
 
 main () 
 {
+    a = 0;
 
-    if (a + b > c * d) then
+    while (a < 10) do
     {
-        a = b + d;
-    }
-    else
-    {
-        a = d - c;
-    }
-    b = a * c + d;
-
-    if (a + b > c * d) then
-    {
-        a = b + d;
-    }
-    b = a * c;
-
-    while (a > b * c) do
-    {
-        a = a - d;
         write(a);
+        a = a + 1;
     }
-    b = c + a;
+
+    write(1);
 }

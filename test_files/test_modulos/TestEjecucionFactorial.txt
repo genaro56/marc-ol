@@ -1,0 +1,22 @@
+program patito;
+
+var
+    float a;
+
+func
+float module factorial(int a);
+var
+    float f;
+{
+    if (a < 2) then
+    {
+        return(1);
+    }
+    return(a * factorial(a - 1));
+}
+
+main()
+{
+    a = factorial(5);
+    write(a);
+}
