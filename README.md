@@ -80,3 +80,15 @@ Ariel Méndez | A01020690
 - Se agregaron operaciones aritmeticas en funcion de ejecución (+, -, *, /).
 
 - Se agregaron las operaciones para hacer 'PRINT' y 'READ' en ejecución. 
+
+### - Avance no, 6:
+
+- Ejecución
+  - Se agregaron las acciones: (ERA, PARAM, RETURN, ENDFUNC, GOSUB) y su ejecución.
+  - Se agregaron las operacion no-lineales (if, else, while y for).
+  - Ejecución de operaciones relacionales (>, <, |, &).
+  - Se modificó el RETURN para generar las llamadas recursivas.
+- BUGS
+  - Correción de asignación de memoria en semántica.
+- IN PROGRESS
+  - Arrays: Nos falta corregir un bug para la ejecución.
