@@ -6,11 +6,11 @@ var
 
 main()
 {
-    write(a);
-
-    for i = 0 < 2 do {
-        for j = 0 < 2 do {
-            arreglo[i][j];
+    b = 1;
+    for i = 0 to 2 do {
+        for j = 0 to 2 do {
+            arreglo[i][j] = b * (i + j + 1);
+            write(arreglo[i][j]);
         }
     }
     

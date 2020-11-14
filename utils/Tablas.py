@@ -53,6 +53,9 @@ class Funcion:
     def setType(self, typeValue):
         self.type = typeValue
 
+    def getType(self):
+        return self.type
+    
     def setName(self, name):
         self.name = name
 

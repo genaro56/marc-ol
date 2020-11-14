@@ -5,11 +5,11 @@ var
 
 main () 
 { 
-    a = 1;
-    b = 5;
+    a = 5;
+    b = 8;
     c = 3;
 
-    if (a < b) then 
+    if (a == b & b < c | c < a) then 
     {
         write(1);
     }
