@@ -581,6 +581,11 @@ class MyParser(Parser):
 
     @_('')
     def seen_return_exp(self, p):
+        funcId = dirFunc.funcStack[-1]
+        func = dirFunc.getFuncion(funcId)
+        if func.type == 'void':
+            raise Exception(f'Function TypeMismatch: {funcId} cannot have a return statement.')
+        
         exp, expType = cuadruplos.pilaOperandos.pop()
         
         # genera operacion de retorno
@@ -761,7 +766,7 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
-    tests = ['./test_op_nolineales/TestIf.txt']
+    tests = ['./test_op_nolineales/TestIf2.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
@@ -801,5 +806,5 @@ if __name__ == '__main__':
         baseAddrs = addrCounter.exportBaseAddrs()
         vm.setAddrRange(baseAddrs)
         
-        print('---------START EXECUTION---------')
+        # print('---------START EXECUTION---------')
         vm.run()

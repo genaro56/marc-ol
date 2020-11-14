@@ -17,6 +17,6 @@ var
 
 main()
 {
-    a = factorial(4);
+    a = factorial(5);
     write(a);
 }

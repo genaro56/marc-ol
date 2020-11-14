@@ -6,12 +6,12 @@ var
 func
 int module uno(int a);
 {
-    if (1 < 2) then
-    {
+    if (a < 2) then {
         return (2);
+    } else {
+        write("entro al else");
+        return(3);
     }
-
-    return(3);
 }
 
 main () 
@@ -22,7 +22,7 @@ main ()
 
     if (a < b) then 
     {
-        a = uno(1);
+        a = uno(5);
         write(a);
     }
     write(a);
