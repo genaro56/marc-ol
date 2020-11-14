@@ -132,7 +132,7 @@ class MyParser(Parser):
     @_('')
     def seen_array_start(self, p):
         _, varName, addr = p[-1]
-        
+
         # obtiene la variable y asigna al temporal
         funcId = dirFunc.funcStack[-1]
         var = dirFunc.getFuncion(funcId).tablaVariables.getVar(varName)
@@ -323,6 +323,7 @@ class MyParser(Parser):
     @_('')
     def seen_asignacion(self, p):
         ID, _, _ = p[-3]
+        print(cuadruplos.pilaOperandos)
         exp, exp_tipo = cuadruplos.pilaOperandos.pop()
         var, var_tipo = cuadruplos.pilaOperandos.pop()
         asignacionType = cuboSemantico[(var_tipo, exp_tipo, '=')]
@@ -552,7 +553,6 @@ class MyParser(Parser):
             idAddr = varObj.getAddr()
         else:
             raise Exception(f'Error: undefined variable {ID}.')
-        
         # checa que la variable no sea un arreglo
         if len(p) > 1 and p[1] != '[':
             cuadruplos.pilaOperandos.append((idAddr, varType))
@@ -598,6 +598,7 @@ class MyParser(Parser):
             # # obtiene la direccion del apuntador
             tJ = addrCounter.nextTemporalAddr(var.type)
             m = int(node.getM())
+            print('M', m)
             constantAddrM = self.getCteAddr(m)
             # genera cuadruplo de indexacion de dimensiones
             cuadruplos.createQuad('*', aux, constantAddrM, tJ)
@@ -628,7 +629,10 @@ class MyParser(Parser):
         aux1, _ = cuadruplos.pilaOperandos.pop()
         pointerAddr = addrCounter.nextPointerAddr(var.type)
 
-        cuadruplos.createQuad('+', aux1, var.getAddr(), pointerAddr)
+        # calcula el valor constante de la dirección para usarse directamente (addr -> cte).
+        cteAddr = self.getCteAddr(var.getAddr())
+        print('cteAddr', cteAddr)
+        cuadruplos.createQuad('+', aux1, cteAddr, pointerAddr)
         # introduce a la pila de operandos el addr
         cuadruplos.pilaOperandos.append((pointerAddr, var.type))
         # elimina el fake bottom.
@@ -906,7 +910,7 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
-    tests = ['./test_arreglos/TestArreglos1.txt']
+    tests = ['./test_arreglos/TestArreglos2.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
@@ -946,5 +950,5 @@ if __name__ == '__main__':
         baseAddrs = addrCounter.exportBaseAddrs()
         vm.setAddrRange(baseAddrs)
 
-        # print('---------START EXECUTION---------')
-        # vm.run()
+        print('---------START EXECUTION---------')
+        vm.run()

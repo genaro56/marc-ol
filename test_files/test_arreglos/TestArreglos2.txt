@@ -1,0 +1,11 @@
+program patito;
+
+var
+    int a, b;
+    int arreglo[2][3];
+
+main()
+{
+    arreglo[0][0] = 1;
+    write(arreglo[0][0]);
+}

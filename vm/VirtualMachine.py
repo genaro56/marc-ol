@@ -60,6 +60,8 @@ class VirtualMachine:
         operand2Val = self.__getValueFromMemory(arg2Addr, memoriaGlobal,
                                                 memoriaStack, self.tablaCtes)
 
+        print(arg1Addr, arg2Addr)
+        
         # ejecuta la operacion
         result = eval(f"{operand1Val} {operator} {operand2Val}")
 
@@ -166,6 +168,8 @@ class VirtualMachine:
                 else:
                     # incrementa el ip
                     self.ip += 1
+            elif operacion == "verify":
+                self.ip += 1
             elif operacion == "<":
                 self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
                                               memoriaGlobal, resultAddr, '<')
@@ -298,6 +302,9 @@ class Memoria:
         # print(scope, addrType, addr, base, value)
         memoryBlock = self.typeToBlockMap[scope][addrType]
         memoryBlock[addr - base] = value
+        print(scope, addrType, addr, base, value)
+        if scope == "":
+            
 
     # regresar tipo y addr base
     def __getAddrTypeInfo(self, addr):
