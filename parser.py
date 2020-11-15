@@ -5,6 +5,8 @@ from utils.Cuadruplos import Cuadruplos
 from vm.VirtualMachine import VirtualMachine
 from sly import Parser
 from lexer import MyLexer
+from flask import Flask, request
+app = Flask(__name__)
 
 dirFunc = None
 addrCounter = AddrGenerator()
@@ -324,7 +326,7 @@ class MyParser(Parser):
     @_('')
     def seen_asignacion(self, p):
         ID, _, _ = p[-3]
-        print(cuadruplos.pilaOperandos)
+        # print(cuadruplos.pilaOperandos)
         exp, exp_tipo = cuadruplos.pilaOperandos.pop()
         var, var_tipo = cuadruplos.pilaOperandos.pop()
         asignacionType = cuboSemantico[(var_tipo, exp_tipo, '=')]
@@ -570,7 +572,7 @@ class MyParser(Parser):
         else:
             raise Exception(f'Error: undefined variable {ID}.')
         
-        print('ID', ID, cuadruplos.pilaOperandos, p[0], len(p), len(p) == 1)
+        # print('ID', ID, cuadruplos.pilaOperandos, p[0], len(p), len(p) == 1)
         
         # checa que la variable no sea un arreglo
         if len(p) == 1:
@@ -618,7 +620,7 @@ class MyParser(Parser):
             # # obtiene la direccion del apuntador
             tJ = addrCounter.nextTemporalAddr(var.type)
             m = int(node.getM())
-            print('M', m)
+            # print('M', m)
             constantAddrM = self.getCteAddr(m)
             # genera cuadruplo de indexacion de dimensiones
             cuadruplos.createQuad('*', aux, constantAddrM, tJ)
@@ -651,7 +653,7 @@ class MyParser(Parser):
 
         # calcula el valor constante de la dirección para usarse directamente (addr -> cte).
         cteAddr = self.getCteAddr(var.getAddr())
-        print('cteAddr', cteAddr)
+        # print('cteAddr', cteAddr)
         cuadruplos.createQuad('+', aux1, cteAddr, pointerAddr)
         
         newPointer = Pointer()
@@ -945,49 +947,97 @@ class MyParser(Parser):
         else:
             print("Syntax error at EOF")
 
-
-if __name__ == '__main__':
+@app.route('/compile/', methods=['POST'])
+def compile():
+    data = request.get_json()
+    inputText = data['program'].encode().decode()
+    
     parser = MyParser()
     lexer = MyLexer()
-    tests = ['./test_arreglos/TestArreglos2.txt']
-    for file in tests:
-        testFilePath = os.path.abspath(f'test_files/{file}')
-        inputFile = open(testFilePath, "r")
-        inputText = inputFile.read()
-        print(inputText)
+    # LEXER: Lexical Analysis
+    print('\n\nLEXER Analysis:')
+    tokens = lexer.tokenize(inputText)
+    for tok in tokens:
+        print('type=%r, value=%r' % (tok.type, tok.value))
 
-        # LEXER: Lexical Analysis
-        print('\n\nLEXER Analysis:')
-        tokens = lexer.tokenize(inputText)
-        for tok in tokens:
-            print('type=%r, value=%r' % (tok.type, tok.value))
+    # PARSER: Synctactic Analysis
+    print('\n\nPARSER Analysis:')
+    result = parser.parse(lexer.tokenize(inputText))
+    print(result)
 
-        # PARSER: Synctactic Analysis
-        print('\n\nPARSER Analysis:')
-        result = parser.parse(lexer.tokenize(inputText))
-        print(result)
-        inputFile.close()
+    # Print de pilas de cuadruplos
+    for i in range(len(cuadruplos.pilaCuadruplos)):
+        quad = cuadruplos.pilaCuadruplos[i]
+        print(f"{i+1}.- {quad}")
+    print('Pila operandos', cuadruplos.pilaOperandos)
+    print('Pila operadores', cuadruplos.pilaOperadores)
+    print('Pila de saltos', cuadruplos.pilaSaltos)
+    print()
+    print('---------TEST END---------')
+    print()
 
-        # Print de pilas de cuadruplos
-        for i in range(len(cuadruplos.pilaCuadruplos)):
-            quad = cuadruplos.pilaCuadruplos[i]
-            print(f"{i+1}.- {quad}")
-        print('Pila operandos', cuadruplos.pilaOperandos)
-        print('Pila operadores', cuadruplos.pilaOperadores)
-        print('Pila de saltos', cuadruplos.pilaSaltos)
-        print()
-        print('---------TEST END---------')
-        print()
+    # EJECUCION
+    vm = VirtualMachine()
+    # vm recibe inputes necesarios para ejecucion
+    vm.setCuadruplos(cuadruplos.pilaCuadruplos)
+    vm.setTablaCtes(tablaCtes)
+    vm.setDirFunc(dirFunc)
+    # vm recibe rango de direcciones
+    baseAddrs = addrCounter.exportBaseAddrs()
+    vm.setAddrRange(baseAddrs)
 
-        # EJECUCION
-        vm = VirtualMachine()
-        # vm recibe inputes necesarios para ejecucion
-        vm.setCuadruplos(cuadruplos.pilaCuadruplos)
-        vm.setTablaCtes(tablaCtes)
-        vm.setDirFunc(dirFunc)
-        # vm recibe rango de direcciones
-        baseAddrs = addrCounter.exportBaseAddrs()
-        vm.setAddrRange(baseAddrs)
+    print('---------START EXECUTION---------')
+    vm.run()
 
-        print('---------START EXECUTION---------')
-        vm.run()
+    output = vm.getOutputStr()
+    return output
+
+if __name__ == '__main__':
+   app.run()
+
+
+# if __name__ == '__main__':
+#     parser = MyParser()
+#     lexer = MyLexer()
+#     tests = ['./test_arreglos/TestEjecucionModulosArreglos.txt']
+#     for file in tests:
+#         testFilePath = os.path.abspath(f'test_files/{file}')
+#         inputFile = open(testFilePath, "r")
+#         inputText = inputFile.read()
+#         print(inputText)
+
+#         # LEXER: Lexical Analysis
+#         print('\n\nLEXER Analysis:')
+#         tokens = lexer.tokenize(inputText)
+#         for tok in tokens:
+#             print('type=%r, value=%r' % (tok.type, tok.value))
+
+#         # PARSER: Synctactic Analysis
+#         print('\n\nPARSER Analysis:')
+#         result = parser.parse(lexer.tokenize(inputText))
+#         print(result)
+#         inputFile.close()
+
+#         # Print de pilas de cuadruplos
+#         for i in range(len(cuadruplos.pilaCuadruplos)):
+#             quad = cuadruplos.pilaCuadruplos[i]
+#             print(f"{i+1}.- {quad}")
+#         print('Pila operandos', cuadruplos.pilaOperandos)
+#         print('Pila operadores', cuadruplos.pilaOperadores)
+#         print('Pila de saltos', cuadruplos.pilaSaltos)
+#         print()
+#         print('---------TEST END---------')
+#         print()
+
+#         # EJECUCION
+#         vm = VirtualMachine()
+#         # vm recibe inputes necesarios para ejecucion
+#         vm.setCuadruplos(cuadruplos.pilaCuadruplos)
+#         vm.setTablaCtes(tablaCtes)
+#         vm.setDirFunc(dirFunc)
+#         # vm recibe rango de direcciones
+#         baseAddrs = addrCounter.exportBaseAddrs()
+#         vm.setAddrRange(baseAddrs)
+
+#         print('---------START EXECUTION---------')
+#         vm.run()
