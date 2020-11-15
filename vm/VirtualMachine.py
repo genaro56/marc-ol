@@ -185,6 +185,15 @@ class VirtualMachine:
                     # incrementa el ip
                     self.ip += 1
             elif operacion == "verify":
+                expVal = self.__getValueFromMemory(
+                    arg1Addr, memoriaGlobal, memoriaStack, self.tablaCtes)
+                lowerLimVal = self.__getValueFromMemory(
+                    arg2Addr, memoriaGlobal, memoriaStack, self.tablaCtes)
+                upperLimVal = self.__getValueFromMemory(
+                    resultAddr, memoriaGlobal, memoriaStack, self.tablaCtes)
+                # checa que exp de indexacion este dentro de los limites
+                if not (lowerLimVal <= expVal <  upperLimVal):
+                    raise IndexError(f"index {expVal} out of bounds")
                 self.ip += 1
             elif operacion == '|':
                 self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
