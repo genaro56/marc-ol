@@ -79,14 +79,11 @@ class VirtualMachine:
         operand2Val = self.__getValueFromMemory(arg2Addr, memoriaGlobal,
                                                 memoriaStack, self.tablaCtes)
 
-        # print(arg1Addr, arg2Addr)
-        # print(f"{operand1Val} {operator} {operand2Val}")
         # ejecuta la operacion
         result = eval(f"{operand1Val} {operator} {operand2Val}")
         # guarda el valor en memoria
         memoria = self.__getMemoryToSaveVal(resultAddr, memoriaGlobal,
                                             memoriaStack)
-        # print('RESULT ADDR', resultAddr)
         memoria.saveValue(resultAddr, result)
 
     def run(self):
@@ -220,7 +217,6 @@ class VirtualMachine:
                 # incrementa el ip
                 self.ip += 1
             elif operacion == '=':
-                # print('en igualacion', arg1Addr, operand1Val)
                 operand1Val = self.__getValueFromMemory(
                     arg1Addr, memoriaGlobal, memoriaStack, self.tablaCtes)
                 memoria = self.__getMemoryToSaveVal(resultAddr, memoriaGlobal,
@@ -343,7 +339,6 @@ class Memoria:
 
     def saveValue(self, addr, value):
         scope, addrType, base = self.__getAddrTypeInfo(addr)
-        # print('in save value', scope, addrType, addr, base, value)
         memoryBlock = self.typeToBlockMap[scope][addrType]
         memoryBlock[addr - base] = value
     
