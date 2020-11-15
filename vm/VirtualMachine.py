@@ -13,6 +13,7 @@ class VirtualMachine:
         self.tablaCtes = None
         self.dirFunc = None
         self.addrRange = None
+        self.output = []
 
     def setCuadruplos(self, cuadruplos):
         self.cuadruplos = cuadruplos
@@ -25,6 +26,10 @@ class VirtualMachine:
 
     def setAddrRange(self, addrRange):
         self.addrRange = addrRange
+        
+    def getOutputStr(self):
+        listToStr = ' '.join([str(elem) + "\n" for elem in self.output]) 
+        return listToStr
 
     def __getValueFromMemory(self, addr, memoriaGlobal, memoriaStack,
                              cteTable):
@@ -259,7 +264,9 @@ class VirtualMachine:
                                                       memoriaGlobal,
                                                       memoriaStack,
                                                       self.tablaCtes)
-                print('PRINTING... ', resultVal)
+                output = f"PRINTING... {resultVal}"
+                self.output.append(output)
+                print(output)
 
                 self.ip += 1
             elif operacion == 'read':
@@ -281,7 +288,7 @@ class Memoria:
         self.memType = memType
         self.addrRange = addrRange
         self.typeToBlockMap = self.__buildMemoryBlocks(funcSize)
-        print('Memory block generated', self.typeToBlockMap)
+        # print('Memory block generated', self.typeToBlockMap)
 
     def __buildMemoryBlocks(self, funcSize):
         memoryBlock = dict()
