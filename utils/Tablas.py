@@ -13,6 +13,7 @@ class DirFunciones:
         self.tablaGlobal = TablaDeVars()
         self.dirFunciones = dict()
         self.funcStack = []
+        self.tempArrVar = None
 
     def addFuncion(self, name, typeValue):
 
@@ -23,6 +24,12 @@ class DirFunciones:
 
     def getFuncion(self, name):
         return self.dirFunciones[name]
+
+    def setTempArrVar(self, var):
+        self.tempArrVar = var
+
+    def getTempArrVar(self):
+        return self.tempArrVar
 
     def isNameInDir(self, name):
         return name in self.dirFunciones
@@ -63,7 +70,7 @@ class Funcion:
 
     def getStartCuadCounter(self):
         return self.startCuadCounter
-    
+
     def setStartAddress(self, cuadAddr):
         self.startAddress = cuadAddr
 
@@ -86,26 +93,38 @@ class FuncSize:
                 'float': 0,
                 'char': 0,
                 'boolean': 0
+            },
+            'pointer': {
+                'int': 0,
+                'float': 0,
+                'char': 0,
+                'boolean': 0
             }
         }
 
     def addGlobalVarCounts(self, counts):
         self.funcVarCounts['global'] = counts
-        
+
     def getGlobalVarCounts(self):
         return self.funcVarCounts['global']
 
     def addLocalVarCounts(self, counts):
         self.funcVarCounts['local'] = counts
-        
+
     def getLocalVarCounts(self):
         return self.funcVarCounts['local']
 
     def addTempVarCounts(self, counts):
         self.funcVarCounts['temporal'] = counts
-        
+
     def getTempVarCounts(self):
         return self.funcVarCounts['temporal']
+    
+    def addPointerVarCounts(self, counts):
+        self.funcVarCounts['pointer'] = counts
+        
+    def getPointerVarCounts(self):
+        return self.funcVarCounts['pointer'] 
 
     def getTotalVarCounts(self):
         globalCounts = self.funcVarCounts['global']
@@ -128,6 +147,8 @@ class Var():
         self.type = ''
         self.scope = ''
         self.addr = None
+        self.arrayData = None
+        self.isArray = False
 
     def getType(self):
         return self.type
@@ -143,6 +164,12 @@ class Var():
 
     def setAddr(self, addr):
         self.addr = addr
+
+    def setIsArray(self, isArr):
+        self.isArray = isArr
+
+    def initArray(self):
+        self.arrayData = Array()
 
     def getAddr(self):
         return self.addr
@@ -189,6 +216,7 @@ class TablaCtes:
     Tabla de constantes, crea un mapa de
     valor de constante a objeto Cte
     '''
+
     def __init__(self):
         self.cteToAddrMap = dict()
         self.addrToCteMap = dict()
@@ -261,3 +289,84 @@ class TablaParams:
 
     def getAddr(self):
         return self.addr
+
+
+class Node():
+    '''
+    Clase principal para generar el nodo de un arreglo
+    y guardar información sobre sus dimensiones.
+    '''
+
+    def __init__(self):
+        # límites del arreglo
+        self.limInf = None
+        self.limSup = None
+        self.addr = None
+        self.range = 1
+        self.dimension = 1
+        self.m = None
+
+    def setM(self, m):
+        self.m = m
+
+    def getM(self):
+        return self.m
+
+    def setLimiteInf(self, inf):
+        self.limInf = inf
+        
+    def getLimiteInf(self):
+        return self.limInf
+
+    def setLimiteSup(self, sup):
+        self.limSup = sup
+        
+    def getLimiteSup(self):
+        return self.limSup
+
+    def setDimension(self, dim):
+        self.dimension = dim
+
+    def setRange(self, r):
+        self.range = r
+
+    def calculateRange(self, currentRange):
+        _range = (self.limSup * currentRange)
+        self.setRange(_range)
+        return _range
+
+
+class Array:
+    def __init__(self):
+        self.nodesList = []
+        self.currentRange = 1
+        self.currentDim = 1
+
+    def setCurrentDim(self, dim):
+        self.currentDim = dim
+        
+    def getCurrentDim(self):
+        return self.currentDim
+
+    def setCurrentRange(self, _range):
+        self.currentRange = _range
+
+    def createNode(self, intDimension):
+        node = Node()
+        node.setLimiteInf(0)
+        node.setLimiteSup(intDimension)
+        self.nodesList.append(node)
+        return node
+
+    def addNode(self, node):
+        self.nodeListHead.append(node)
+
+class Pointer:
+    def __init__(self):
+        self.pointerAddr = None
+    
+    def getPointerAddr(self):
+        return self.pointerAddr
+    
+    def setPointerAddr(self, addr):
+        self.pointerAddr = addr
