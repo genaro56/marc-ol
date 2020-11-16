@@ -512,6 +512,7 @@ class MyParser(Parser):
        'factor seen_factor "*" seen_oper_mult termino',
        'factor seen_factor "/" seen_oper_div termino',
        'factor seen_factor "%" seen_oper_mod termino',
+       'factor seen_factor INTDIVISION seen_oper_intdiv termino'
        )
     def termino(self, p): pass
 
@@ -544,6 +545,10 @@ class MyParser(Parser):
     @_('')
     def seen_oper_mod(self, p):
         cuadruplos.pilaOperadores.append("%")
+    
+    @_('')
+    def seen_oper_intdiv(self, p):
+        cuadruplos.pilaOperadores.append("//")
 
     @_('"(" seen_left_paren expresion ")" seen_right_paren',
        'var_cte',

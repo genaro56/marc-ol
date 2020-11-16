@@ -8,6 +8,6 @@ main ()
     b = 5;
     if (a != b) then
     {
-        write(7 % 4);
+        write(9 // 4);
     }
 }
