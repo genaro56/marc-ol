@@ -19,7 +19,9 @@ class MyLexer(Lexer):
         # condicionales
         '&', '|',
         '>', '<',
-        '!'
+        '!',
+        # mod
+        '%'
     }
 
     tokens = {

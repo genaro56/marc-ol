@@ -275,6 +275,13 @@ class VirtualMachine:
             elif operacion == '/':
                 self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
                                               memoriaGlobal, resultAddr, '/')
+                
+                # incrementa el ip
+                self.ip += 1
+            elif operacion == '%':
+                self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
+                                              memoriaGlobal, resultAddr, '%')
+                
                 # incrementa el ip
                 self.ip += 1
             elif operacion == 'print':

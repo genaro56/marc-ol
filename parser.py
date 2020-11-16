@@ -511,6 +511,7 @@ class MyParser(Parser):
     @_('factor seen_factor',
        'factor seen_factor "*" seen_oper_mult termino',
        'factor seen_factor "/" seen_oper_div termino',
+       'factor seen_factor "%" seen_oper_mod termino',
        )
     def termino(self, p): pass
 
@@ -518,7 +519,7 @@ class MyParser(Parser):
     def seen_factor(self, p):
         pilaOperadores = cuadruplos.pilaOperadores
         pilaOperandos = cuadruplos.pilaOperandos
-        if len(pilaOperadores) > 0 and (pilaOperadores[-1] == "*" or pilaOperadores[-1] == "/"):
+        if len(pilaOperadores) > 0 and (pilaOperadores[-1] == "*" or pilaOperadores[-1] == "/", pilaOperadores[-1] == "%"):
             rightOperand, rightType = pilaOperandos.pop()
             leftOperand, leftType = pilaOperandos.pop()
             operator = pilaOperadores.pop()
@@ -539,6 +540,10 @@ class MyParser(Parser):
     @_('')
     def seen_oper_div(self, p):
         cuadruplos.pilaOperadores.append("/")
+        
+    @_('')
+    def seen_oper_mod(self, p):
+        cuadruplos.pilaOperadores.append("%")
 
     @_('"(" seen_left_paren expresion ")" seen_right_paren',
        'var_cte',
