@@ -5,8 +5,8 @@ var
 main () 
 {
     a = 4;
-    b = 3;
-    if (a <= b) then
+    b = 4;
+    if (a != b) then
     {
         write(a, b);
     }

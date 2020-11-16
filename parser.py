@@ -428,6 +428,7 @@ class MyParser(Parser):
        'exp LESSEQUAL seen_oper_menor_igual exp seen_exp',
        'exp GREATEREQUAL seen_oper_mayor_igual exp seen_exp',
        'exp EQUALS seen_oper_equals exp seen_exp',
+       'exp NOTEQUAL seen_oper_notequal exp seen_exp',
        )
     def relation_exp(self, p): pass
 
@@ -436,7 +437,7 @@ class MyParser(Parser):
         pilaOperadores = cuadruplos.pilaOperadores
         pilaOperandos = cuadruplos.pilaOperandos
         # TODO: extract this to a function.
-        if len(pilaOperadores) > 0 and (pilaOperadores[-1] in set(['<', '>', '==', '>=', '<='])):
+        if len(pilaOperadores) > 0 and (pilaOperadores[-1] in set(['<', '>', '==', '>=', '<=', '!='])):
             rightOperand, rightType = pilaOperandos.pop()
             leftOperand, leftType = pilaOperandos.pop()
             operator = pilaOperadores.pop()
@@ -469,6 +470,10 @@ class MyParser(Parser):
     @_('')
     def seen_oper_equals(self, p):
         cuadruplos.pilaOperadores.append("==")
+        
+    @_('')
+    def seen_oper_notequal(self, p):
+        cuadruplos.pilaOperadores.append("!=")
 
     @_(
         'termino seen_termino "+" seen_oper_suma exp',
@@ -810,6 +815,7 @@ class MyParser(Parser):
 
     @_('')
     def seen_gotof(self, p):
+        print(cuadruplos.pilaOperandos)
         result, resultType = cuadruplos.pilaOperandos.pop()
         if resultType != 'boolean':
             raise Exception('Type mismatch.')

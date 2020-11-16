@@ -29,7 +29,8 @@ class MyLexer(Lexer):
         INT, FLOAT, CHAR, VOID,
         PROGRAM,
         VAR, FUNC, EQUALS, GREATEREQUAL,
-        LESSEQUAL, DO, THEN, MODULE,
+        LESSEQUAL, DO, THEN, 
+        MODULE, NOTEQUAL,
         FOR, WHILE, TO, 
         READ, WRITE,
         MAIN, RETURN
@@ -39,6 +40,7 @@ class MyLexer(Lexer):
     EQUALS = r'=='
     GREATEREQUAL = r'>='
     LESSEQUAL = r'<='
+    NOTEQUAL = r'!='
 
     @_(r'\d+\.\d+')
     def CTE_FLOAT(self, t):
