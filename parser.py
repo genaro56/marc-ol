@@ -293,7 +293,7 @@ class MyParser(Parser):
 
     @_('')
     def seen_tipo_param(self, p):
-        tipoParam, _, addr, _ = p[-1]
+        tipoParam, _, addr = p[-1]
         funcId = dirFunc.funcStack[-1]
         # agrega el tipo del parametro al signature de la funcion
         dirFunc.getFuncion(funcId).addParamToSig((tipoParam, addr))
@@ -520,7 +520,7 @@ class MyParser(Parser):
     def seen_factor(self, p):
         pilaOperadores = cuadruplos.pilaOperadores
         pilaOperandos = cuadruplos.pilaOperandos
-        if len(pilaOperadores) > 0 and (pilaOperadores[-1] == "*" or pilaOperadores[-1] == "/", pilaOperadores[-1] == "%"):
+        if len(pilaOperadores) > 0 and (pilaOperadores[-1] in set(['*', '/', '%', '//'])):
             rightOperand, rightType = pilaOperandos.pop()
             leftOperand, leftType = pilaOperandos.pop()
             operator = pilaOperadores.pop()
@@ -1025,7 +1025,8 @@ class MyParser(Parser):
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
-    tests = ['./test_operadores/TestOperRel2.txt']
+    # './test_sort/TestInsertionSort.txt'
+    tests = ['./test_sort/TestInsertionSort.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
@@ -1066,4 +1067,4 @@ if __name__ == '__main__':
         vm.setAddrRange(baseAddrs)
 
         print('---------START EXECUTION---------')
-        vm.run()
+        # vm.run()
