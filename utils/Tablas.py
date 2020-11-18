@@ -363,6 +363,7 @@ class Array:
 
 class Pointer:
     def __init__(self):
+        self.baseAddr = None
         self.pointerAddr = None
     
     def getPointerAddr(self):
@@ -370,3 +371,9 @@ class Pointer:
     
     def setPointerAddr(self, addr):
         self.pointerAddr = addr
+        
+    def setBaseAddr(self, addr):
+        self.baseAddr = addr
+        
+    def getBaseAddr(self):
+        return self.baseAddr

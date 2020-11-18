@@ -40,6 +40,30 @@ class MyParser(Parser):
             tablaCtes.addCte(constant, cteAddr)
 
         return cteAddr
+    
+    def getVarInfo(self, funcId, ID):
+        """
+        Regresa una tupla de tres valores: varible, tipo, addr
+        o un error en caso de que no este definida
+        """
+        varTable = dirFunc.getFuncion(funcId).tablaVariables
+        varType = idAddr = None
+        globalVarTable = dirFunc.getFuncion(dirFunc.programName).tablaVariables
+        
+        # checa si la variable esta en la tabla local o global
+        if varTable.isVarInTable(ID):
+            varObj = varTable.getVar(ID)
+            varType = varObj.getType()
+            idAddr = varObj.getAddr()
+        elif globalVarTable.isVarInTable(ID):
+            varObj = varTable.getGlobalVarTable().getVar(ID)
+            varType = varObj.getType()
+            idAddr = varObj.getAddr()
+        else:
+            raise Exception(f'Error: undefined variable {ID}.')
+        
+        return (varObj, varType, idAddr)
+        
 
     # Grammar rules and action
 
@@ -611,7 +635,9 @@ class MyParser(Parser):
         # obtiene la variable del arreglo actual y la guarda en tempArrVar
         varName = p[-2]
         funcId = dirFunc.funcStack[-1]
-        var = dirFunc.getFuncion(funcId).tablaVariables.getVar(varName)
+        
+        # obtiene la variable del arreglo actual
+        var, _, _ = self.getVarInfo(funcId, varName)
         dirFunc.setTempArrVar(var)
 
         # define la primera dimesion
@@ -674,17 +700,23 @@ class MyParser(Parser):
         # obtiene la variable temporal asignada al arreglo
         var = dirFunc.getTempArrVar()
         aux1, _ = cuadruplos.pilaOperandos.pop()
+        
+        # obtiene addr base del arreglo
+        arrayBaseAddr = var.getAddr()
+        # obtiene siguiete addr de tipo puntero
         pointerAddr = addrCounter.nextPointerAddr(var.type)
+        
+        # crear una instancia de Puntero para guardar addrs del arreglo
+        newPointer = Pointer()
+        newPointer.setBaseAddr(arrayBaseAddr)
+        newPointer.setPointerAddr(pointerAddr)
 
         # calcula el valor constante de la dirección para usarse directamente (addr -> cte).
-        cteAddr = self.getCteAddr(var.getAddr())
+        cteAddr = self.getCteAddr(arrayBaseAddr)
         # print('cteAddr', cteAddr)
         cuadruplos.createQuad('+', aux1, cteAddr, pointerAddr)
         
-        newPointer = Pointer()
-        newPointer.setPointerAddr(pointerAddr)
-        
-        # introduce a la pila de operandos el addr
+        # introduce a la pila de operandos el objeto puntero
         cuadruplos.pilaOperandos.append((newPointer, var.type))
         # elimina el fake bottom.
         cuadruplos.pilaOperadores.pop()
@@ -1026,7 +1058,7 @@ if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
     # './test_sort/TestInsertionSort.txt'
-    tests = ['./test_sort/TestInsertionSort.txt']
+    tests = ['./test_arreglos/TestEjecucionArrGlobal.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
@@ -1067,4 +1099,4 @@ if __name__ == '__main__':
         vm.setAddrRange(baseAddrs)
 
         print('---------START EXECUTION---------')
-        # vm.run()
+        vm.run()
