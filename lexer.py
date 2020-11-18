@@ -19,7 +19,9 @@ class MyLexer(Lexer):
         # condicionales
         '&', '|',
         '>', '<',
-        '!'
+        '!',
+        # mod
+        '%'
     }
 
     tokens = {
@@ -28,7 +30,9 @@ class MyLexer(Lexer):
         IF, ELSE,
         INT, FLOAT, CHAR, VOID,
         PROGRAM,
-        VAR, FUNC, EQUALS, DO, THEN, MODULE,
+        VAR, FUNC, EQUALS, GREATEREQUAL,
+        LESSEQUAL, DO, THEN, 
+        MODULE, NOTEQUAL, INTDIVISION,
         FOR, WHILE, TO, 
         READ, WRITE,
         MAIN, RETURN
@@ -36,6 +40,10 @@ class MyLexer(Lexer):
 
     ignore = ' \t'
     EQUALS = r'=='
+    GREATEREQUAL = r'>='
+    LESSEQUAL = r'<='
+    NOTEQUAL = r'!='
+    INTDIVISION = r'//'
 
     @_(r'\d+\.\d+')
     def CTE_FLOAT(self, t):

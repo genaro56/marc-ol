@@ -5,6 +5,8 @@ from utils.Cuadruplos import Cuadruplos
 from vm.VirtualMachine import VirtualMachine
 from sly import Parser
 from lexer import MyLexer
+from flask import Flask, request
+app = Flask(__name__)
 
 dirFunc = None
 addrCounter = AddrGenerator()
@@ -291,7 +293,7 @@ class MyParser(Parser):
 
     @_('')
     def seen_tipo_param(self, p):
-        tipoParam, _, addr, _ = p[-1]
+        tipoParam, _, addr = p[-1]
         funcId = dirFunc.funcStack[-1]
         # agrega el tipo del parametro al signature de la funcion
         dirFunc.getFuncion(funcId).addParamToSig((tipoParam, addr))
@@ -324,7 +326,7 @@ class MyParser(Parser):
     @_('')
     def seen_asignacion(self, p):
         ID, _, _ = p[-3]
-        print(cuadruplos.pilaOperandos)
+        # print(cuadruplos.pilaOperandos)
         exp, exp_tipo = cuadruplos.pilaOperandos.pop()
         var, var_tipo = cuadruplos.pilaOperandos.pop()
         asignacionType = cuboSemantico[(var_tipo, exp_tipo, '=')]
@@ -423,7 +425,10 @@ class MyParser(Parser):
     @_('exp seen_exp',
        'exp "<" seen_oper_menor exp seen_exp',
        'exp ">" seen_oper_mayor exp seen_exp',
+       'exp LESSEQUAL seen_oper_menor_igual exp seen_exp',
+       'exp GREATEREQUAL seen_oper_mayor_igual exp seen_exp',
        'exp EQUALS seen_oper_equals exp seen_exp',
+       'exp NOTEQUAL seen_oper_notequal exp seen_exp',
        )
     def relation_exp(self, p): pass
 
@@ -432,7 +437,7 @@ class MyParser(Parser):
         pilaOperadores = cuadruplos.pilaOperadores
         pilaOperandos = cuadruplos.pilaOperandos
         # TODO: extract this to a function.
-        if len(pilaOperadores) > 0 and (pilaOperadores[-1] in set(['<', '>', '=='])):
+        if len(pilaOperadores) > 0 and (pilaOperadores[-1] in set(['<', '>', '==', '>=', '<=', '!='])):
             rightOperand, rightType = pilaOperandos.pop()
             leftOperand, leftType = pilaOperandos.pop()
             operator = pilaOperadores.pop()
@@ -453,10 +458,22 @@ class MyParser(Parser):
     @_('')
     def seen_oper_mayor(self, p):
         cuadruplos.pilaOperadores.append(">")
+    
+    @_('')
+    def seen_oper_menor_igual(self, p):
+        cuadruplos.pilaOperadores.append("<=")
+    
+    @_('')
+    def seen_oper_mayor_igual(self, p):
+        cuadruplos.pilaOperadores.append(">=")
 
     @_('')
     def seen_oper_equals(self, p):
         cuadruplos.pilaOperadores.append("==")
+        
+    @_('')
+    def seen_oper_notequal(self, p):
+        cuadruplos.pilaOperadores.append("!=")
 
     @_(
         'termino seen_termino "+" seen_oper_suma exp',
@@ -494,6 +511,8 @@ class MyParser(Parser):
     @_('factor seen_factor',
        'factor seen_factor "*" seen_oper_mult termino',
        'factor seen_factor "/" seen_oper_div termino',
+       'factor seen_factor "%" seen_oper_mod termino',
+       'factor seen_factor INTDIVISION seen_oper_intdiv termino'
        )
     def termino(self, p): pass
 
@@ -501,7 +520,7 @@ class MyParser(Parser):
     def seen_factor(self, p):
         pilaOperadores = cuadruplos.pilaOperadores
         pilaOperandos = cuadruplos.pilaOperandos
-        if len(pilaOperadores) > 0 and (pilaOperadores[-1] == "*" or pilaOperadores[-1] == "/"):
+        if len(pilaOperadores) > 0 and (pilaOperadores[-1] in set(['*', '/', '%', '//'])):
             rightOperand, rightType = pilaOperandos.pop()
             leftOperand, leftType = pilaOperandos.pop()
             operator = pilaOperadores.pop()
@@ -522,6 +541,14 @@ class MyParser(Parser):
     @_('')
     def seen_oper_div(self, p):
         cuadruplos.pilaOperadores.append("/")
+        
+    @_('')
+    def seen_oper_mod(self, p):
+        cuadruplos.pilaOperadores.append("%")
+    
+    @_('')
+    def seen_oper_intdiv(self, p):
+        cuadruplos.pilaOperadores.append("//")
 
     @_('"(" seen_left_paren expresion ")" seen_right_paren',
        'var_cte',
@@ -570,7 +597,7 @@ class MyParser(Parser):
         else:
             raise Exception(f'Error: undefined variable {ID}.')
         
-        print('ID', ID, cuadruplos.pilaOperandos, p[0], len(p), len(p) == 1)
+        # print('ID', ID, cuadruplos.pilaOperandos, p[0], len(p), len(p) == 1)
         
         # checa que la variable no sea un arreglo
         if len(p) == 1:
@@ -618,7 +645,7 @@ class MyParser(Parser):
             # # obtiene la direccion del apuntador
             tJ = addrCounter.nextTemporalAddr(var.type)
             m = int(node.getM())
-            print('M', m)
+            # print('M', m)
             constantAddrM = self.getCteAddr(m)
             # genera cuadruplo de indexacion de dimensiones
             cuadruplos.createQuad('*', aux, constantAddrM, tJ)
@@ -651,7 +678,7 @@ class MyParser(Parser):
 
         # calcula el valor constante de la dirección para usarse directamente (addr -> cte).
         cteAddr = self.getCteAddr(var.getAddr())
-        print('cteAddr', cteAddr)
+        # print('cteAddr', cteAddr)
         cuadruplos.createQuad('+', aux1, cteAddr, pointerAddr)
         
         newPointer = Pointer()
@@ -798,6 +825,7 @@ class MyParser(Parser):
 
     @_('')
     def seen_gotof(self, p):
+        print(cuadruplos.pilaOperandos)
         result, resultType = cuadruplos.pilaOperandos.pop()
         if resultType != 'boolean':
             raise Exception('Type mismatch.')
@@ -945,11 +973,60 @@ class MyParser(Parser):
         else:
             print("Syntax error at EOF")
 
+# @app.route('/compile/', methods=['POST'])
+# def compile():
+#     data = request.get_json()
+#     inputText = data['program'].encode().decode()
+    
+#     parser = MyParser()
+#     lexer = MyLexer()
+#     # LEXER: Lexical Analysis
+#     print('\n\nLEXER Analysis:')
+#     tokens = lexer.tokenize(inputText)
+#     for tok in tokens:
+#         print('type=%r, value=%r' % (tok.type, tok.value))
+
+#     # PARSER: Synctactic Analysis
+#     print('\n\nPARSER Analysis:')
+#     result = parser.parse(lexer.tokenize(inputText))
+#     print(result)
+
+#     # Print de pilas de cuadruplos
+#     for i in range(len(cuadruplos.pilaCuadruplos)):
+#         quad = cuadruplos.pilaCuadruplos[i]
+#         print(f"{i+1}.- {quad}")
+#     print('Pila operandos', cuadruplos.pilaOperandos)
+#     print('Pila operadores', cuadruplos.pilaOperadores)
+#     print('Pila de saltos', cuadruplos.pilaSaltos)
+#     print()
+#     print('---------TEST END---------')
+#     print()
+
+#     # EJECUCION
+#     vm = VirtualMachine()
+#     # vm recibe inputes necesarios para ejecucion
+#     vm.setCuadruplos(cuadruplos.pilaCuadruplos)
+#     vm.setTablaCtes(tablaCtes)
+#     vm.setDirFunc(dirFunc)
+#     # vm recibe rango de direcciones
+#     baseAddrs = addrCounter.exportBaseAddrs()
+#     vm.setAddrRange(baseAddrs)
+
+#     print('---------START EXECUTION---------')
+#     vm.run()
+
+#     output = vm.getOutputStr()
+#     return output
+
+# if __name__ == '__main__':
+#    app.run()
+
 
 if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
-    tests = ['./test_arreglos/TestArreglos2.txt']
+    # './test_sort/TestInsertionSort.txt'
+    tests = ['./test_sort/TestInsertionSort.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
@@ -990,4 +1067,4 @@ if __name__ == '__main__':
         vm.setAddrRange(baseAddrs)
 
         print('---------START EXECUTION---------')
-        vm.run()
+        # vm.run()
