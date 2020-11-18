@@ -1058,7 +1058,7 @@ if __name__ == '__main__':
     parser = MyParser()
     lexer = MyLexer()
     # './test_sort/TestInsertionSort.txt'
-    tests = ['./test_sort/TestInsertionSort.txt']
+    tests = ['./test_sort/TestBubbleSort.txt']
     for file in tests:
         testFilePath = os.path.abspath(f'test_files/{file}')
         inputFile = open(testFilePath, "r")
