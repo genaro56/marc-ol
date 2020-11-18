@@ -36,12 +36,18 @@ class VirtualMachine:
         
         # checa si la addr es un puntero
         if isinstance(addr, Pointer):
+            baseAddr = addr.getBaseAddr()
             pointerAddr = addr.getPointerAddr()
+            
+            realAddr = memoriaStack.getValue(pointerAddr)
+            
             # utiliza el método recursivo para obtener la memoria del apuntador
-            if pointerAddr < self.addrRange['localAddr']['int']:
-                return memoriaGlobal.getValueFromPointer(pointerAddr)
+            if baseAddr < self.addrRange['localAddr']['int']:
+                # return memoriaGlobal.getValueFromPointer(pointerAddr)
+                return memoriaGlobal.getValue(realAddr)
             else:
-                return memoriaStack.getValueFromPointer(pointerAddr)
+                # return memoriaStack.getValueFromPointer(pointerAddr)
+                return memoriaStack.getValue(realAddr)
         # checa si addr esta en rango de constantes
         elif addr >= self.addrRange['constAddr']['int']:
             return self.tablaCtes.getCteFromAddr(addr).getValor()
@@ -251,10 +257,22 @@ class VirtualMachine:
             elif operacion == '=':
                 operand1Val = self.__getValueFromMemory(
                     arg1Addr, memoriaGlobal, memoriaStack, self.tablaCtes)
-                memoria = self.__getMemoryToSaveVal(resultAddr, memoriaGlobal,
+                
+                # si es puntero, con la dir de ese puntero tenenmos que obtener la verdadera dir y eso seria de la memoria del stack
+                if isinstance(resultAddr, Pointer):
+                    baseDir = resultAddr.getBaseAddr()
+                    pointerAddr = resultAddr.getPointerAddr()
+                    
+                    realAddr = memoriaStack.getValue(pointerAddr)
+                    
+                    memoria = self.__getMemoryToSaveVal(baseDir, memoriaGlobal,
                                                     memoriaStack)
-                self.__saveValueToMemory(resultAddr, operand1Val, memoria)
-                # memoria.saveValue(resultAddr, operand1Val)
+                    # ya con la verdader dir tenemos que guardar el valor al estilo saveValue(verdaderadir, valor)
+                    memoria.saveValue(realAddr, operand1Val)
+                else:
+                    memoria = self.__getMemoryToSaveVal(resultAddr, memoriaGlobal,
+                                                        memoriaStack)
+                    memoria.saveValue(resultAddr, operand1Val)
                 self.ip += 1
             elif operacion == '+':
                 self.__executeBinaryOperation(arg1Addr, arg2Addr, memoriaStack,
@@ -393,7 +411,6 @@ class Memoria:
         # ir a addrPointer (que es puntero) y sacar el valor de ahi (valueFromMem)
         scope, addrType, base = self.__getAddrTypeInfo(addr)
         memoryBlock = self.typeToBlockMap[scope][addrType]
-        
         # guarda en la (dereference) addr el value
         valueFromMem = memoryBlock[addr - base]
         self.saveValue(valueFromMem, value)
