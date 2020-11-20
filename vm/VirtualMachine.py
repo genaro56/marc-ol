@@ -319,12 +319,29 @@ class VirtualMachine:
 
                 self.ip += 1
             elif operacion == 'read':
-                # resultVal = self.__getValueFromMemory(
-                #     resultAddr, memoriaGlobal, memoriaStack, self.tablaCtes
-                # )
+
                 print('READING... ')
                 readValue = input()
-                memoria.saveValue(resultAddr, readValue)
+                
+                # checa si resultAddr es un puntero
+                if isinstance(resultAddr, Pointer):
+                    baseDir = resultAddr.getBaseAddr()
+                    pointerAddr = resultAddr.getPointerAddr()
+                    
+                    # obtiene de la memoriaStack la addr que se encuentra en el puntero
+                    realAddr = memoriaStack.getValue(pointerAddr)
+                    
+                    # con la baseDir se identifica la memoria para guardar el valor
+                    memoria = self.__getMemoryToSaveVal(baseDir, memoriaGlobal,
+                                                    memoriaStack)
+
+                    # guarda el valor de entrada en realAddr
+                    memoria.saveValue(realAddr, readValue)
+                else:
+                    memoria = self.__getMemoryToSaveVal(resultAddr, memoriaGlobal,
+                                                        memoriaStack)
+                    memoria.saveValue(resultAddr, readValue)
+                
                 self.ip += 1
             elif operacion == 'end':
                 print('Fin Ejecucion')
