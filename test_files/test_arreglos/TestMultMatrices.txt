@@ -17,30 +17,20 @@ main()
     mult[2][0] = 0;
     mult[2][1] = 0;
     mult[2][2] = 0;
-    
-    arr1[0][0] = 1;
-    arr1[0][1] = 1;
-    arr1[0][2] = 1;
-    arr1[1][0] = 1;
-    arr1[1][1] = 1;
-    arr1[1][2] = 1;
-    arr1[2][0] = 1;
-    arr1[2][1] = 1;
-    arr1[2][2] = 1;
 
-    arr2[0][0] = 1;
-    arr2[0][1] = 1;
-    arr2[0][2] = 1;
-    arr2[1][0] = 1;
-    arr2[1][1] = 1;
-    arr2[1][2] = 1;
-    arr2[2][0] = 1;
-    arr2[2][1] = 1;
-    arr2[2][2] = 1;
+    write("Lectura de la matriz 1:");
+    for i = 0 to 3 do {
+        for j = 0 to 3 do {
+            read(arr1[i][j]);
+        }
+    }
 
-    i = 0;
-    j = 0;
-    k = 0;
+    write("Lectura de la matriz 2:");
+    for i = 0 to 3 do {
+        for j = 0 to 3 do {
+            read(arr2[i][j]);
+        }
+    }
 
     write("Inicio multiplicacion");
     for i = 0 to 3 do {
@@ -50,8 +40,7 @@ main()
             }
         }
     }
-    write("Fin multiplicacion");
-
+    
     write("Inicio de impresion");
     for i = 0 to 3 do {
         for j = 0 to 3 do {
