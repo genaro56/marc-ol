@@ -1,0 +1,61 @@
+program patito;
+
+var
+    int i, j, k;
+    int arr1[3][3];
+    int arr2[3][3];
+    int mult[3][3];
+
+main()
+{
+    mult[0][0] = 0;
+    mult[0][1] = 0;
+    mult[0][2] = 0;
+    mult[1][0] = 0;
+    mult[1][1] = 0;
+    mult[1][2] = 0;
+    mult[2][0] = 0;
+    mult[2][1] = 0;
+    mult[2][2] = 0;
+    
+    arr1[0][0] = 1;
+    arr1[0][1] = 1;
+    arr1[0][2] = 1;
+    arr1[1][0] = 1;
+    arr1[1][1] = 1;
+    arr1[1][2] = 1;
+    arr1[2][0] = 1;
+    arr1[2][1] = 1;
+    arr1[2][2] = 1;
+
+    arr2[0][0] = 1;
+    arr2[0][1] = 1;
+    arr2[0][2] = 1;
+    arr2[1][0] = 1;
+    arr2[1][1] = 1;
+    arr2[1][2] = 1;
+    arr2[2][0] = 1;
+    arr2[2][1] = 1;
+    arr2[2][2] = 1;
+
+    i = 0;
+    j = 0;
+    k = 0;
+
+    write("Inicio multiplicacion");
+    for i = 0 to 3 do {
+        for j = 0 to 3 do {
+            for k = 0 to 3 do {
+                mult[i][j] = mult[i][j] + (arr1[i][k] * arr2[k][j]);
+            }
+        }
+    }
+    write("Fin multiplicacion");
+
+    write("Inicio de impresion");
+    for i = 0 to 3 do {
+        for j = 0 to 3 do {
+            write(mult[i][j]);
+        }
+    }
+}
