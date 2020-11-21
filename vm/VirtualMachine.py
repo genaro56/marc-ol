@@ -43,10 +43,8 @@ class VirtualMachine:
             
             # utiliza el método recursivo para obtener la memoria del apuntador
             if baseAddr < self.addrRange['localAddr']['int']:
-                # return memoriaGlobal.getValueFromPointer(pointerAddr)
                 return memoriaGlobal.getValue(realAddr)
             else:
-                # return memoriaStack.getValueFromPointer(pointerAddr)
                 return memoriaStack.getValue(realAddr)
         # checa si addr esta en rango de constantes
         elif addr >= self.addrRange['constAddr']['int']:
@@ -57,15 +55,6 @@ class VirtualMachine:
         # addr tiene que estar en rango de locales o temporales
         else:
             return memoriaStack.getValue(addr)
-        
-    def __saveValueToMemory(self, resultAddr, value, memory):
-        if isinstance(resultAddr, Pointer):
-            # obtiene la dirección del apuntador en la instancia.
-            pointerAddr = resultAddr.getPointerAddr()
-            # guarda la dirección utilizando método recursivo para pointers.
-            memory.saveValueToPointerAddr(pointerAddr, value)
-        else:
-            memory.saveValue(resultAddr, value)
 
     def __getMemoryToSaveVal(self, addr, memoriaGlobal, memoriaStack):
         # checa si addr esta en rango de globales
@@ -407,30 +396,11 @@ class Memoria:
         scope, addrType, base = self.__getAddrTypeInfo(addr)
         memoryBlock = self.typeToBlockMap[scope][addrType]
         return memoryBlock[addr - base]
-    
-    def getValueFromPointer(self, addr):
-        
-        # ir a addrPointer (que es puntero) y sacar el valor de ahi (valueFromMem)
-        scope, addrType, base = self.__getAddrTypeInfo(addr)
-        memoryBlock = self.typeToBlockMap[scope][addrType]
-        valueFromMem = memoryBlock[addr - base]
-        
-        # ir a valueFromMem y regresar el valor que este ahi
-        valueFromMem = memoryBlock[addr - base]
-        return self.getValue(valueFromMem)
 
     def saveValue(self, addr, value):
         scope, addrType, base = self.__getAddrTypeInfo(addr)
         memoryBlock = self.typeToBlockMap[scope][addrType]
         memoryBlock[addr - base] = value
-    
-    def saveValueToPointerAddr(self, addr, value):
-        # ir a addrPointer (que es puntero) y sacar el valor de ahi (valueFromMem)
-        scope, addrType, base = self.__getAddrTypeInfo(addr)
-        memoryBlock = self.typeToBlockMap[scope][addrType]
-        # guarda en la (dereference) addr el value
-        valueFromMem = memoryBlock[addr - base]
-        self.saveValue(valueFromMem, value)
 
     # regresar tipo y addr base
     def __getAddrTypeInfo(self, addr):
