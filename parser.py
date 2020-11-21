@@ -132,6 +132,13 @@ class MyParser(Parser):
 
     @_('')
     def seen_var_name(self, p):
+        '''
+        verifica en el stack de funciones la existencia 
+        de la funcion, en caso de no existir, obtiene una nueva
+        direccion de memoria, la guarda en la talba de variables
+        respectivo del directorio de su funcion y aumenta el contador a su respectiva
+        particion en la memoria.
+        '''
         if len(dirFunc.funcStack) > 0:
             funcId = dirFunc.funcStack[-1]
             varName = p[-1]
@@ -157,6 +164,11 @@ class MyParser(Parser):
 
     @_('')
     def seen_array_start(self, p):
+        '''
+        en caso de que la variable sea un arreglo, inicializa la clase Array
+        y agrega un indicador a la variable de que se almacena un arreglo
+        para futuro acceso.
+        '''
         _, varName, addr = p[-1]
 
         # obtiene la variable y asigna al temporal
@@ -171,6 +183,11 @@ class MyParser(Parser):
 
     @_('')
     def seen_arr_dim(self, p):
+        '''
+        al ver una dimension inicializa su propio nodo
+        y calcula el rango (m), actualizandolo para usarse
+        en caso de tener mas de una dim.
+        '''
         _, varName, _ = p[-4]
         intDimension = p[-1]
         var = dirFunc.getTempArrVar()
@@ -195,6 +212,11 @@ class MyParser(Parser):
 
     @_('')
     def seen_arr_dim_end(self, p):
+        '''
+        al fin de las dimensiones procede a calcular el total
+        de dirs. para almacenar el tamaño total del arreglo, incrementando por el
+        valor total de direcciones a usarse en cada dimension en tiempo de ejecución.
+        '''
         var = dirFunc.getTempArrVar()
         nodesList = var.arrayData.nodesList
 
@@ -220,6 +242,11 @@ class MyParser(Parser):
     # TIPO
     @_('INT', 'FLOAT', 'CHAR')
     def tipo(self, p):
+        '''
+        Mientras el stack de funciones no esté vacío, 
+        busca el tope del stack para ver la siguiente entrada y agrega el el tipo en una variable temporal para 
+        no perder esta información al declarar una lista.
+        '''
         # p[-1] es el tipo de la listas de variables
         typeValue = p[0]
         # busca el tope del stack para ver la siguiente entrada
@@ -273,6 +300,11 @@ class MyParser(Parser):
 
     @_('')
     def seen_func_end(self, p):
+        '''
+        Genera el conteo general de variables (temporales, locales y punteros)
+        genera el tamaño total de la función, lo guarda en su respectiva entrada
+        del directorio y crea en cuadruplo endfunc para ejecucion.
+        '''
         # obtiene el num de vars locales y temps de esta funcion
         localVarCounts = addrCounter.getLocalAddrsCount()
         tmpVarCounts = addrCounter.getTmpAddrsCount()
@@ -303,6 +335,9 @@ class MyParser(Parser):
 
     @_('')
     def seen_start_func(self, p):
+        '''
+        Indica el inicio de la funcion e inicializa el contador de cuadruplos.
+        '''
         funcId = dirFunc.funcStack[-1]
         # agrega al dir de func el num de cuadruplo donde empieza la funcion
         dirFunc.getFuncion(funcId).setStartAddress(cuadruplos.counter)
@@ -317,6 +352,11 @@ class MyParser(Parser):
 
     @_('')
     def seen_tipo_param(self, p):
+        '''
+        Obtiene el tipo del siguiente parametro 
+        en la declaracion de la funcion y 
+        lo asigna a la referencia de la funcion.
+        '''
         tipoParam, _, addr = p[-1]
         funcId = dirFunc.funcStack[-1]
         # agrega el tipo del parametro al signature de la funcion
@@ -349,6 +389,12 @@ class MyParser(Parser):
 
     @_('')
     def seen_asignacion(self, p):
+        '''
+        Obtiene de la pila de operandos la expresion
+        y la variable a la que se va a asignar. Verifica 
+        los tipos en el cubo semantico y crea un cuadruplo de 
+        asignacion.
+        '''
         ID, _, _ = p[-3]
         # print(cuadruplos.pilaOperandos)
         exp, exp_tipo = cuadruplos.pilaOperandos.pop()
@@ -370,6 +416,12 @@ class MyParser(Parser):
 
     @_('')
     def seen_write(self, p):
+        '''
+        Revisa si el valor de salida es un CTE_STRING, una constante
+        o una expresion en su defecto. Si es una constante agrega la 
+        direccion a la tabla de constantes. Finalmente genera el cuadruplo
+        print.
+        '''
         outVal = p[-1]
         cteAddr = None
 
@@ -399,6 +451,11 @@ class MyParser(Parser):
 
     @_('')
     def seen_rel_exp1(self, p):
+        '''
+        De la pila de operadores obtiene el simbolo para evaluar
+        y obtiene de la pila de operandos cada expresion a evaluar
+        si son compatibles los tipos genera el cuadruplo respectivo.
+        '''
         pilaOperadores = cuadruplos.pilaOperadores
         pilaOperandos = cuadruplos.pilaOperandos
         if len(pilaOperadores) > 0 and (pilaOperadores[-1] in set(['|'])):
@@ -458,9 +515,13 @@ class MyParser(Parser):
 
     @_('')
     def seen_exp(self, p):
+        '''
+        Obtiene la pila de operadores y operandos los valores, verifica que esten en el 
+        set de tokens permitidos, llama al cubo semantico si son compatibles los tokens, en caso de ser asi
+        asigna una direccion para el resultado y genera su cuadruplo respectivo si no, marca un error.
+        '''
         pilaOperadores = cuadruplos.pilaOperadores
         pilaOperandos = cuadruplos.pilaOperandos
-        # TODO: extract this to a function.
         if len(pilaOperadores) > 0 and (pilaOperadores[-1] in set(['<', '>', '==', '>=', '<=', '!='])):
             rightOperand, rightType = pilaOperandos.pop()
             leftOperand, leftType = pilaOperandos.pop()
@@ -508,6 +569,11 @@ class MyParser(Parser):
 
     @_('')
     def seen_termino(self, p):
+        '''
+        Obtiene los terminos de la pila de operandos
+        a evaluarse, verifica su compatibilidad en el cubo semantico
+        y en caso de no haber error genera su cuadruplo dependiendo de la operacion.
+        '''
         pilaOperadores = cuadruplos.pilaOperadores
         pilaOperandos = cuadruplos.pilaOperandos
         if len(pilaOperadores) > 0 and (pilaOperadores[-1] == "+" or pilaOperadores[-1] == "-"):
@@ -542,6 +608,13 @@ class MyParser(Parser):
 
     @_('')
     def seen_factor(self, p):
+        
+        '''
+        Obtiene la pila de operadores y operandos los valores, verifica que esten en el 
+        set de tokens para las operaciones, llama al cubo semantico revisando la compatibilidad, 
+        en caso de no ser un error asigna una direccion para el resultado y 
+        genera su cuadruplo respectivo.
+        '''
         pilaOperadores = cuadruplos.pilaOperadores
         pilaOperandos = cuadruplos.pilaOperandos
         if len(pilaOperadores) > 0 and (pilaOperadores[-1] in set(['*', '/', '%', '//'])):
@@ -583,11 +656,13 @@ class MyParser(Parser):
 
     @_('')
     def seen_left_paren(self, p):
+        #  Agrega a la pila de operadores el token “(“
         cuadruplos.pilaOperadores.append("(")
         pass
 
     @_('')
     def seen_right_paren(self, p):
+        #  Agrega a la pila de operadores el token “)“
         cuadruplos.pilaOperadores.pop()
         pass
 
@@ -723,6 +798,11 @@ class MyParser(Parser):
 
     @_('')
     def seen_int_cte(self, p):
+        '''
+        Al encontrar una constante entera, asigna la nueva direccion
+        a la tabla de constantes y finalmente agrega la direccion a la pila 
+        de operandos
+        '''
         cte = p[-1]
         cteAddr = None
         if tablaCtes.isCteInTable(cte):
@@ -735,6 +815,11 @@ class MyParser(Parser):
 
     @_('')
     def seen_float_cte(self, p):
+        '''
+        Al encontrar una constante flotante, asigna la nueva direccion
+        a la tabla de constantes y finalmente agrega la direccion a la pila 
+        de operandos.
+        '''
         cte = p[-1]
         cteAddr = None
         if tablaCtes.isCteInTable(cte):
@@ -750,6 +835,10 @@ class MyParser(Parser):
 
     @_('')
     def seen_funcall_id(self, p):
+        '''
+        Verifica que el id de la funcion este en el directorio de funciones
+        si si, agrega el id a un temporal para los parametros.
+        '''
         funcID = p[-1]
         if not dirFunc.isNameInDir(funcID):
             raise Exception(f'Error: function {funcID} is not declared.')
@@ -759,6 +848,10 @@ class MyParser(Parser):
 
     @_('')
     def seen_funcall_era(self, p):
+        '''
+        encuentra la llamada al era despues de ver la firma de la función, 
+        generando el cuadruplo para obtener el tamaño en compilación.
+        '''
         funcId = tablaParams.tempFuncId
         cuadruplos.createQuad('era', None, None, funcId)
         return funcId
@@ -768,6 +861,10 @@ class MyParser(Parser):
 
     @_('')
     def seen_param_exp(self, p):
+        '''
+        Verifica la expresion de parametros y que su tipo sea el mismo
+        que el declarado en la funcion.
+        '''
         # get func id from seen_funcall_era
         funcId = tablaParams.tempFuncId
         exp, expType = cuadruplos.pilaOperandos.pop()
@@ -783,10 +880,15 @@ class MyParser(Parser):
 
     @_('')
     def seen_next_param(self, p):
+        # Aumenta el contador de parametros en uno en caso de que exista mas de 1.
         tablaParams.setCounterParams(tablaParams.counterParams + 1)
 
     @_('')
     def seen_params_end(self, p):
+        '''
+        Verifica el tamaño total de la firma de parámetros con la declaración
+        original de la función, si es incorrecto, lanza un error. 
+        '''
         # obtiene el objeto de función a partir de call_fun1.
         funcId = tablaParams.tempFuncId
         func = dirFunc.getFuncion(funcId)
@@ -798,6 +900,11 @@ class MyParser(Parser):
 
     @_('')
     def seen_funcall_end(self, p):
+        '''
+        Cuando termina la llamada a la funcion, genera el cuadruplo gosub y 
+        obtiene la direccion de retorno en caso de que tenga un tipo, obtiene de 
+        una variable temporal con prefijo la direccion y asigna el resultado a una temporal.
+        '''
         # obtiene el objeto de función a partir de call_fun1
         func = p[-1]
         # reinicia el contador de parámetros.
@@ -818,6 +925,11 @@ class MyParser(Parser):
 
     @_('')
     def seen_return_exp(self, p):
+        '''
+        Obtiene la expresion de retorno asignada a la funcion para generar
+        sus cuadruplos de retorno, en caso de que el tipo de la funcion sea
+        'void', marca un error de semantica.
+        '''
         funcId = dirFunc.funcStack[-1]
         func = dirFunc.getFuncion(funcId)
         if func.type == 'void':
@@ -845,6 +957,7 @@ class MyParser(Parser):
 
     @_('')
     def seen_read(self, p):
+        # genera el cuadruplo de read asignando la variable a asignarse
         idAddr, _ = cuadruplos.pilaOperandos.pop()
         cuadruplos.createQuad('read', None, None, idAddr)
 
@@ -857,6 +970,10 @@ class MyParser(Parser):
 
     @_('')
     def seen_gotof(self, p):
+        '''
+        Inicializa el cuadruplo GOTOF siempre y cuando el tipo de 
+        resultado de la condicion sea de tipo boolean.
+        '''
         print(cuadruplos.pilaOperandos)
         result, resultType = cuadruplos.pilaOperandos.pop()
         if resultType != 'boolean':
@@ -868,6 +985,10 @@ class MyParser(Parser):
 
     @_('')
     def seen_goto(self, p):
+        '''
+        Inicializa el cuadruplo GOTO en caso de que el bloque condicional
+        tenga un estatuto ELSE.
+        '''
         cuadruplos.createQuad('goto', None, None, None)
         falseJumpIndex = cuadruplos.pilaSaltos.pop()
         cuadruplos.pilaSaltos.append(cuadruplos.counter - 1)
@@ -875,7 +996,9 @@ class MyParser(Parser):
 
     @_('')
     def seen_if_end(self, p):
+        # obtiene el indice de la pila de cuadruplos a donde termina el estatuto para asignarse en caso de un GOTOF.
         endJumpIndex = cuadruplos.pilaSaltos.pop()
+        # rellena el cuadruplo pendiente con el indice.
         cuadruplos.fillQuadIndex(endJumpIndex, cuadruplos.counter)
 
     # REPETICION
@@ -887,10 +1010,16 @@ class MyParser(Parser):
 
     @_('')
     def seen_while_start(self, p):
+        # asigna el contador actual de la pila de saltos para conocer el inicio
         cuadruplos.pilaSaltos.append(cuadruplos.counter)
 
     @_('')
     def seen_while_end(self, p):
+        '''
+        Al final del estatuto obtiene el indice de la pila de saltos
+        para asignarla a un GOTO, donde brincaria en caso de terminar 
+        el ciclo. Rellena el cuadrplo pendiente.
+        '''
         endIndex = cuadruplos.pilaSaltos.pop()
         returnIndex = cuadruplos.pilaSaltos.pop()
         cuadruplos.createQuad('goto', None, None, returnIndex)
@@ -901,12 +1030,22 @@ class MyParser(Parser):
 
     @_('')
     def seen_for_start(self, p):
+        '''
+        revisa que la asignacion del contador del ciclo
+        sea de tipo entero.
+        '''
+        
         _, idAddr, expType = p[-1]
         if expType != 'int':
             raise Exception('Type mismatch')
 
     @_('')
     def seen_for_assign(self, p):
+        '''
+        Verifica en el cubo semantico el tipo de res, 
+        agrega el cuadruplo de asignacion segun la expresion 
+        de inicio.
+        '''
         exp, expType = cuadruplos.pilaOperandos.pop()
         id, idType = cuadruplos.pilaOperandos.pop()
         tipoRes = cuboSemantico[(idType, expType, '=')]
@@ -919,6 +1058,11 @@ class MyParser(Parser):
 
     @_('')
     def seen_for_exp(self, p):
+        '''
+        Obtiene la condicion a evaluarse en cada salto del ciclo
+        en caso de que este se cumpla el ciclo seguira repitiendose.
+        Genera los cuadruplos GOTOF y de condicionales.
+        '''
         exp, expType = cuadruplos.pilaOperandos[-1]
         if expType == 'int':
             exp2, exp2Type = cuadruplos.pilaOperandos.pop()
@@ -934,6 +1078,12 @@ class MyParser(Parser):
 
     @_('')
     def seen_for_end(self, p):
+        '''
+        Maneja el fin del ciclo for sumando "1" al contador
+        temporal del ciclo for. Genera los cuadruplos de suma
+        y verifica que la constante "1" se halle en la tabla 
+        si no, la crea.
+        '''
         vControl = p[-6]
         cteAddr = None
         if tablaCtes.isCteInTable(1):
