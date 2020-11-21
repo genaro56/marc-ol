@@ -1,0 +1,17 @@
+program patito;
+
+var
+    int n, fact, i;
+
+main()
+{
+    fact = 1;
+    write("Ingrese un numero entero: ");
+    read(n);
+
+    for i = 1 to n+1 do {
+        fact = fact * i;
+    }
+
+    write("Factorial of ", n, " is ", fact);
+}
