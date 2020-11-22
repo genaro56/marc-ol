@@ -92,3 +92,21 @@ Ariel Méndez | A01020690
   - Correción de asignación de memoria en semántica.
 - IN PROGRESS
   - Arrays: Nos falta corregir un bug para la ejecución.
+
+### - Avance no. 7:
+- Ejecución
+  - Se agrego la ejecucion de las siguientes operaciones (>=, <=, //, %)
+  - Se actualizó la operacion de 'read' para que se puedera leer del teclado y guardar en dirección de puntero.
+  - Se agregaron pruebas que evaluan lo sugiente:
+    - factorial recursivo/iterativo
+    - fibonacci recursivo/iterativo
+    - multiplicación de matrices
+    - binary search
+    - bubble sort
+  - Se corrigieron los bugs relacionados con apuntadores y la gestión de memoria.
+- Parsing
+  - Se agregaron comentarios de documentación al archivo parser.py
+- Integracion
+  - Se agrego un endpoint con Flask para poder interactuar con la interfaz gráfica.
+- IN PROGRESS
+  - Interfaz - Se esta trabajando la generación de codigo con la herramienta open source Blockly
