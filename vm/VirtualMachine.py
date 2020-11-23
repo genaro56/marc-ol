@@ -16,18 +16,31 @@ class VirtualMachine:
         self.output = []
 
     def setCuadruplos(self, cuadruplos):
+        """ Asigna la lista de cuadruplos a la propiedad.
+            cuadruplos - lista de cuadruplos
+        """
         self.cuadruplos = cuadruplos
 
     def setTablaCtes(self, tablaCtes):
+        """ Asigna la tabla de constantes a la propiedad.
+            tablaCtes - tabla de constantes
+        """
         self.tablaCtes = tablaCtes
 
     def setDirFunc(self, dirFunc):
+        """ Asigna el directorio de funciones a la propiedad.
+            dirFunc - directorio de funciones
+        """
         self.dirFunc = dirFunc
 
     def setAddrRange(self, addrRange):
+        """ Asigna el rango de direcciones a la propiedad.
+            addrRange - diccionarion con el rango de las direcciones
+        """
         self.addrRange = addrRange
         
     def getOutputStr(self):
+        """ Regresa un string del contenido de la lista output. """
         listToStr = ' '.join([str(elem) + "\n" for elem in self.output]) 
         return listToStr
 
@@ -87,7 +100,7 @@ class VirtualMachine:
         memoria.saveValue(resultAddr, result)
 
     def run(self):
-
+        """ Ejecuta las operaciones en los cuadruplos de forma secuencial. """
         progName = self.dirFunc.programName
         mainFunc = self.dirFunc.getFuncion(progName)
         mainFuncSize = mainFunc.funcSize
@@ -338,6 +351,10 @@ class VirtualMachine:
 
 
 class Memoria:
+    """
+    Representa un bloque de Memoria donde se guardan los valores 
+    de las direcciones virtuales. 
+    """
     def __init__(self, memType, funcSize, addrRange):
 
         self.memType = memType
@@ -393,16 +410,22 @@ class Memoria:
         return typeToBlockMap
 
     def getValue(self, addr):
+        """ Regresa el valor de la direccion addr
+            addr - direccion    
+        """
         scope, addrType, base = self.__getAddrTypeInfo(addr)
         memoryBlock = self.typeToBlockMap[scope][addrType]
         return memoryBlock[addr - base]
 
     def saveValue(self, addr, value):
+        """ Guarda el valor de la direccion addr
+            addr - direccion
+            value - valor a guardar
+        """
         scope, addrType, base = self.__getAddrTypeInfo(addr)
         memoryBlock = self.typeToBlockMap[scope][addrType]
         memoryBlock[addr - base] = value
 
-    # regresar tipo y addr base
     def __getAddrTypeInfo(self, addr):
         lastScope = 'globalAddr'
         lastType = ''
