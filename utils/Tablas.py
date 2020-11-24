@@ -109,6 +109,11 @@ class Funcion:
 
 
 class FuncSize:
+    """
+    Mantiene el numero total de variables
+    globales, temporles, locales y punteros
+    utilizados en una funcion.
+    """
     def __init__(self):
         self.funcVarCounts = {
             'global': {
@@ -526,6 +531,12 @@ class Array:
         self.nodeListHead.append(node)
 
 class Pointer:
+    """
+    Representa un puntero y almacena la direccion
+    del puntero y direccion inicial de arreglo a la que
+    pertenece
+    """
+    
     def __init__(self):
         self.baseAddr = None
         self.pointerAddr = None
