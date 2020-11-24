@@ -1196,15 +1196,13 @@ def compile():
 
     print('---------START EXECUTION---------')
     vm.run()
-
     output = vm.getOutputStr()
     
+    # Resetea el estado de cada uno de los modulos
     resetState(vm)
     
+    # Regresa el output (lista de resultados de print) al caller
     return output
-
-if __name__ == '__main__':
-   app.run()
 
 def resetState(vm):
     """
@@ -1217,6 +1215,8 @@ def resetState(vm):
     tablaParams.__init__()
     dirFunc.__init__()
 
+if __name__ == '__main__':
+   app.run()
 
 # if __name__ == '__main__':
 #     parser = MyParser()
