@@ -426,6 +426,7 @@ class Memoria:
         memoryBlock = self.typeToBlockMap[scope][addrType]
         memoryBlock[addr - base] = value
 
+    # regresar tipo y addr base
     def __getAddrTypeInfo(self, addr):
         lastScope = 'globalAddr'
         lastType = ''
