@@ -1,0 +1,33 @@
+program patito;
+
+var
+    int t1, t2, next, n;
+
+func
+float module factorial(int a);
+var
+    float f;
+{
+    if (a < 2) then
+    {
+        return(1);
+    }
+    return(a * factorial(a - 1));
+}
+
+main()
+{
+    t1 = 0;
+    t2 = 1;
+    next = t1 + t2;
+
+    write("Ingrese un natural: ");
+    read(n);
+
+    while (next <= n) do {
+        write(next);
+        t1 = t2;
+        t2 = next;
+        next = t1 + t2;
+    }
+}

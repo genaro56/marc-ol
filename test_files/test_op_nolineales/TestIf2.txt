@@ -1,0 +1,29 @@
+program Ejemplo;
+
+var
+    int a, b, c;
+
+func
+int module uno(int a);
+{
+    if (a < 2) then {
+        return (2);
+    } else {
+        write("entro al else");
+        return(3);
+    }
+}
+
+main () 
+{ 
+    a = 1;
+    b = 5;
+    c = 3;
+
+    if (a < b) then 
+    {
+        a = uno(5);
+        write(a);
+    }
+    write(a);
+}

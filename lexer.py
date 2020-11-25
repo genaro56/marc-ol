@@ -6,6 +6,8 @@ class MyLexer(Lexer):
         # bloques
         '(', ')',
         '{', '}',
+        # arreglos
+        '[', ']',
         # separadores
         ',', ':',
         # delimitantes
@@ -16,23 +18,32 @@ class MyLexer(Lexer):
         '*', '/', '-', '+',
         # condicionales
         '&', '|',
-        '>', '<'
+        '>', '<',
+        '!',
+        # mod
+        '%'
     }
 
     tokens = {
         ID,
         CTE_STRING, CTE_FLOAT, CTE_INT,
         IF, ELSE,
-        INT, FLOAT,
+        INT, FLOAT, CHAR, VOID,
         PROGRAM,
-        VAR, EQUALS, FROM, DO, THEN, MODULE,
-        FOR, WHILE, 
+        VAR, FUNC, EQUALS, GREATEREQUAL,
+        LESSEQUAL, DO, THEN, 
+        MODULE, NOTEQUAL, INTDIVISION,
+        FOR, WHILE, TO, 
         READ, WRITE,
         MAIN, RETURN
     }
 
     ignore = ' \t'
     EQUALS = r'=='
+    GREATEREQUAL = r'>='
+    LESSEQUAL = r'<='
+    NOTEQUAL = r'!='
+    INTDIVISION = r'//'
 
     @_(r'\d+\.\d+')
     def CTE_FLOAT(self, t):
@@ -54,9 +65,12 @@ class MyLexer(Lexer):
 
     ID['int'] = INT
     ID['float'] = FLOAT
-
+    ID['char'] = CHAR
+    ID['void'] = VOID
+    
     ID['program'] = PROGRAM
     ID['var'] = VAR
+    ID['func'] = FUNC
 
     ID['main'] = MAIN
     ID['read'] = READ
@@ -65,8 +79,8 @@ class MyLexer(Lexer):
 
     ID['while'] = WHILE
     ID['for'] = FOR
+    ID['to'] = TO
 
-    ID['from'] = FROM
     ID['do'] = DO
     ID['then'] = THEN
     ID['module'] = MODULE

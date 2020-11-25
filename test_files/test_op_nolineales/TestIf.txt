@@ -1,0 +1,22 @@
+program Ejemplo;
+
+var
+    int a, b, c;
+
+main () 
+{ 
+    a = 5;
+    b = 8;
+    c = 3;
+
+    if (a == b & b < c | c < a) then 
+    {
+        write(1);
+    }
+    else
+    {
+        write(0);
+    }
+
+    write(a + b * c);
+}

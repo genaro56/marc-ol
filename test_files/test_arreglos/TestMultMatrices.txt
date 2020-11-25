@@ -1,0 +1,50 @@
+program patito;
+
+var
+    int i, j, k;
+    int arr1[3][3];
+    int arr2[3][3];
+    int mult[3][3];
+
+main()
+{
+    mult[0][0] = 0;
+    mult[0][1] = 0;
+    mult[0][2] = 0;
+    mult[1][0] = 0;
+    mult[1][1] = 0;
+    mult[1][2] = 0;
+    mult[2][0] = 0;
+    mult[2][1] = 0;
+    mult[2][2] = 0;
+
+    write("Lectura de la matriz 1:");
+    for i = 0 to 3 do {
+        for j = 0 to 3 do {
+            read(arr1[i][j]);
+        }
+    }
+
+    write("Lectura de la matriz 2:");
+    for i = 0 to 3 do {
+        for j = 0 to 3 do {
+            read(arr2[i][j]);
+        }
+    }
+
+    write("Inicio multiplicacion");
+    for i = 0 to 3 do {
+        for j = 0 to 3 do {
+            for k = 0 to 3 do {
+                mult[i][j] = mult[i][j] + (arr1[i][k] * arr2[k][j]);
+            }
+        }
+    }
+    
+    write("Inicio de impresion");
+    for i = 0 to 3 do {
+        for j = 0 to 3 do {
+            write(mult[i][j]);
+        }
+    }
+}

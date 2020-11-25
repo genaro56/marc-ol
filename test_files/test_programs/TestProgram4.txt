@@ -1,0 +1,23 @@
+program Ejemplo;
+var
+    int a, b, c, d, e, g, h, i;
+
+func
+int module uno(int a);
+var int i, j;
+{
+    i = a * 2;
+    if(i < a + 4) then
+    {
+        i = j - i;
+    }
+}
+main () 
+{
+    d = a + b * (d + c) / e > b + c * d / h - g;
+    if (a == b) then
+    {
+        print("hi")
+    }
+
+}

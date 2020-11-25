@@ -1,2 +1,0 @@
-program bueno : {boton = true if (boton){ print {texto}; }; }
-\n

@@ -1,7 +1,0 @@
-program bueno; {
-  boton = true; 
-  amigo = false;
-  if (boton <> amigo){ 
-    print(texto); 
-  }; 
-}
