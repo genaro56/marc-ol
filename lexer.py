@@ -31,9 +31,9 @@ class MyLexer(Lexer):
         INT, FLOAT, CHAR, VOID,
         PROGRAM,
         VAR, FUNC, EQUALS, GREATEREQUAL,
-        LESSEQUAL, DO, THEN, 
+        LESSEQUAL, DO, THEN,
         MODULE, NOTEQUAL, INTDIVISION,
-        FOR, WHILE, TO, 
+        FOR, WHILE, TO,
         READ, WRITE,
         MAIN, RETURN
     }
@@ -67,7 +67,7 @@ class MyLexer(Lexer):
     ID['float'] = FLOAT
     ID['char'] = CHAR
     ID['void'] = VOID
-    
+
     ID['program'] = PROGRAM
     ID['var'] = VAR
     ID['func'] = FUNC
@@ -93,6 +93,7 @@ class MyLexer(Lexer):
     def error(self, t):
         print('Line %d: Bad character %r' % (self.lineno, t.value[0]))
         self.index += 1
+        raise Exception
     ignore_comment = r'\#.*'
 
 
