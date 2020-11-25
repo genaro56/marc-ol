@@ -1,18 +1,2 @@
-autopep8 @ file:///tmp/build/80754af9/autopep8_1596578164842/work
-certifi==2020.6.20
-chardet==3.0.4
-click==7.1.2
-Flask==1.1.2
-idna==2.10
-itsdangerous==1.1.0
-Jinja2==2.11.2
-MarkupSafe==1.1.1
-ply==3.11
-pycodestyle==2.6.0
-requests==2.25.0
-sly==0.4
-toml @ file:///tmp/build/80754af9/toml_1592853716807/work
-urllib3==1.26.2
-Werkzeug==1.0.1
-wincertstore==0.2
-yapf @ file:///tmp/build/80754af9/yapf_1593528177422/work
+Flask
+sly
