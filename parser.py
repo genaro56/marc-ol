@@ -1150,6 +1150,7 @@ class MyParser(Parser):
             print("Syntax error at token", p.type)
             print("no apropiado")
             print(p)
+            raise Exception
             # Just discard the token and tell the parser it's okay.
             # self.errok()
         else:
