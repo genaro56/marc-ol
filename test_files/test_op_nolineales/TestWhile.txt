@@ -1,0 +1,16 @@
+program Ejemplo;
+var
+    int a, b, c, d;
+
+main () 
+{
+    a = 0;
+
+    while (a < 10) do
+    {
+        write(a);
+        a = a + 1;
+    }
+
+    write(1);
+}

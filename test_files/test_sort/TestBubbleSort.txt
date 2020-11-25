@@ -1,0 +1,46 @@
+program patito;
+
+var
+    int x;
+    int arr[5];
+
+func
+void module swap(int i, int j);
+var 
+    int temp;
+{
+    temp = arr[j];
+    arr[j] = arr[i];
+    arr[i] = temp;
+}
+
+void module bubbleSort(int n);
+var
+    int i, j;
+{
+    for i = 0 to n-1 do
+    {
+        for j = 0 to n-i-1 do
+        {
+            if (arr[j] > arr[j+1]) then 
+            {
+                swap(j, j+1);
+            }
+        }
+    }
+}
+
+main()
+{
+    arr[0] = 12;
+    arr[1] = 11;
+    arr[2] = 13;
+    arr[3] = 5;
+    arr[4] = 6;
+    
+    bubbleSort(5);
+
+    for x = 0 to 5 do {
+        write(arr[x]);
+    }
+}

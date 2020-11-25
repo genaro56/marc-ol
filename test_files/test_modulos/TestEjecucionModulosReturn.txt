@@ -1,0 +1,19 @@
+program patito;
+
+var
+    int a, b;
+
+func
+int module uno(int a, int c);
+var int b;
+{
+    b = a + c;
+    return(b);
+}
+
+main()
+{
+    a = 2+5;
+    b = uno(a, 3*2);
+    write(b);
+}

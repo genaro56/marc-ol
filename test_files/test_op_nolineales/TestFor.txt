@@ -1,0 +1,15 @@
+program Ejemplo;
+var
+    int i, j;
+
+main () 
+{
+    for i = 0 to 9 do
+    {
+        for j = 0 to 9 do
+        {
+            write("indeces:", i, j);
+        }
+    }
+    write(1);
+}

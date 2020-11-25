@@ -1,0 +1,17 @@
+program patito;
+
+var
+    int a, b, i, j;
+    int arreglo[2][2];
+
+main()
+{
+    b = 1;
+    for i = 0 to 2 do {
+        for j = 0 to 2 do {
+            arreglo[i][j] = b * (i + j + 1);
+            write(arreglo[i][j]);
+        }
+    }
+    
+}

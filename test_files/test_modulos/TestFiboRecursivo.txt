@@ -1,0 +1,23 @@
+program patito;
+
+var
+    int n, result;
+
+func
+int module fib(int n);
+{
+    if (n <= 1) then
+    {
+        return(n);
+    }
+    return(fib(n - 1) + fib(n - 2));
+}
+
+main()
+{
+    write("Ingrese un natural: ");
+    read(n);
+
+    result = fib(n);
+    write(result);
+}

@@ -80,3 +80,33 @@ Ariel Méndez | A01020690
 - Se agregaron operaciones aritmeticas en funcion de ejecución (+, -, *, /).
 
 - Se agregaron las operaciones para hacer 'PRINT' y 'READ' en ejecución. 
+
+### - Avance no, 6:
+
+- Ejecución
+  - Se agregaron las acciones: (ERA, PARAM, RETURN, ENDFUNC, GOSUB) y su ejecución.
+  - Se agregaron las operacion no-lineales (if, else, while y for).
+  - Ejecución de operaciones relacionales (>, <, |, &).
+  - Se modificó el RETURN para generar las llamadas recursivas.
+- BUGS
+  - Correción de asignación de memoria en semántica.
+- IN PROGRESS
+  - Arrays: Nos falta corregir un bug para la ejecución.
+
+### - Avance no. 7:
+- Ejecución
+  - Se agrego la ejecucion de las siguientes operaciones (>=, <=, //, %)
+  - Se actualizó la operacion de 'read' para que se puedera leer del teclado y guardar en dirección de puntero.
+  - Se agregaron pruebas que evaluan lo sugiente:
+    - factorial recursivo/iterativo
+    - fibonacci recursivo/iterativo
+    - multiplicación de matrices
+    - binary search
+    - bubble sort
+  - Se corrigieron los bugs relacionados con apuntadores y la gestión de memoria.
+- Parsing
+  - Se agregaron comentarios de documentación al archivo parser.py
+- Integracion
+  - Se agrego un endpoint con Flask para poder interactuar con la interfaz gráfica.
+- IN PROGRESS
+  - Interfaz - Se esta trabajando la generación de codigo con la herramienta open source Blockly
