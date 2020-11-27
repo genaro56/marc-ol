@@ -108,5 +108,7 @@ Ariel Méndez | A01020690
   - Se agregaron comentarios de documentación al archivo parser.py
 - Integracion
   - Se agrego un endpoint con Flask para poder interactuar con la interfaz gráfica.
-- IN PROGRESS
+- DONE:
   - Interfaz - Se esta trabajando la generación de codigo con la herramienta open source Blockly
+  
+- Estado del proyecto: TERMINADO
